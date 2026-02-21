@@ -80,9 +80,7 @@ export default function LoginPage() {
 
       const result = await login(username, password, hospitalId);
       if (result) {
-        // Don't call router.push here — the useEffect above handles redirect
-        // once isAuthenticated + currentUser are set. This prevents a race condition.
-        setLoading(true);
+        router.push(getDefaultDashboard(result));
       } else {
         setError('Invalid credentials. Please try again.');
         setLoading(false);

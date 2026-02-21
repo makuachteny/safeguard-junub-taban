@@ -1,13 +1,15 @@
 import { SignJWT, jwtVerify } from 'jose';
 
-const secret = process.env.JWT_SECRET || 'taban-south-sudan-health-2026-secret-key';
+// NEXT_PUBLIC_ prefix makes the secret available in the browser bundle.
+// This is required because this offline-first app creates JWTs client-side.
+const secret = process.env.NEXT_PUBLIC_JWT_SECRET || process.env.JWT_SECRET || 'taban-south-sudan-health-2026-secret-key';
 const JWT_SECRET = new TextEncoder().encode(secret);
 
 const JWT_ISSUER = 'taban';
 const JWT_AUDIENCE = 'taban-web';
 
 if (typeof window === 'undefined' && secret === 'taban-south-sudan-health-2026-secret-key' && process.env.NODE_ENV === 'production') {
-  console.warn('[SECURITY] JWT_SECRET not set. Set JWT_SECRET environment variable for production.');
+  console.warn('[SECURITY] JWT secret not set. Set NEXT_PUBLIC_JWT_SECRET environment variable for production.');
 }
 
 /**
