@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import TopBar from '@/components/TopBar';
-import { Pill, AlertTriangle, Search, TrendingDown, CheckCircle2 } from 'lucide-react';
+import { Pill, AlertTriangle, Search, TrendingDown, CheckCircle2, Loader2 } from 'lucide-react';
 import { useApp } from '@/lib/context';
 import { usePermissions } from '@/lib/hooks/usePermissions';
+import { usePrescriptions } from '@/lib/hooks/usePrescriptions';
 import { medications } from '@/data/mock';
 
 interface InventoryItem {
@@ -41,27 +42,18 @@ const inventory: InventoryItem[] = medications.slice(0, 20).map((med, i) => {
   };
 });
 
-const prescriptionQueue = [
-  { id: 'rx-001', patientName: 'Deng Mabior Garang', medication: 'Artemether-Lumefantrine (Coartem)', dose: '80/480mg BD x 3 days', prescribedBy: 'Dr. James Wani Igga', time: '09:15', status: 'pending' },
-  { id: 'rx-002', patientName: 'Nyamal Koang Gatdet', medication: 'Ferrous Sulfate + Folic Acid', dose: '200mg OD x 30 days', prescribedBy: 'Dr. Achol Mayen Deng', time: '09:30', status: 'pending' },
-  { id: 'rx-003', patientName: 'Gatluak Ruot Nyuon', medication: 'TDF/3TC/DTG', dose: '300/300/50mg OD x 90 days', prescribedBy: 'Dr. Taban Ladu Soro', time: '10:00', status: 'dispensed' },
-  { id: 'rx-004', patientName: 'Rose Tombura Gbudue', medication: 'Metformin', dose: '500mg BD x 30 days', prescribedBy: 'CO Deng Mabior Kuol', time: '10:15', status: 'pending' },
-  { id: 'rx-005', patientName: 'Kuol Akot Ajith', medication: 'Paracetamol', dose: '1g QDS PRN x 5 days', prescribedBy: 'Dr. Nyamal Koang Jal', time: '10:45', status: 'dispensed' },
-  { id: 'rx-006', patientName: 'Achol Mayen Ring', medication: 'Amoxicillin', dose: '500mg TDS x 7 days', prescribedBy: 'Dr. James Wani Igga', time: '11:00', status: 'pending' },
-];
-
 export default function PharmacyPage() {
   const [activeTab, setActiveTab] = useState<'queue' | 'inventory'>('queue');
   const [search, setSearch] = useState('');
-  const [rxQueue, setRxQueue] = useState(prescriptionQueue);
   const { globalSearch } = useApp();
   const { canDispense } = usePermissions();
+  const { prescriptions: rxQueue, loading: rxLoading, dispense } = usePrescriptions();
 
   const q = search || globalSearch;
 
   const handleDispense = async (rxId: string) => {
-    const rx = rxQueue.find(r => r.id === rxId);
-    setRxQueue(prev => prev.map(r => r.id === rxId ? { ...r, status: 'dispensed' } : r));
+    await dispense(rxId);
+    const rx = rxQueue.find(r => r._id === rxId);
     if (rx) {
       const { logAudit } = await import('@/lib/services/audit-service');
       logAudit('DISPENSE_PRESCRIPTION', undefined, undefined, `Dispensed ${rx.medication} to ${rx.patientName} (${rxId})`).catch(() => {});
@@ -69,6 +61,7 @@ export default function PharmacyPage() {
   };
 
   const pendingRx = rxQueue.filter(r => r.status === 'pending').length;
+  const dispensedRx = rxQueue.filter(r => r.status === 'dispensed').length;
   const lowStock = inventory.filter(i => i.status === 'low' || i.status === 'critical').length;
   const expiredItems = inventory.filter(i => i.status === 'expired').length;
 
@@ -91,7 +84,7 @@ export default function PharmacyPage() {
           <div className="grid grid-cols-4 gap-3 mb-4">
             {[
               { label: 'Pending Prescriptions', value: pendingRx, icon: Pill, color: '#FCD34D', bg: 'rgba(252,211,77,0.10)' },
-              { label: 'Dispensed Today', value: rxQueue.filter(r => r.status === 'dispensed').length, icon: CheckCircle2, color: '#2B6FE0', bg: 'rgba(43,111,224,0.12)' },
+              { label: 'Dispensed Today', value: dispensedRx, icon: CheckCircle2, color: '#2B6FE0', bg: 'rgba(43,111,224,0.12)' },
               { label: 'Low Stock Items', value: lowStock, icon: TrendingDown, color: '#E52E42', bg: 'rgba(229,46,66,0.10)' },
               { label: 'Expired Items', value: expiredItems, icon: AlertTriangle, color: '#F87171', bg: 'rgba(229,46,66,0.12)' },
             ].map(s => (
@@ -126,6 +119,11 @@ export default function PharmacyPage() {
 
           {activeTab === 'queue' && (
             <div className="card-elevated overflow-hidden">
+              {rxLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-6 h-6 animate-spin" style={{ color: 'var(--text-muted)' }} />
+                </div>
+              ) : (
               <table className="data-table">
                 <thead>
                   <tr>
@@ -139,13 +137,23 @@ export default function PharmacyPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredQueue.map(rx => (
-                    <tr key={rx.id}>
+                  {filteredQueue.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="text-center py-8 text-sm" style={{ color: 'var(--text-muted)' }}>
+                        No prescriptions found. Prescriptions will appear here when doctors save consultations.
+                      </td>
+                    </tr>
+                  ) : filteredQueue.map(rx => (
+                    <tr key={rx._id}>
                       <td className="font-medium text-sm">{rx.patientName}</td>
                       <td className="text-sm">{rx.medication}</td>
-                      <td className="text-xs font-mono" style={{ color: 'var(--text-secondary)' }}>{rx.dose}</td>
+                      <td className="text-xs font-mono" style={{ color: 'var(--text-secondary)' }}>
+                        {rx.dose} {rx.frequency} {rx.duration ? `x ${rx.duration}` : ''}
+                      </td>
                       <td className="text-xs" style={{ color: 'var(--text-secondary)' }}>{rx.prescribedBy}</td>
-                      <td className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>{rx.time}</td>
+                      <td className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>
+                        {rx.createdAt ? new Date(rx.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '—'}
+                      </td>
                       <td>
                         <span className={`badge text-[10px] ${rx.status === 'pending' ? 'badge-warning' : 'badge-normal'}`}>
                           {rx.status === 'pending' ? 'Pending' : 'Dispensed'}
@@ -154,7 +162,7 @@ export default function PharmacyPage() {
                       <td>
                         {rx.status === 'pending' && canDispense && (
                           <button className="btn btn-primary btn-sm" style={{ padding: '4px 12px', fontSize: '0.75rem' }}
-                            onClick={() => handleDispense(rx.id)}>Dispense</button>
+                            onClick={() => handleDispense(rx._id)}>Dispense</button>
                         )}
                         {rx.status === 'pending' && !canDispense && (
                           <span className="text-[10px] font-medium px-2 py-1 rounded" style={{ background: 'rgba(148,163,184,0.1)', color: 'var(--text-muted)' }}>Pharmacist only</span>
@@ -164,6 +172,7 @@ export default function PharmacyPage() {
                   ))}
                 </tbody>
               </table>
+              )}
             </div>
           )}
 

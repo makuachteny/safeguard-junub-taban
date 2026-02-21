@@ -29,6 +29,7 @@ interface DiagnosisEntry {
   name: string;
   type: 'primary' | 'secondary';
   certainty: 'confirmed' | 'suspected';
+  severity: 'mild' | 'moderate' | 'severe';
 }
 
 interface PrescriptionEntry {
@@ -37,6 +38,7 @@ interface PrescriptionEntry {
   route: string;
   frequency: string;
   duration: string;
+  instructions: string;
 }
 
 const labTests = [
@@ -199,13 +201,14 @@ export default function ConsultationPage() {
       ).slice(0, 8)
     : [];
 
-  const addDiagnosis = (code: string, name: string) => {
+  const addDiagnosis = (code: string, name: string, sev?: 'mild' | 'moderate' | 'severe') => {
     if (diagnoses.find(d => d.code === code)) return;
     setDiagnoses(prev => [...prev, {
       code,
       name,
       type: prev.length === 0 ? 'primary' : 'secondary',
       certainty: 'confirmed',
+      severity: sev || 'moderate',
     }]);
     setDiagSearch('');
     setShowDiagDropdown(false);
@@ -226,6 +229,7 @@ export default function ConsultationPage() {
       route: 'Oral',
       frequency: '',
       duration: '',
+      instructions: '',
     }]);
     setRxMedSearch('');
     setShowRxDropdown(false);
@@ -245,11 +249,82 @@ export default function ConsultationPage() {
     const now = new Date().toISOString();
     const weight = parseFloat(vitals.weight) || 0;
     const height = parseFloat(vitals.height) || 0;
+    const patientData = patients.find(p => p._id === selectedPatient);
+    const patientName = patientData ? `${patientData.firstName} ${patientData.surname}` : '';
+    const hospitalNumber = patientData?.hospitalNumber || '';
+    const hospitalId = currentUser?.hospitalId || '';
+    const hospitalName = hospital?.name || currentUser?.hospitalName || '';
+
     try {
+      // 1. Create lab orders in taban_lab_results DB
+      const selectedLabTests = Object.entries(labOrders).filter(([, checked]) => checked).map(([name]) => name);
+      const labTestSpecimens: Record<string, string> = {
+        'Malaria RDT': 'Blood', 'Full Blood Count': 'Blood', 'Blood Glucose': 'Blood',
+        'Urinalysis': 'Urine', 'HIV Rapid Test': 'Blood', 'CD4 Count': 'Blood',
+        'Liver Function': 'Blood', 'Renal Function': 'Blood',
+      };
+      if (selectedLabTests.length > 0) {
+        const { createLabResult } = await import('@/lib/services/lab-service');
+        for (const testName of selectedLabTests) {
+          await createLabResult({
+            patientId: selectedPatient,
+            patientName,
+            hospitalNumber,
+            testName,
+            specimen: labTestSpecimens[testName] || 'Blood',
+            status: 'pending',
+            result: '',
+            unit: '',
+            referenceRange: '',
+            abnormal: false,
+            critical: false,
+            orderedBy: currentUser?.name || '',
+            orderedAt: new Date().toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
+            completedAt: '',
+            hospitalId,
+            hospitalName,
+            orgId: currentUser?.organization?._id,
+          });
+        }
+      }
+
+      // 2. Create prescriptions in taban_prescriptions DB
+      if (prescriptions.length > 0) {
+        const { createPrescription } = await import('@/lib/services/prescription-service');
+        for (const rx of prescriptions) {
+          await createPrescription({
+            patientId: selectedPatient,
+            patientName,
+            medication: rx.medication,
+            dose: rx.dose,
+            route: rx.route,
+            frequency: rx.frequency,
+            duration: rx.duration,
+            prescribedBy: currentUser?.name || '',
+            status: 'pending',
+            hospitalId,
+            hospitalName,
+            orgId: currentUser?.organization?._id,
+          });
+        }
+      }
+
+      // 3. Build lab results summary for the medical record
+      const labResultsSummary = selectedLabTests.map(testName => ({
+        testName,
+        result: '',
+        unit: '',
+        referenceRange: '',
+        abnormal: false,
+        critical: false,
+        date: now.split('T')[0],
+      }));
+
+      // 4. Save the medical record with all data linked
       await createRecord({
         patientId: selectedPatient,
-        hospitalId: currentUser?.hospitalId || '',
-        hospitalName: hospital?.name || currentUser?.hospitalName || '',
+        hospitalId,
+        hospitalName,
         visitDate: now.split('T')[0],
         visitType: 'outpatient',
         providerName: currentUser?.name || '',
@@ -270,9 +345,17 @@ export default function ConsultationPage() {
           muac: parseFloat(vitals.muac) || undefined,
           recordedAt: now,
         },
-        diagnoses: diagnoses.map(d => ({ icd10Code: d.code, name: d.name, type: d.type, certainty: d.certainty, severity: 'moderate' as const })),
-        prescriptions: prescriptions.map(rx => ({ drugName: rx.medication, genericName: rx.medication, dose: rx.dose, route: rx.route, frequency: rx.frequency, duration: rx.duration, instructions: '' })),
-        labResults: [],
+        diagnoses: diagnoses.map(d => ({ icd10Code: d.code, name: d.name, type: d.type, certainty: d.certainty, severity: d.severity })),
+        prescriptions: prescriptions.map(rx => ({
+          drugName: rx.medication,
+          genericName: rx.medication,
+          dose: rx.dose,
+          route: rx.route,
+          frequency: rx.frequency,
+          duration: rx.duration,
+          instructions: rx.instructions,
+        })),
+        labResults: labResultsSummary,
         treatmentPlan,
         attachments: consultAttachments.length > 0 ? consultAttachments : undefined,
         followUp: followUpDate ? { date: followUpDate, reason: followUpReason } : undefined,
@@ -280,6 +363,7 @@ export default function ConsultationPage() {
         aiEvaluation: aiEvaluation || undefined,
       });
       showToast('Consultation saved successfully!', 'success');
+      router.push('/patients');
     } catch (err) {
       console.error('Failed to save consultation:', err);
       showToast('Failed to save consultation. Please try again.', 'error');
@@ -387,6 +471,7 @@ export default function ConsultationPage() {
             route: med.route || 'Oral',
             frequency: med.frequency,
             duration: med.duration,
+            instructions: '',
           }]);
         }
       }
@@ -441,9 +526,9 @@ export default function ConsultationPage() {
     showToast('Scribe data applied to consultation fields — review before saving.', 'success');
   };
 
-  const acceptAIDiagnosis = (icd10Code: string, name: string) => {
+  const acceptAIDiagnosis = (icd10Code: string, name: string, severity?: 'mild' | 'moderate' | 'severe') => {
     if (diagnoses.find(d => d.code === icd10Code)) return;
-    addDiagnosis(icd10Code, name);
+    addDiagnosis(icd10Code, name, severity);
     setAcceptedDiagnoses(prev => new Set(prev).add(icd10Code));
   };
 
@@ -821,7 +906,7 @@ export default function ConsultationPage() {
                                         </span>
                                       ) : (
                                         <button
-                                          onClick={() => acceptAIDiagnosis(dx.icd10Code, dx.name)}
+                                          onClick={() => acceptAIDiagnosis(dx.icd10Code, dx.name, dx.severity)}
                                           className="flex items-center gap-1 text-xs font-medium px-2 py-1 rounded transition-colors"
                                           style={{ background: 'rgba(43,111,224,0.10)', color: '#2B6FE0' }}
                                           onMouseEnter={e => { e.currentTarget.style.background = 'rgba(43,111,224,0.20)'; }}
@@ -963,6 +1048,16 @@ export default function ConsultationPage() {
                             <option value="confirmed">Confirmed</option>
                             <option value="suspected">Suspected</option>
                           </select>
+                          <select
+                            value={d.severity}
+                            onChange={e => updateDiagnosis(i, 'severity', e.target.value)}
+                            className="text-xs"
+                            style={{ width: '110px', padding: '6px 30px 6px 10px', fontSize: '0.75rem' }}
+                          >
+                            <option value="mild">Mild</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="severe">Severe</option>
+                          </select>
                           <button onClick={() => removeDiagnosis(i)} className="p-1 rounded transition-colors flex-shrink-0" style={{ background: 'transparent' }} onMouseEnter={e => (e.currentTarget.style.background = 'rgba(229,46,66,0.15)')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                             <X className="w-4 h-4" style={{ color: 'var(--taban-red)' }} />
                           </button>
@@ -1053,6 +1148,12 @@ export default function ConsultationPage() {
                                 onChange={e => updatePrescription(i, 'duration', e.target.value)}
                                 placeholder="e.g. 7 days" />
                             </div>
+                          </div>
+                          <div className="mt-3">
+                            <label>Instructions</label>
+                            <input type="text" value={rx.instructions}
+                              onChange={e => updatePrescription(i, 'instructions', e.target.value)}
+                              placeholder="e.g. Take with food, complete full course..." />
                           </div>
                         </div>
                       ))}
