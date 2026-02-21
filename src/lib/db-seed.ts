@@ -81,7 +81,7 @@ const defaultUsers = [
   { username: 'sup.mary', password: 'Sup.Mary@KJ2026', name: 'Mary Lado Kenyi', role: 'payam_supervisor' as const, hospitalId: 'phcc-001', hospitalName: 'Kajo-keji PHCC', orgId: PUBLIC_ORG_ID },
   // Private org admin (Mercy Hospital Group)
   { username: 'org.admin', password: 'OrgAdmin@Mercy2026', name: 'Mercy Org Administrator', role: 'org_admin' as const, hospitalId: undefined, hospitalName: undefined, orgId: PRIVATE_ORG_ID },
-  { username: 'dr.mercy', password: 'Dr.Mercy@2026!', name: 'Dr. Grace Lado', role: 'doctor' as const, hospitalId: 'hosp-mercy-001', hospitalName: 'Mercy General Hospital', orgId: PRIVATE_ORG_ID },
+  { username: 'dr.mercy', password: 'Dr.Mercy@2026!', name: 'Dr. Grace Lado', role: 'doctor' as const, hospitalId: 'hosp-001', hospitalName: 'Juba Teaching Hospital', orgId: PRIVATE_ORG_ID },
 ];
 
 const labOrders: Omit<LabResultDoc, '_rev' | 'createdBy'>[] = [

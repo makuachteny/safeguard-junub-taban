@@ -53,7 +53,7 @@ export const organizationsDB = () => getDB('taban_organizations');
 export const platformConfigDB = () => getDB('taban_platform_config');
 
 // Bump this version to force a re-seed (destroys all data and re-creates)
-export const SEED_VERSION = 14;
+export const SEED_VERSION = 15;
 
 export async function isSeeded(): Promise<boolean> {
   try {
