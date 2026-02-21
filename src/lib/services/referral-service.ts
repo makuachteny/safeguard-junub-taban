@@ -88,3 +88,39 @@ export async function updateReferralStatus(
     return null;
   }
 }
+
+/**
+ * Accept a referral: update status to 'seen' AND transfer the patient
+ * to the receiving hospital so they appear in that hospital's patient list.
+ */
+export async function acceptReferral(referralId: string): Promise<ReferralDoc | null> {
+  const db = referralsDB();
+  try {
+    const referral = await db.get(referralId) as ReferralDoc;
+    // Update referral status
+    const updated = { ...referral, status: 'seen' as const, updatedAt: new Date().toISOString() };
+    const resp = await db.put(updated);
+    updated._rev = resp.rev;
+
+    // Transfer patient to the receiving hospital
+    if (referral.patientId && referral.toHospitalId) {
+      try {
+        const { updatePatient } = await import('./patient-service');
+        await updatePatient(referral.patientId, {
+          registrationHospital: referral.toHospitalId,
+          lastVisitHospital: referral.toHospitalId,
+        });
+        logAudit(
+          'ACCEPT_REFERRAL', undefined, undefined,
+          `Accepted referral ${referralId}: patient ${referral.patientId} transferred to ${referral.toHospital}`
+        ).catch(() => {});
+      } catch (err) {
+        console.error('Failed to transfer patient on referral acceptance:', err);
+      }
+    }
+
+    return updated;
+  } catch {
+    return null;
+  }
+}

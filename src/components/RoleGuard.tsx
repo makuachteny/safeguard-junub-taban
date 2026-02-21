@@ -3,14 +3,20 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useApp } from '@/lib/context';
 import { isRouteAllowed, getDefaultDashboard } from '@/lib/permissions';
-import { ShieldAlert, ArrowLeft } from 'lucide-react';
+import { ShieldAlert, ArrowLeft, Loader2 } from 'lucide-react';
 
 export default function RoleGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { currentUser } = useApp();
 
-  if (!currentUser) return null;
+  if (!currentUser) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin" style={{ color: 'var(--text-muted)' }} />
+      </div>
+    );
+  }
 
   if (!isRouteAllowed(currentUser.role, pathname)) {
     const defaultDash = getDefaultDashboard(currentUser.role);

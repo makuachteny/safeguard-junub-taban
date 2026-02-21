@@ -14,7 +14,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     if (dbReady && !isAuthenticated) {
-      router.push('/login');
+      // Check if the cookie exists before redirecting — prevents a race condition
+      // where state hasn't propagated yet but the user just logged in.
+      const hasCookie = typeof document !== 'undefined' &&
+        document.cookie.split(';').some(c => c.trim().startsWith('taban-token='));
+      if (!hasCookie) {
+        router.push('/login');
+      }
     }
   }, [isAuthenticated, dbReady, router]);
 

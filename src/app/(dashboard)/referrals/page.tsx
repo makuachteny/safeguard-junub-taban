@@ -29,7 +29,7 @@ const departments = [
 ];
 
 export default function ReferralsPage() {
-  const { referrals, createWithTransfer, updateStatus } = useReferrals();
+  const { referrals, createWithTransfer, accept } = useReferrals();
   const { showToast } = useToast();
   const { hospitals } = useHospitals();
   const { patients } = usePatients();
@@ -701,12 +701,12 @@ export default function ReferralsPage() {
                         {activeTab === 'incoming' && (ref.status === 'sent' || ref.status === 'received') && (
                           <button
                             className="btn btn-success btn-sm"
-                            title="Accept referral"
+                            title="Accept referral and transfer patient to this hospital"
                             style={{ padding: '5px 10px' }}
                             onClick={async () => {
                               try {
-                                await updateStatus(ref._id, 'seen');
-                                showToast(`Referral for ${ref.patientName} accepted`, 'success');
+                                await accept(ref._id);
+                                showToast(`Referral accepted — ${ref.patientName} transferred to your hospital`, 'success');
                               } catch {
                                 showToast('Failed to accept referral', 'error');
                               }

@@ -53,8 +53,8 @@ export function validatePatientData(data: Record<string, unknown>): Record<strin
     errors.surname = 'Surname is too long';
   }
 
-  if (!data.gender || !['male', 'female'].includes((data.gender as string).toLowerCase())) {
-    errors.gender = 'Gender must be male or female';
+  if (!data.gender || !['male', 'female', 'unknown'].includes((data.gender as string).toLowerCase())) {
+    errors.gender = 'Gender is required';
   }
 
   if (!data.dateOfBirth && !data.estimatedAge) {

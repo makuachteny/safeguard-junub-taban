@@ -6,7 +6,6 @@ import { Shield, Eye, EyeOff, Building2, Users, Wifi, ArrowRight, ChevronRight }
 import { hospitals } from '@/data/mock';
 import { useApp } from '@/lib/context';
 import { getDefaultDashboard } from '@/lib/permissions';
-import type { UserRole } from '@/lib/db-types';
 
 const BLUE = '#2B6FE0';
 
@@ -45,7 +44,22 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, currentUser, router]);
 
-  if (isAuthenticated) return null;
+  // Show a redirect spinner while authenticated (instead of blank null)
+  if (isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#f0f4f8' }}>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{
+            background: `linear-gradient(135deg, ${BLUE}, #1d5bc4)`,
+            boxShadow: `0 4px 16px rgba(43,111,224,0.3)`,
+          }}>
+            <svg className="animate-spin w-6 h-6 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+          </div>
+          <p className="text-sm font-medium" style={{ color: '#64748b' }}>Redirecting to dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +80,9 @@ export default function LoginPage() {
 
       const result = await login(username, password, hospitalId);
       if (result) {
-        router.push(getDefaultDashboard(result as UserRole));
+        // Don't call router.push here — the useEffect above handles redirect
+        // once isAuthenticated + currentUser are set. This prevents a race condition.
+        setLoading(true);
       } else {
         setError('Invalid credentials. Please try again.');
         setLoading(false);

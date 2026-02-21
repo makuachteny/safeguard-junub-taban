@@ -51,7 +51,13 @@ export function useReferrals() {
     await loadReferrals();
   }, [loadReferrals]);
 
-  return { referrals, loading, error, create, createWithTransfer, updateStatus, reload: loadReferrals };
+  const accept = useCallback(async (id: string) => {
+    const { acceptReferral } = await import('../services/referral-service');
+    await acceptReferral(id);
+    await loadReferrals();
+  }, [loadReferrals]);
+
+  return { referrals, loading, error, create, createWithTransfer, updateStatus, accept, reload: loadReferrals };
 }
 
 export function usePatientReferrals(patientId?: string) {
