@@ -8,6 +8,7 @@ import {
   Stethoscope, Search, Package, FileText, Image as ImageIcon,
   User, Activity, FlaskConical, Paperclip
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useReferrals } from '@/lib/hooks/useReferrals';
 import { useHospitals } from '@/lib/hooks/useHospitals';
 import { usePatients } from '@/lib/hooks/usePatients';
@@ -29,6 +30,7 @@ const departments = [
 ];
 
 export default function ReferralsPage() {
+  const router = useRouter();
   const { referrals, createWithTransfer, accept } = useReferrals();
   const { showToast } = useToast();
   const { hospitals } = useHospitals();
@@ -665,7 +667,7 @@ export default function ReferralsPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="text-sm font-semibold">{ref.patientName}</span>
+                          <span className="text-sm font-semibold cursor-pointer hover:underline" style={{ color: '#2B6FE0' }} onClick={(e) => { e.stopPropagation(); if (ref.patientId) router.push(`/patients/${ref.patientId}`); }}>{ref.patientName}</span>
                           <span className="font-mono text-[10px]" style={{ color: 'var(--text-muted)' }}>{ref.patientId}</span>
                         </div>
                         <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-secondary)' }}>

@@ -6,7 +6,7 @@ import { useBirths } from '@/lib/hooks/useBirths';
 import { useHospitals } from '@/lib/hooks/useHospitals';
 import { useApp } from '@/lib/context';
 import {
-  Baby, Plus, Search, X
+  Baby, Plus, Search, X, ChevronDown, ChevronUp
 } from 'lucide-react';
 
 export default function BirthsPage() {
@@ -15,6 +15,7 @@ export default function BirthsPage() {
   const { currentUser } = useApp();
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [expandedBirth, setExpandedBirth] = useState<string | null>(null);
   const [form, setForm] = useState({
     childFirstName: '', childSurname: '', childGender: 'Male' as 'Male' | 'Female',
     dateOfBirth: new Date().toISOString().slice(0, 10), placeOfBirth: '', facilityId: '', facilityName: '',
@@ -116,7 +117,7 @@ export default function BirthsPage() {
               </thead>
               <tbody>
                 {filtered.map(b => (
-                  <tr key={b._id}>
+                  <tr key={b._id} className="cursor-pointer hover:bg-[var(--table-row-hover)]" onClick={() => setExpandedBirth(expandedBirth === b._id ? null : b._id)}>
                     <td className="font-mono text-xs">{b.certificateNumber}</td>
                     <td className="font-medium text-sm">{b.childFirstName} {b.childSurname}</td>
                     <td><span className="badge text-[10px]" style={{ background: b.childGender === 'Male' ? 'rgba(43,111,224,0.12)' : 'rgba(229,46,66,0.12)', color: b.childGender === 'Male' ? '#2B6FE0' : '#E52E42' }}>{b.childGender}</span></td>
@@ -125,9 +126,38 @@ export default function BirthsPage() {
                     <td className="text-xs capitalize">{b.deliveryType}</td>
                     <td className="text-sm">{b.motherName}</td>
                     <td className="text-xs" style={{ color: 'var(--text-secondary)' }}>{(b.facilityName || '').replace(' Hospital', '').replace(' Teaching', '')}</td>
-                    <td className="text-xs" style={{ color: 'var(--text-muted)' }}>{b.state}</td>
+                    <td className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                      <div className="flex items-center gap-1">
+                        {b.state}
+                        {expandedBirth === b._id ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                      </div>
+                    </td>
                   </tr>
                 ))}
+                {expandedBirth && (() => {
+                  const b = filtered.find(x => x._id === expandedBirth);
+                  if (!b) return null;
+                  return (
+                    <tr>
+                      <td colSpan={9} style={{ background: 'var(--overlay-subtle)', padding: 0 }}>
+                        <div className="p-4 grid grid-cols-4 gap-4 text-xs">
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Certificate #</span>{b.certificateNumber}</div>
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Birth Type</span><span className="capitalize">{b.birthType}</span></div>
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Delivery Type</span><span className="capitalize">{b.deliveryType}</span></div>
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Birth Weight</span>{b.birthWeight}g</div>
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Mother</span>{b.motherName} (Age: {b.motherAge || 'N/A'})</div>
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Mother Nationality</span>{b.motherNationality || 'N/A'}</div>
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Father</span>{b.fatherName || 'N/A'}</div>
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Father Nationality</span>{b.fatherNationality || 'N/A'}</div>
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Place of Birth</span>{b.placeOfBirth || b.facilityName}</div>
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Attended By</span>{b.attendedBy || 'N/A'}</div>
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Registered By</span>{b.registeredBy || 'N/A'}</div>
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>County</span>{b.county || 'N/A'}, {b.state}</div>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })()}
               </tbody>
             </table>
           )}

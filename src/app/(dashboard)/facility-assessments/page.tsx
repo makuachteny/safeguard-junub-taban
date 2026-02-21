@@ -1,11 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import TopBar from '@/components/TopBar';
 import { useFacilityAssessments } from '@/lib/hooks/useFacilityAssessments';
-import { Building2, ClipboardCheck, Wifi, Droplets, Users, Activity, TrendingUp } from 'lucide-react';
+import { Building2, ClipboardCheck, Wifi, Droplets, Users, Activity, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function FacilityAssessmentsPage() {
   const { assessments, summary, loading } = useFacilityAssessments();
+  const [expandedAssessment, setExpandedAssessment] = useState<string | null>(null);
 
   if (loading) return <><TopBar title="Facility Assessments" /><main className="flex-1 p-6 flex items-center justify-center"><p className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading...</p></main></>;
 
@@ -82,8 +84,8 @@ export default function FacilityAssessmentsPage() {
             </thead>
             <tbody>
               {(assessments || []).map(a => (
-                <tr key={a._id}>
-                  <td className="font-medium text-sm">{a.facilityName.replace(' Hospital', '').replace(' Teaching', '')}</td>
+                <tr key={a._id} className="cursor-pointer hover:bg-[var(--table-row-hover)]" onClick={() => setExpandedAssessment(expandedAssessment === a._id ? null : a._id)}>
+                  <td className="font-medium text-sm" style={{ color: '#2B6FE0' }}>{a.facilityName.replace(' Hospital', '').replace(' Teaching', '')}</td>
                   <td className="text-xs">{a.state}</td>
                   <td><span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: scoreBg(a.overallScore), color: scoreColor(a.overallScore) }}>{a.overallScore}%</span></td>
                   <td className="text-xs" style={{ color: scoreColor(a.generalEquipmentScore) }}>{a.generalEquipmentScore}%</td>
@@ -95,9 +97,53 @@ export default function FacilityAssessmentsPage() {
                   <td>{a.hasDHIS2Reporting ? <span className="badge badge-normal text-[10px]">Yes</span> : <span className="badge badge-warning text-[10px]">No</span>}</td>
                   <td className="text-sm text-center">{a.hisStaffCount} ({a.hisStaffTrained})</td>
                   <td>{a.hasCleanWater ? <Droplets className="w-3.5 h-3.5" style={{ color: '#2B6FE0' }} /> : <span className="text-xs" style={{ color: '#E52E42' }}>No</span>}</td>
-                  <td className="text-xs font-mono">{a.assessmentDate}</td>
+                  <td className="text-xs font-mono">
+                    <div className="flex items-center gap-1">
+                      {a.assessmentDate}
+                      {expandedAssessment === a._id ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                    </div>
+                  </td>
                 </tr>
               ))}
+              {expandedAssessment && (() => {
+                const a = (assessments || []).find(x => x._id === expandedAssessment);
+                if (!a) return null;
+                return (
+                  <tr>
+                    <td colSpan={13} style={{ background: 'var(--overlay-subtle)', padding: 0 }}>
+                      <div className="p-4 space-y-3">
+                        <div className="grid grid-cols-3 gap-4 text-xs">
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Facility</span>{a.facilityName}</div>
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Assessed By</span>{a.assessedBy}</div>
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Assessment Date</span>{a.assessmentDate}</div>
+                        </div>
+                        <div className="grid grid-cols-4 gap-3">
+                          {[
+                            { label: 'Clean Water', value: a.hasCleanWater },
+                            { label: 'Sanitation', value: a.hasSanitation },
+                            { label: 'Waste Management', value: a.hasWasteManagement },
+                            { label: 'Emergency Transport', value: a.hasEmergencyTransport },
+                            { label: 'Communication', value: a.hasCommunication },
+                            { label: 'Patient Registers', value: a.hasPatientRegisters },
+                            { label: 'DHIS2 Reporting', value: a.hasDHIS2Reporting },
+                          ].map(item => (
+                            <div key={item.label} className="flex items-center gap-2 text-xs">
+                              <span className="w-2 h-2 rounded-full" style={{ background: item.value ? '#2B6FE0' : '#E52E42' }} />
+                              <span>{item.label}: {item.value ? 'Yes' : 'No'}</span>
+                            </div>
+                          ))}
+                        </div>
+                        {a.recommendations && (
+                          <div className="p-3 rounded-lg" style={{ background: 'rgba(43,111,224,0.06)', border: '1px solid rgba(43,111,224,0.15)' }}>
+                            <p className="text-xs font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>Recommendations</p>
+                            <p className="text-xs">{a.recommendations}</p>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })()}
             </tbody>
           </table>
         </div>

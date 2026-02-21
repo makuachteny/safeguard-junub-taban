@@ -7,6 +7,7 @@ import SymptomChecker from '@/components/SymptomChecker';
 import { useApp } from '@/lib/context';
 import { useBomaVisits } from '@/lib/hooks/useBomaVisits';
 import { useFollowUps } from '@/lib/hooks/useFollowUps';
+import { useHospitals } from '@/lib/hooks/useHospitals';
 import type { PatientDoc } from '@/lib/db-types';
 import {
   Home, Users, Plus, Check, ArrowRight, MapPin, Search,
@@ -45,14 +46,7 @@ const SYMPTOM_GROUPS = [
   { id: 'mental', label: 'Confusion / Mood', icon: Brain, color: '#06B6D4', bg: 'rgba(6,182,212,0.1)', keywords: 'confusion anxiety depression mood seizure convulsion' },
 ];
 
-const FACILITIES = [
-  'Juba Teaching Hospital',
-  'Wau State Hospital',
-  'Malakal Teaching Hospital',
-  'Bentiu State Hospital',
-  'Bor State Hospital',
-  'Nearest PHCU',
-];
+// Boma health workers can only refer to Payam-level (PHCU) facilities
 
 type VisitFormStep = 'closed' | 'search' | 'patient' | 'symptoms' | 'evaluation' | 'action' | 'done';
 
@@ -62,6 +56,9 @@ export default function BomaDashboardPage() {
   const { todaysVisits, stats, loading, createVisit } = useBomaVisits(workerId);
   const { followUps, updateFollowUp, loading: followUpsLoading } = useFollowUps(workerId);
   const router = useRouter();
+  const { hospitals } = useHospitals();
+  // Boma can only refer to Payam-level (PHCU) facilities
+  const payamFacilities = hospitals.filter(h => h.facilityType === 'phcu');
 
   const [formStep, setFormStep] = useState<VisitFormStep>('closed');
   const [visitForm, setVisitForm] = useState({
@@ -492,11 +489,11 @@ export default function BomaDashboardPage() {
                   {/* New patient option */}
                   <div className="pt-2" style={{ borderTop: '1px solid var(--border-light)' }}>
                     <button
-                      onClick={() => { setIsNewPatient(true); setFormStep('patient'); }}
+                      onClick={() => router.push('/patients/new')}
                       className="w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
                       style={{ background: 'var(--overlay-subtle)', border: '2px dashed var(--border-medium)', color: 'var(--text-secondary)' }}
                     >
-                      <Plus className="w-4 h-4" /> Enter new patient manually
+                      <Plus className="w-4 h-4" /> Register new patient
                     </button>
                   </div>
                 </div>
@@ -805,9 +802,12 @@ export default function BomaDashboardPage() {
                         className="w-full px-4 py-3 rounded-xl text-base"
                         style={{ background: 'var(--bg-input)', border: '2px solid var(--border-medium)', color: 'var(--text-primary)', minHeight: '48px' }}
                       >
-                        <option value="">Select facility</option>
-                        {FACILITIES.map(f => <option key={f} value={f}>{f}</option>)}
+                        <option value="">Select Payam facility</option>
+                        {payamFacilities.map(f => <option key={f._id} value={f.name}>{f.name} — {f.state}</option>)}
                       </select>
+                      <p className="text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>
+                        Boma referrals go to Payam-level (PHCU) facilities first. Further transfers are handled at the Payam level.
+                      </p>
                     </div>
                   )}
 

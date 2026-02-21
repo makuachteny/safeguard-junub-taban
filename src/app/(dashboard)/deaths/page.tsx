@@ -6,7 +6,7 @@ import { useDeaths } from '@/lib/hooks/useDeaths';
 import { useHospitals } from '@/lib/hooks/useHospitals';
 import { useApp } from '@/lib/context';
 import { COMMON_ICD11_CODES } from '@/lib/icd11-codes';
-import { Plus, Search, X, AlertTriangle, FileText } from 'lucide-react';
+import { Plus, Search, X, AlertTriangle, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function DeathsPage() {
   const { deaths, stats, register } = useDeaths();
@@ -14,6 +14,7 @@ export default function DeathsPage() {
   const { currentUser } = useApp();
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [expandedDeath, setExpandedDeath] = useState<string | null>(null);
   const [form, setForm] = useState({
     deceasedFirstName: '', deceasedSurname: '', deceasedGender: 'Male' as 'Male' | 'Female',
     dateOfBirth: '', dateOfDeath: new Date().toISOString().slice(0, 10), ageAtDeath: 0,
@@ -137,7 +138,7 @@ export default function DeathsPage() {
             </thead>
             <tbody>
               {filtered.map(d => (
-                <tr key={d._id}>
+                <tr key={d._id} className="cursor-pointer hover:bg-[var(--table-row-hover)]" onClick={() => setExpandedDeath(expandedDeath === d._id ? null : d._id)}>
                   <td className="font-mono text-xs">{d.certificateNumber}</td>
                   <td className="font-medium text-sm">{d.deceasedFirstName} {d.deceasedSurname}</td>
                   <td className="text-sm">{d.ageAtDeath < 1 ? 'Neonate' : `${d.ageAtDeath}y`}</td>
@@ -151,12 +152,49 @@ export default function DeathsPage() {
                   <td className="text-xs capitalize">{(d.mannerOfDeath || '').replace(/_/g, ' ')}</td>
                   <td className="text-xs" style={{ color: 'var(--text-secondary)' }}>{(d.facilityName || '').replace(' Hospital', '').replace(' Teaching', '')}</td>
                   <td>
-                    <span className={`badge text-[10px] ${d.deathRegistered ? 'badge-normal' : 'badge-warning'}`}>
-                      {d.deathRegistered ? 'Yes' : 'No'}
-                    </span>
+                    <div className="flex items-center gap-1">
+                      <span className={`badge text-[10px] ${d.deathRegistered ? 'badge-normal' : 'badge-warning'}`}>
+                        {d.deathRegistered ? 'Yes' : 'No'}
+                      </span>
+                      {expandedDeath === d._id ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                    </div>
                   </td>
                 </tr>
               ))}
+              {expandedDeath && (() => {
+                const d = filtered.find(x => x._id === expandedDeath);
+                if (!d) return null;
+                return (
+                  <tr>
+                    <td colSpan={8} style={{ background: 'var(--overlay-subtle)', padding: 0 }}>
+                      <div className="p-4 space-y-3">
+                        <div className="grid grid-cols-4 gap-4 text-xs">
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Full Name</span>{d.deceasedFirstName} {d.deceasedSurname}</div>
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Gender</span>{d.deceasedGender}</div>
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Date of Birth</span>{d.dateOfBirth || 'N/A'}</div>
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Place of Death</span>{d.placeOfDeath || d.facilityName}</div>
+                        </div>
+                        <div className="p-3 rounded-lg" style={{ background: 'rgba(229,46,66,0.06)', border: '1px solid rgba(229,46,66,0.15)' }}>
+                          <p className="text-xs font-semibold mb-2" style={{ color: '#E52E42' }}>Cause of Death Chain (WHO)</p>
+                          <div className="space-y-1 text-xs">
+                            <p><span className="font-medium">a) Immediate:</span> {d.immediateCause} {d.immediateICD11 && <span className="font-mono text-[10px] px-1 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: '#E52E42' }}>{d.immediateICD11}</span>}</p>
+                            {d.antecedentCause1 && <p><span className="font-medium">b) Due to:</span> {d.antecedentCause1} {d.antecedentICD11_1 && <span className="font-mono text-[10px] px-1 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: '#E52E42' }}>{d.antecedentICD11_1}</span>}</p>}
+                            {d.antecedentCause2 && <p><span className="font-medium">c) Due to:</span> {d.antecedentCause2} {d.antecedentICD11_2 && <span className="font-mono text-[10px] px-1 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: '#E52E42' }}>{d.antecedentICD11_2}</span>}</p>}
+                            {d.underlyingCause && <p><span className="font-medium">d) Underlying:</span> {d.underlyingCause} {d.underlyingICD11 && <span className="font-mono text-[10px] px-1 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: '#E52E42' }}>{d.underlyingICD11}</span>}</p>}
+                            {d.contributingConditions && <p><span className="font-medium">Contributing:</span> {d.contributingConditions}</p>}
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-4 gap-4 text-xs">
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Manner</span><span className="capitalize">{(d.mannerOfDeath || '').replace(/_/g, ' ')}</span></div>
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Maternal Death</span>{d.maternalDeath ? 'Yes' : 'No'}</div>
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Certified By</span>{d.certifiedBy || 'N/A'} ({d.certifierRole || 'N/A'})</div>
+                          <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Location</span>{d.county || 'N/A'}, {d.state}</div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })()}
             </tbody>
           </table>
         </div>

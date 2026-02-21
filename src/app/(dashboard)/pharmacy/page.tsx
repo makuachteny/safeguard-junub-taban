@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import TopBar from '@/components/TopBar';
 import { Pill, AlertTriangle, Search, TrendingDown, CheckCircle2, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/context';
 import { usePermissions } from '@/lib/hooks/usePermissions';
 import { usePrescriptions } from '@/lib/hooks/usePrescriptions';
@@ -47,6 +48,7 @@ export default function PharmacyPage() {
   const [search, setSearch] = useState('');
   const { globalSearch } = useApp();
   const { canDispense } = usePermissions();
+  const router = useRouter();
   const { prescriptions: rxQueue, loading: rxLoading, dispense } = usePrescriptions();
 
   const q = search || globalSearch;
@@ -144,8 +146,8 @@ export default function PharmacyPage() {
                       </td>
                     </tr>
                   ) : filteredQueue.map(rx => (
-                    <tr key={rx._id}>
-                      <td className="font-medium text-sm">{rx.patientName}</td>
+                    <tr key={rx._id} className="cursor-pointer hover:bg-[var(--table-row-hover)]" onClick={() => { if (rx.patientId) router.push(`/patients/${rx.patientId}`); }}>
+                      <td className="font-medium text-sm" style={{ color: '#2B6FE0' }}>{rx.patientName}</td>
                       <td className="text-sm">{rx.medication}</td>
                       <td className="text-xs font-mono" style={{ color: 'var(--text-secondary)' }}>
                         {rx.dose} {rx.frequency} {rx.duration ? `x ${rx.duration}` : ''}
@@ -162,7 +164,7 @@ export default function PharmacyPage() {
                       <td>
                         {rx.status === 'pending' && canDispense && (
                           <button className="btn btn-primary btn-sm" style={{ padding: '4px 12px', fontSize: '0.75rem' }}
-                            onClick={() => handleDispense(rx._id)}>Dispense</button>
+                            onClick={(e) => { e.stopPropagation(); handleDispense(rx._id); }}>Dispense</button>
                         )}
                         {rx.status === 'pending' && !canDispense && (
                           <span className="text-[10px] font-medium px-2 py-1 rounded" style={{ background: 'rgba(148,163,184,0.1)', color: 'var(--text-muted)' }}>Pharmacist only</span>
