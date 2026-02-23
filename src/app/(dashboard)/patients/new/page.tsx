@@ -78,7 +78,7 @@ export default function NewPatientPage() {
     setSubmitting(true);
     try {
       const today = new Date().toISOString().split('T')[0];
-      await createPatient({
+      const result = await createPatient({
         hospitalNumber: '',
         geocodeId,
         householdNumber: form.householdNumber ? parseInt(form.householdNumber) : undefined,
@@ -115,7 +115,12 @@ export default function NewPatientPage() {
         isActive: true,
       });
       showToast(`Patient ${form.firstName} ${form.surname} registered successfully!`, 'success');
-      router.push('/patients');
+      // BHW flow: go straight to boma dashboard with patient pre-selected for symptoms
+      if (currentUser?.role === 'boma_health_worker' && result?._id) {
+        router.push(`/dashboard/boma?newPatientId=${result._id}`);
+      } else {
+        router.push('/patients');
+      }
     } catch (err) {
       console.error('Failed to register patient:', err);
       if (err instanceof Error && 'fields' in err) {

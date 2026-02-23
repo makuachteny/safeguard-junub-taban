@@ -159,7 +159,22 @@ export default function ReferralsPage() {
     }
   };
 
-  const otherHospitals = hospitals.filter(h => h._id !== OUR_HOSPITAL_ID);
+  // Hierarchical referral destinations based on facility level
+  // Boma(PHCU) → Payam(PHCC), Payam(PHCC) → County/State/National,
+  // County → State/National, State → National, National → National/State
+  const currentFacilityType = currentUser?.hospital?.facilityType;
+  const ALLOWED_DESTINATION_TYPES: Record<string, string[]> = {
+    phcu: ['phcc'],
+    phcc: ['county_hospital', 'state_hospital', 'national_referral'],
+    county_hospital: ['state_hospital', 'national_referral'],
+    state_hospital: ['national_referral'],
+    national_referral: ['national_referral', 'state_hospital'],
+  };
+  const allowedTypes = currentFacilityType ? ALLOWED_DESTINATION_TYPES[currentFacilityType] : undefined;
+  const otherHospitals = hospitals.filter(h =>
+    h._id !== OUR_HOSPITAL_ID &&
+    (!allowedTypes || allowedTypes.includes(h.facilityType))
+  );
 
   const isImage = (mimeType: string) => mimeType.startsWith('image/');
 

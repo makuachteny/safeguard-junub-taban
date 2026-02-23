@@ -7,7 +7,7 @@ import TopBar from '@/components/TopBar';
 import {
   Building2, Users, BedDouble, Stethoscope, Wifi, WifiOff,
   AlertTriangle, ArrowRightLeft, TrendingUp, TrendingDown,
-  Minus, Clock
+  Minus, Clock, Zap, Sun, Truck
 } from 'lucide-react';
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
@@ -95,6 +95,21 @@ export default function GovernmentDashboardPage() {
   const offlineHospitals = hospitals.filter(h => h.syncStatus === 'offline').length;
   const activeAlerts = diseaseAlerts.filter(a => a.alertLevel === 'emergency' || a.alertLevel === 'warning').length;
   const pendingReferrals = referrals.filter(r => r.status === 'sent' || r.status === 'received').length;
+
+  // Resource allocation aggregates
+  const totalICUBeds = hospitals.reduce((s, h) => s + (h.icuBeds || 0), 0);
+  const totalMaternityBeds = hospitals.reduce((s, h) => s + (h.maternityBeds || 0), 0);
+  const totalPediatricBeds = hospitals.reduce((s, h) => s + (h.pediatricBeds || 0), 0);
+  const totalGeneralBeds = totalBeds - totalICUBeds - totalMaternityBeds - totalPediatricBeds;
+  const hospitalsWithElectricity = hospitals.filter(h => h.hasElectricity).length;
+  const hospitalsWithGenerator = hospitals.filter(h => h.hasGenerator).length;
+  const hospitalsWithSolar = hospitals.filter(h => h.hasSolar).length;
+  const hospitalsWithInternet = hospitals.filter(h => h.hasInternet).length;
+  const hospitalsWithAmbulance = hospitals.filter(h => h.hasAmbulance).length;
+  const hospitals24hrEmergency = hospitals.filter(h => h.emergency24hr).length;
+  const totalLabTechs = hospitals.reduce((s, h) => s + (h.labTechnicians || 0), 0);
+  const totalPharmacists = hospitals.reduce((s, h) => s + (h.pharmacists || 0), 0);
+  const totalAllStaff = totalDoctors + totalNurses + totalCOs + totalLabTechs + totalPharmacists;
 
   // Facility type distribution for donut
   const facilityDistribution = useMemo(() => {
@@ -380,6 +395,101 @@ export default function GovernmentDashboardPage() {
                   <Bar dataKey="Clinical Officers" fill="#A855F7" radius={[3, 3, 0, 0]} barSize={10} />
                 </BarChart>
               </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+
+        {/* ═══ RESOURCE ALLOCATION ═══ */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-4">
+
+          {/* Bed Capacity Breakdown */}
+          <div className="glass-section">
+            <div className="glass-section-header">
+              <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Bed Capacity Breakdown</span>
+              <span className="text-xs font-bold" style={{ color: '#2B6FE0' }}>{totalBeds.toLocaleString()} total</span>
+            </div>
+            <div className="p-4 space-y-3">
+              {[
+                { type: 'General', count: totalGeneralBeds, color: '#60A5FA' },
+                { type: 'ICU', count: totalICUBeds, color: '#E52E42' },
+                { type: 'Maternity', count: totalMaternityBeds, color: '#EC4899' },
+                { type: 'Pediatric', count: totalPediatricBeds, color: '#A855F7' },
+              ].map(bed => (
+                <div key={bed.type}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>{bed.type}</span>
+                    <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{bed.count}</span>
+                  </div>
+                  <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--border-light)' }}>
+                    <div
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{
+                        width: totalBeds > 0 ? `${(bed.count / totalBeds) * 100}%` : '0%',
+                        background: bed.color,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Infrastructure Coverage */}
+          <div className="glass-section">
+            <div className="glass-section-header">
+              <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Infrastructure Coverage</span>
+            </div>
+            <div className="p-4 space-y-2.5">
+              {[
+                { label: 'Electricity', count: hospitalsWithElectricity, icon: Zap, color: '#F59E0B' },
+                { label: 'Generator', count: hospitalsWithGenerator, icon: Zap, color: '#60A5FA' },
+                { label: 'Solar Power', count: hospitalsWithSolar, icon: Sun, color: '#FCD34D' },
+                { label: 'Internet', count: hospitalsWithInternet, icon: Wifi, color: '#2B6FE0' },
+                { label: 'Ambulance', count: hospitalsWithAmbulance, icon: Truck, color: '#E52E42' },
+                { label: '24hr Emergency', count: hospitals24hrEmergency, icon: AlertTriangle, color: '#EC4899' },
+              ].map(item => {
+                const pct = totalHospitals > 0 ? Math.round((item.count / totalHospitals) * 100) : 0;
+                return (
+                  <div key={item.label} className="flex items-center justify-between py-1">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: `${item.color}15` }}>
+                        <item.icon className="w-3 h-3" style={{ color: item.color }} />
+                      </div>
+                      <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>{item.label}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{item.count}/{totalHospitals}</span>
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{
+                        background: pct >= 75 ? 'rgba(74,222,128,0.12)' : pct >= 50 ? 'rgba(252,211,77,0.12)' : 'rgba(229,46,66,0.12)',
+                        color: pct >= 75 ? '#4ADE80' : pct >= 50 ? '#FCD34D' : '#E52E42',
+                      }}>{pct}%</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* National Workforce */}
+          <div className="glass-section">
+            <div className="glass-section-header">
+              <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>National Workforce</span>
+              <span className="text-xs font-bold" style={{ color: '#2B6FE0' }}>{totalAllStaff.toLocaleString()} total</span>
+            </div>
+            <div className="p-4 grid grid-cols-2 gap-2.5">
+              {[
+                { label: 'Doctors', count: totalDoctors, color: '#60A5FA', bg: 'rgba(96,165,250,0.12)' },
+                { label: 'Nurses', count: totalNurses, color: '#3ECF8E', bg: 'rgba(62,207,142,0.12)' },
+                { label: 'Clinical Officers', count: totalCOs, color: '#A855F7', bg: 'rgba(168,85,247,0.12)' },
+                { label: 'Lab Techs', count: totalLabTechs, color: '#06B6D4', bg: 'rgba(6,182,212,0.12)' },
+                { label: 'Pharmacists', count: totalPharmacists, color: '#F59E0B', bg: 'rgba(245,158,11,0.12)' },
+                { label: 'Total Staff', count: totalAllStaff, color: '#2B6FE0', bg: 'rgba(43,111,224,0.12)' },
+              ].map(role => (
+                <div key={role.label} className="p-3 rounded-xl" style={{ background: role.bg }}>
+                  <p className="text-lg font-bold" style={{ color: role.color }}>{role.count.toLocaleString()}</p>
+                  <span className="text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>{role.label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>

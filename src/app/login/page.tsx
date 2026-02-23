@@ -92,9 +92,9 @@ export default function LoginPage() {
   };
 
   const demoAccounts = [
+    { role: 'Government', user: 'admin', pass: 'TabanGov#2026!Ss', desc: 'National MoH oversight', color: '#078930', hospital: '' },
     { role: 'Super Admin', user: 'superadmin', pass: 'Super@Taban2026!', desc: 'Platform-wide access', color: '#DC2626', hospital: '' },
     { role: 'Org Admin', user: 'org.admin', pass: 'OrgAdmin@Mercy2026', desc: 'Mercy Hospital Group', color: '#7C3AED', hospital: '' },
-    { role: 'Government', user: 'admin', pass: 'TabanGov#2026!Ss', desc: 'National MoH oversight', color: '#078930', hospital: '' },
     { role: 'Doctor', user: 'dr.wani', pass: 'Dr.Wani@JTH2026', desc: 'Juba Teaching Hospital', color: BLUE, hospital: 'hosp-001' },
     { role: 'Doctor (2)', user: 'dr.achol', pass: 'Dr.Achol@JTH2026', desc: 'Juba Teaching Hospital', color: '#1d5bc4', hospital: 'hosp-001' },
     { role: 'Clinical Officer', user: 'co.deng', pass: 'CO.Deng@WTH2026', desc: 'Wau State Hospital', color: '#0891B2', hospital: 'hosp-002' },

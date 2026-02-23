@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import TopBar from '@/components/TopBar';
 import SymptomChecker from '@/components/SymptomChecker';
 import { useApp } from '@/lib/context';
@@ -85,6 +85,10 @@ export default function BomaDashboardPage() {
   const [isNewPatient, setIsNewPatient] = useState(false);
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Auto-select newly registered patient from URL param
+  const searchParams = useSearchParams();
+  const newPatientHandledRef = useRef(false);
+
   // Debounced patient search
   const handleSearchChange = useCallback((value: string) => {
     setSearchQuery(value);
@@ -115,6 +119,26 @@ export default function BomaDashboardPage() {
     setIsNewPatient(false);
     setFormStep('symptoms');
   }, []);
+
+  // Auto-load newly registered patient from URL param → jump to symptoms
+  useEffect(() => {
+    const newPatientId = searchParams.get('newPatientId');
+    if (!newPatientId || newPatientHandledRef.current) return;
+    newPatientHandledRef.current = true;
+    (async () => {
+      try {
+        const { getPatientById } = await import('@/lib/services/patient-service');
+        const patient = await getPatientById(newPatientId);
+        if (patient) {
+          handleSelectPatient(patient);
+        }
+      } catch (err) {
+        console.error('Failed to load new patient:', err);
+      }
+      // Clean URL without reloading
+      window.history.replaceState({}, '', '/dashboard/boma');
+    })();
+  }, [searchParams, handleSelectPatient]);
 
   // Cleanup debounce on unmount
   useEffect(() => {

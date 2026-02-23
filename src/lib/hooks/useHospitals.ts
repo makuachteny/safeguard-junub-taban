@@ -37,5 +37,12 @@ export function useHospitals() {
     return hospital;
   }, [loadHospitals]);
 
-  return { hospitals, loading, error, create, reload: loadHospitals };
+  const update = useCallback(async (id: string, data: Partial<HospitalDoc>) => {
+    const { updateHospitalStatus } = await import('../services/hospital-service');
+    const updated = await updateHospitalStatus(id, data);
+    await loadHospitals();
+    return updated;
+  }, [loadHospitals]);
+
+  return { hospitals, loading, error, create, update, reload: loadHospitals };
 }

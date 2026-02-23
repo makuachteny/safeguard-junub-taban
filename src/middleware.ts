@@ -18,20 +18,20 @@ const ROLE_ROUTES: Record<string, { allowed: string[]; defaultDashboard: string 
     allowed: [
       '/org-admin', '/dashboard', '/patients', '/consultation', '/referrals', '/messages',
       '/lab', '/pharmacy', '/immunizations', '/anc', '/births', '/deaths',
-      '/surveillance', '/reports', '/hospitals', '/settings',
+      '/surveillance', '/reports', '/hospitals', '/settings', '/my-facility',
     ],
     defaultDashboard: '/org-admin',
   },
   doctor: {
-    allowed: ['/dashboard', '/patients', '/consultation', '/referrals', '/messages', '/lab', '/pharmacy', '/immunizations', '/anc', '/births', '/deaths', '/surveillance', '/reports', '/hospitals', '/settings', '/epidemic-intelligence', '/mch-analytics'],
+    allowed: ['/dashboard', '/patients', '/consultation', '/referrals', '/messages', '/lab', '/pharmacy', '/immunizations', '/anc', '/births', '/deaths', '/surveillance', '/reports', '/hospitals', '/settings', '/epidemic-intelligence', '/mch-analytics', '/my-facility'],
     defaultDashboard: '/dashboard',
   },
   clinical_officer: {
-    allowed: ['/dashboard', '/patients', '/consultation', '/referrals', '/messages', '/lab', '/pharmacy', '/immunizations', '/anc', '/births', '/deaths', '/surveillance', '/reports', '/hospitals', '/settings', '/epidemic-intelligence', '/mch-analytics'],
+    allowed: ['/dashboard', '/patients', '/consultation', '/referrals', '/messages', '/lab', '/pharmacy', '/immunizations', '/anc', '/births', '/deaths', '/surveillance', '/reports', '/hospitals', '/settings', '/epidemic-intelligence', '/mch-analytics', '/my-facility'],
     defaultDashboard: '/dashboard',
   },
   nurse: {
-    allowed: ['/dashboard/nurse', '/patients', '/messages', '/lab', '/immunizations', '/anc', '/births', '/settings'],
+    allowed: ['/dashboard/nurse', '/patients', '/messages', '/lab', '/immunizations', '/anc', '/births', '/settings', '/my-facility'],
     defaultDashboard: '/dashboard/nurse',
   },
   lab_tech: {
@@ -43,7 +43,7 @@ const ROLE_ROUTES: Record<string, { allowed: string[]; defaultDashboard: string 
     defaultDashboard: '/dashboard/pharmacy',
   },
   front_desk: {
-    allowed: ['/dashboard/front-desk', '/patients', '/referrals', '/messages', '/settings'],
+    allowed: ['/dashboard/front-desk', '/patients', '/referrals', '/messages', '/settings', '/my-facility'],
     defaultDashboard: '/dashboard/front-desk',
   },
   boma_health_worker: {
@@ -51,7 +51,7 @@ const ROLE_ROUTES: Record<string, { allowed: string[]; defaultDashboard: string 
     defaultDashboard: '/dashboard/boma',
   },
   payam_supervisor: {
-    allowed: ['/dashboard/payam', '/dashboard/boma', '/patients', '/referrals', '/messages', '/immunizations', '/anc', '/births', '/deaths', '/surveillance', '/reports', '/facility-assessments', '/data-quality', '/settings'],
+    allowed: ['/dashboard/payam', '/dashboard/boma', '/patients', '/consultation', '/referrals', '/messages', '/lab', '/pharmacy', '/immunizations', '/anc', '/births', '/deaths', '/surveillance', '/reports', '/facility-assessments', '/data-quality', '/settings'],
     defaultDashboard: '/dashboard/payam',
   },
   government: {
