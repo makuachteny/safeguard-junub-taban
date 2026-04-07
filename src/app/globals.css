@@ -1184,24 +1184,36 @@ svg circle {
 /* ============ Toggle Switch ============ */
 .tbn-toggle {
   position: relative;
-  width: 40px;
-  height: 22px;
+  display: flex;
+  align-items: center;
+  width: 44px;
+  min-width: 44px;
+  height: 24px;
   border-radius: 12px;
   border: none;
+  outline: none;
   cursor: pointer;
   transition: background 0.2s ease;
   flex-shrink: 0;
   padding: 0;
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  overflow: hidden;
 }
+.tbn-toggle:focus { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+.tbn-toggle:focus:not(:focus-visible) { outline: none; }
 .tbn-toggle__knob {
   position: absolute;
-  top: 2px;
+  top: 3px;
+  left: 0;
   width: 18px;
   height: 18px;
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s ease;
+  pointer-events: none;
 }
 
 /* ============ LIGHT MODE: Stronger separators ============ */

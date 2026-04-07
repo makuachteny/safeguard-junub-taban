@@ -172,7 +172,7 @@ export default function MyFacilityPage() {
       >
         <span
           className="tbn-toggle__knob"
-          style={{ transform: checked ? 'translateX(18px)' : 'translateX(2px)' }}
+          style={{ transform: checked ? 'translateX(22px)' : 'translateX(3px)' }}
         />
       </button>
     </div>
