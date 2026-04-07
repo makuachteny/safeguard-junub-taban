@@ -9,7 +9,7 @@ export default function NotFound() {
     }}>
       <div style={{ textAlign: 'center' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '0.5rem' }}>404</h1>
-        <p style={{ color: '#64748b' }}>Page not found</p>
+        <p style={{ color: 'var(--text-muted)' }}>Page not found</p>
       </div>
     </div>
   );

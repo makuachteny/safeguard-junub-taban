@@ -36,7 +36,7 @@ const MIDDLEWARE_ROLE_ROUTES: Record<string, { allowed: string[]; defaultDashboa
     defaultDashboard: '/government',
   },
   data_entry_clerk: {
-    allowed: ['/dashboard/data-entry', '/patients', '/facility-assessments', '/data-quality', '/immunizations', '/anc', '/births', '/deaths', '/messages', '/settings', '/my-facility'],
+    allowed: ['/dashboard/data-entry', '/facility-assessments', '/data-quality', '/hospitals', '/immunizations', '/anc', '/births', '/deaths', '/vital-statistics', '/messages', '/settings', '/my-facility'],
     defaultDashboard: '/dashboard/data-entry',
   },
 };

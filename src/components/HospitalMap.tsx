@@ -204,7 +204,7 @@ export default function MapView({
       center={MAP_CENTER}
       zoom={MAP_ZOOM}
       className="h-full w-full"
-      style={{ background: '#f0f4f8' }}
+      style={{ background: 'var(--bg-primary)' }}
       zoomControl={true}
       minZoom={5}
       maxZoom={13}
@@ -319,12 +319,12 @@ export default function MapView({
                       borderRadius: '50%',
                       background: getMetricColorInterpolated(metricVal),
                     }} />
-                    <span style={{ color: '#475569', fontWeight: 500 }}>
+                    <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>
                       Score: {Math.round(metricVal)}%
                     </span>
                   </div>
                 )}
-                <div style={{ display: 'flex', gap: '8px', marginTop: '4px', fontSize: '10px', color: '#475569' }}>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '4px', fontSize: '10px', color: 'var(--text-secondary)' }}>
                   <span>{hospital.totalBeds} beds</span>
                   <span>{hospital.doctors} doctors</span>
                 </div>

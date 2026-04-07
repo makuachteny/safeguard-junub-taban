@@ -153,7 +153,7 @@ export default function LoginPage() {
           <div className="flex items-center justify-center gap-0 mt-3">
             <div className="h-[3px] w-8 rounded-l-full" style={{ background: '#111' }} />
             <div className="h-[3px] w-8" style={{ background: '#E52E42' }} />
-            <div className="h-[3px] w-4" style={{ background: '#fff', border: '0.5px solid #e2e8f0' }} />
+            <div className="h-[3px] w-4" style={{ background: '#fff', border: '0.5px solid var(--border-medium)' }} />
             <div className="h-[3px] w-8" style={{ background: '#10B944' }} />
             <div className="h-[3px] w-4" style={{ background: '#0F4C81' }} />
             <div className="h-[3px] w-2 rounded-r-full" style={{ background: '#FCD34D' }} />

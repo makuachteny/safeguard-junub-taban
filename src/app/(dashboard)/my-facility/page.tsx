@@ -167,20 +167,12 @@ export default function MyFacilityPage() {
       <button
         type="button"
         onClick={() => onChange(!checked)}
-        className="relative w-10 h-5.5 rounded-full transition-colors duration-200"
-        style={{
-          background: checked ? '#0077D7' : 'var(--border-light)',
-          width: '40px',
-          height: '22px',
-        }}
+        className="tbn-toggle"
+        style={{ background: checked ? 'var(--accent-primary)' : 'var(--toggle-track)' }}
       >
         <span
-          className="absolute top-0.5 rounded-full transition-transform duration-200 bg-white"
-          style={{
-            width: '18px',
-            height: '18px',
-            transform: checked ? 'translateX(20px)' : 'translateX(2px)',
-          }}
+          className="tbn-toggle__knob"
+          style={{ transform: checked ? 'translateX(18px)' : 'translateX(2px)' }}
         />
       </button>
     </div>

@@ -331,8 +331,8 @@ function PurchaseOrderModal({ items, onClose }: {
       h1 { font-size: 18px; margin-bottom: 5px; }
       h2 { font-size: 14px; color: #666; margin-bottom: 20px; }
       table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-      th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 13px; }
-      th { background: #f5f5f5; font-weight: bold; }
+      th, td { border: 1px solid var(--border-medium); padding: 8px; text-align: left; font-size: 13px; color: var(--text-primary); }
+      th { background: var(--overlay-subtle); font-weight: bold; }
       .footer { margin-top: 40px; font-size: 12px; color: #888; }
     </style></head><body>${content.innerHTML}</body></html>`);
     w.document.close();
@@ -356,19 +356,19 @@ function PurchaseOrderModal({ items, onClose }: {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                <th style={{ borderBottom: '2px solid #333', padding: '6px', textAlign: 'left' }}>Medication</th>
-                <th style={{ borderBottom: '2px solid #333', padding: '6px', textAlign: 'left' }}>Current Stock</th>
-                <th style={{ borderBottom: '2px solid #333', padding: '6px', textAlign: 'left' }}>Order Qty</th>
-                <th style={{ borderBottom: '2px solid #333', padding: '6px', textAlign: 'left' }}>Unit</th>
+                <th style={{ borderBottom: '2px solid var(--border-medium)', padding: '6px', textAlign: 'left' }}>Medication</th>
+                <th style={{ borderBottom: '2px solid var(--border-medium)', padding: '6px', textAlign: 'left' }}>Current Stock</th>
+                <th style={{ borderBottom: '2px solid var(--border-medium)', padding: '6px', textAlign: 'left' }}>Order Qty</th>
+                <th style={{ borderBottom: '2px solid var(--border-medium)', padding: '6px', textAlign: 'left' }}>Unit</th>
               </tr>
             </thead>
             <tbody>
               {items.map((item, i) => (
                 <tr key={i}>
-                  <td style={{ borderBottom: '1px solid #ddd', padding: '6px' }}>{item.name}</td>
-                  <td style={{ borderBottom: '1px solid #ddd', padding: '6px' }}>{item.stock}</td>
-                  <td style={{ borderBottom: '1px solid #ddd', padding: '6px' }}>{item.reorder * 2}</td>
-                  <td style={{ borderBottom: '1px solid #ddd', padding: '6px' }}>{item.unit}</td>
+                  <td style={{ borderBottom: '1px solid var(--border-medium)', padding: '6px', color: 'var(--text-primary)' }}>{item.name}</td>
+                  <td style={{ borderBottom: '1px solid var(--border-medium)', padding: '6px', color: 'var(--text-primary)' }}>{item.stock}</td>
+                  <td style={{ borderBottom: '1px solid var(--border-medium)', padding: '6px', color: 'var(--text-primary)' }}>{item.reorder * 2}</td>
+                  <td style={{ borderBottom: '1px solid var(--border-medium)', padding: '6px', color: 'var(--text-primary)' }}>{item.unit}</td>
                 </tr>
               ))}
             </tbody>
