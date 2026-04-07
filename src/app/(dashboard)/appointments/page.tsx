@@ -39,17 +39,17 @@ const departments = [
 const statusConfig: Record<AppointmentStatus, { color: string; bg: string; label: string }> = {
   scheduled: { color: 'var(--accent-primary)', bg: 'var(--accent-light)', label: 'Scheduled' },
   confirmed: { color: '#7C3AED', bg: 'rgba(124,58,237,0.08)', label: 'Confirmed' },
-  checked_in: { color: '#D97706', bg: 'rgba(217,119,6,0.08)', label: 'Checked In' },
-  in_progress: { color: '#059669', bg: 'rgba(5,150,105,0.08)', label: 'In Progress' },
-  completed: { color: '#10B981', bg: 'rgba(16,185,129,0.08)', label: 'Completed' },
-  cancelled: { color: '#EF4444', bg: 'rgba(239,68,68,0.08)', label: 'Cancelled' },
+  checked_in: { color: 'var(--color-warning)', bg: 'rgba(217,119,6,0.08)', label: 'Checked In' },
+  in_progress: { color: 'var(--color-success)', bg: 'rgba(5,150,105,0.08)', label: 'In Progress' },
+  completed: { color: 'var(--color-success)', bg: 'rgba(16,185,129,0.08)', label: 'Completed' },
+  cancelled: { color: 'var(--color-danger)', bg: 'rgba(239,68,68,0.08)', label: 'Cancelled' },
   no_show: { color: '#6B7280', bg: 'rgba(107,114,128,0.08)', label: 'No Show' },
 };
 
 const priorityConfig: Record<AppointmentPriority, { color: string; label: string }> = {
-  routine: { color: '#10B981', label: 'Routine' },
-  urgent: { color: '#F59E0B', label: 'Urgent' },
-  emergency: { color: '#EF4444', label: 'Emergency' },
+  routine: { color: 'var(--color-success)', label: 'Routine' },
+  urgent: { color: 'var(--color-warning)', label: 'Urgent' },
+  emergency: { color: 'var(--color-danger)', label: 'Emergency' },
 };
 
 const timeSlots = Array.from({ length: 24 }, (_, h) =>
@@ -287,10 +287,10 @@ export default function AppointmentsPage() {
           <div className="stat-grid" style={{ marginBottom: 20 }}>
             {[
               { label: "Today's Appointments", value: stats.todayTotal, icon: Calendar, color: 'var(--accent-primary)' },
-              { label: 'Pending Approval', value: pendingApprovals.length, icon: Clock, color: '#D97706' },
+              { label: 'Pending Approval', value: pendingApprovals.length, icon: Clock, color: 'var(--color-warning)' },
               { label: 'Walk-Ins Today', value: walkIns.length, icon: UserPlus, color: '#7C3AED' },
-              { label: 'Completed', value: stats.todayCompleted, icon: CheckCircle2, color: '#10B981' },
-              { label: 'No-Show Rate', value: `${stats.noShowRate}%`, icon: XCircle, color: '#EF4444' },
+              { label: 'Completed', value: stats.todayCompleted, icon: CheckCircle2, color: 'var(--color-success)' },
+              { label: 'No-Show Rate', value: `${stats.noShowRate}%`, icon: XCircle, color: 'var(--color-danger)' },
             ].map((c, i) => (
               <div key={i} className="card-elevated" style={{ padding: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -404,8 +404,8 @@ export default function AppointmentsPage() {
                     }}>{day.day}</span>
                     {counts && (
                       <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', justifyContent: 'center' }}>
-                        {counts.pending > 0 && <span style={dotStyle('#D97706')} title={`${counts.pending} pending`} />}
-                        {counts.confirmed > 0 && <span style={dotStyle('#10B981')} title={`${counts.confirmed} active`} />}
+                        {counts.pending > 0 && <span style={dotStyle('var(--color-warning)')} title={`${counts.pending} pending`} />}
+                        {counts.confirmed > 0 && <span style={dotStyle('var(--color-success)')} title={`${counts.confirmed} active`} />}
                         {counts.walkIn > 0 && <span style={dotStyle('#7C3AED')} title={`${counts.walkIn} walk-in`} />}
                         <span style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 }}>{counts.total}</span>
                       </div>
@@ -418,8 +418,8 @@ export default function AppointmentsPage() {
             {/* Legend */}
             <div style={{ display: 'flex', gap: 16, padding: '10px 20px', borderTop: '1px solid var(--border-medium)', flexWrap: 'wrap' }}>
               {[
-                { color: '#D97706', label: 'Pending' },
-                { color: '#10B981', label: 'Active' },
+                { color: 'var(--color-warning)', label: 'Pending' },
+                { color: 'var(--color-success)', label: 'Active' },
                 { color: '#7C3AED', label: 'Walk-In' },
               ].map(l => (
                 <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-muted)' }}>
@@ -437,7 +437,7 @@ export default function AppointmentsPage() {
             padding: '12px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12,
             borderLeft: '3px solid #D97706',
           }}>
-            <Clock size={18} style={{ color: '#D97706', flexShrink: 0 }} />
+            <Clock size={18} style={{ color: 'var(--color-warning)', flexShrink: 0 }} />
             <div style={{ flex: 1 }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
                 {pendingApprovals.length} appointment{pendingApprovals.length > 1 ? 's' : ''} pending approval
@@ -540,7 +540,7 @@ export default function AppointmentsPage() {
                           </div>
                         )}
                         {apt.status === 'cancelled' && apt.cancelledReason && (
-                          <div style={{ padding: 10, background: 'rgba(239,68,68,0.04)', borderRadius: 8, fontSize: 12, color: '#EF4444' }}>
+                          <div style={{ padding: 10, background: 'rgba(239,68,68,0.04)', borderRadius: 8, fontSize: 12, color: 'var(--color-danger)' }}>
                             <strong>Cancellation:</strong> {apt.cancelledReason}
                           </div>
                         )}
@@ -630,7 +630,7 @@ export default function AppointmentsPage() {
 
         {/* Cancel */}
         {cancelId && (
-          <Modal onClose={() => { setCancelId(null); setCancelReason(''); }} title="Cancel Appointment" titleColor="#EF4444" icon={<AlertTriangle size={20} style={{ color: '#EF4444' }} />} size="sm">
+          <Modal onClose={() => { setCancelId(null); setCancelReason(''); }} title="Cancel Appointment" titleColor="#EF4444" icon={<AlertTriangle size={20} style={{ color: 'var(--color-danger)' }} />} size="sm">
             <div><label>Reason for cancellation</label><textarea value={cancelReason} onChange={e => setCancelReason(e.target.value)} rows={3} placeholder="Why is this being cancelled?" /></div>
             <ModalActions onCancel={() => { setCancelId(null); setCancelReason(''); }} onConfirm={handleCancel} confirmLabel="Cancel Appointment" confirmColor="#EF4444" cancelLabel="Go Back" />
           </Modal>
@@ -694,11 +694,11 @@ export default function AppointmentsPage() {
                           <button onClick={() => { setShowDayPopup(false); setEditingApt(apt._id); loadEditForm(apt); }} title="Edit" style={miniBtn('var(--accent-primary)')}>
                             <ClipboardList size={12} />
                           </button>
-                          <button onClick={() => { setShowDayPopup(false); setRescheduleId(apt._id); setRescheduleDate(apt.appointmentDate); setRescheduleTime(apt.appointmentTime); }} title="Reschedule" style={miniBtn('#D97706')}>
+                          <button onClick={() => { setShowDayPopup(false); setRescheduleId(apt._id); setRescheduleDate(apt.appointmentDate); setRescheduleTime(apt.appointmentTime); }} title="Reschedule" style={miniBtn('var(--color-warning)')}>
                             <RefreshCw size={12} />
                           </button>
                           {(apt.status !== 'completed' && apt.status !== 'cancelled') && (
-                            <button onClick={() => { setShowDayPopup(false); setCancelId(apt._id); }} title="Cancel" style={miniBtn('#EF4444')}>
+                            <button onClick={() => { setShowDayPopup(false); setCancelId(apt._id); }} title="Cancel" style={miniBtn('var(--color-danger)')}>
                               <X size={12} />
                             </button>
                           )}

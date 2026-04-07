@@ -54,15 +54,15 @@ interface TriageResult {
 
 // Simulated nursing care events
 const NURSE_EVENTS = [
-  { type: 'vitals', label: 'Vitals Recorded', color: '#4ADE80', icon: Activity },
+  { type: 'vitals', label: 'Vitals Recorded', color: 'var(--color-success)', icon: Activity },
   { type: 'medication', label: 'Medication Given', color: '#60A5FA', icon: Pill },
   { type: 'birth_assist', label: 'Birth Assisted', color: '#EC4899', icon: Baby },
   { type: 'immunization', label: 'Immunization Given', color: '#A855F7', icon: Syringe },
   { type: 'wound_care', label: 'Wound Dressed', color: '#FB923C', icon: Bandage },
   { type: 'anc_check', label: 'ANC Checkup', color: '#F472B6', icon: HeartPulse },
-  { type: 'blood_draw', label: 'Blood Sample Drawn', color: '#EF4444', icon: Droplets },
+  { type: 'blood_draw', label: 'Blood Sample Drawn', color: 'var(--color-danger)', icon: Droplets },
   { type: 'patient_assess', label: 'Patient Assessment', color: '#38BDF8', icon: Clipboard },
-  { type: 'temp_check', label: 'Temperature Check', color: '#FBBF24', icon: Thermometer },
+  { type: 'temp_check', label: 'Temperature Check', color: 'var(--color-warning)', icon: Thermometer },
 ];
 
 const NAMES = [
@@ -344,19 +344,19 @@ export default function NurseDashboardPage() {
   // MAR color helper
   const marStatusColor = (status: MAREntry['status']) => {
     switch (status) {
-      case 'overdue': return { bg: 'rgba(239,68,68,0.12)', color: '#EF4444', label: 'OVERDUE' };
-      case 'due': return { bg: 'rgba(251,191,36,0.12)', color: '#FBBF24', label: 'DUE NOW' };
-      case 'upcoming': return { bg: 'rgba(148,163,184,0.12)', color: '#94A3B8', label: 'UPCOMING' };
-      case 'given': return { bg: 'rgba(74,222,128,0.12)', color: '#4ADE80', label: 'GIVEN' };
+      case 'overdue': return { bg: 'rgba(239,68,68,0.12)', color: 'var(--color-danger)', label: 'OVERDUE' };
+      case 'due': return { bg: 'rgba(251,191,36,0.12)', color: 'var(--color-warning)', label: 'DUE NOW' };
+      case 'upcoming': return { bg: 'rgba(148,163,184,0.12)', color: 'var(--text-muted)', label: 'UPCOMING' };
+      case 'given': return { bg: 'rgba(74,222,128,0.12)', color: 'var(--color-success)', label: 'GIVEN' };
     }
   };
 
   const triagePriorityColor = (priority: string) => {
     switch (priority) {
-      case 'RED': return { bg: '#EF4444', text: '#FFF', label: 'EMERGENCY - Immediate treatment required' };
-      case 'YELLOW': return { bg: '#FBBF24', text: '#000', label: 'PRIORITY - Needs prompt attention' };
-      case 'GREEN': return { bg: '#4ADE80', text: '#000', label: 'NON-URGENT - Standard queue' };
-      default: return { bg: '#94A3B8', text: '#FFF', label: 'Complete all fields' };
+      case 'RED': return { bg: 'var(--color-danger)', text: '#FFF', label: 'EMERGENCY - Immediate treatment required' };
+      case 'YELLOW': return { bg: 'var(--color-warning)', text: '#000', label: 'PRIORITY - Needs prompt attention' };
+      case 'GREEN': return { bg: 'var(--color-success)', text: '#000', label: 'NON-URGENT - Standard queue' };
+      default: return { bg: 'var(--text-muted)', text: '#FFF', label: 'Complete all fields' };
     }
   };
 
@@ -398,7 +398,7 @@ export default function NurseDashboardPage() {
             </button>
             <div className="text-[10px] text-right" style={{ color: 'var(--text-muted)' }}>
               <div className="flex items-center gap-1">
-                <Wifi className="w-3 h-3" style={{ color: '#4ADE80' }} />
+                <Wifi className="w-3 h-3" style={{ color: 'var(--color-success)' }} />
                 <span>Connected · {hospital?.internetType || 'N/A'}</span>
               </div>
             </div>
@@ -413,7 +413,7 @@ export default function NurseDashboardPage() {
             { label: 'Meds Due', value: medsDue.toString(), icon: Pill, color: '#60A5FA' },
             { label: 'ANC Mothers', value: ancStats?.totalMothers?.toString() || '0', icon: HeartPulse, color: '#F472B6' },
             { label: 'Immunizations', value: immStats?.totalVaccinations?.toString() || '0', icon: Syringe, color: '#A855F7' },
-            { label: 'Births (Wk)', value: birthStats?.total?.toString() || '0', icon: Baby, color: '#4ADE80' },
+            { label: 'Births (Wk)', value: birthStats?.total?.toString() || '0', icon: Baby, color: 'var(--color-success)' },
             { label: 'Pending Orders', value: pendingOrders.toString(), icon: Clipboard, color: '#FB923C' },
             { label: 'Messages', value: messagesCount.toString(), icon: MessageSquare, color: '#38BDF8' },
           ].map((kpi) => (
@@ -524,7 +524,7 @@ export default function NurseDashboardPage() {
                         {/* Priority indicator bar */}
                         {sortByUrgency && (
                           <div className="w-1 h-full min-h-[40px] rounded-full flex-shrink-0" style={{
-                            background: priorityLevel === 1 ? '#EF4444' : priorityLevel === 2 ? '#FBBF24' : '#4ADE80',
+                            background: priorityLevel === 1 ? 'var(--color-danger)' : priorityLevel === 2 ? 'var(--color-warning)' : 'var(--color-success)',
                           }} />
                         )}
                         <div className="w-9 h-9 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
@@ -540,7 +540,7 @@ export default function NurseDashboardPage() {
                         <div className="text-right flex-shrink-0">
                           <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{
                             background: vitalStatus === 'overdue' ? 'rgba(248,113,113,0.15)' : vitalStatus === 'due' ? 'rgba(251,191,36,0.15)' : 'rgba(74,222,128,0.15)',
-                            color: vitalStatus === 'overdue' ? '#F87171' : vitalStatus === 'due' ? '#FBBF24' : '#4ADE80',
+                            color: vitalStatus === 'overdue' ? '#F87171' : vitalStatus === 'due' ? 'var(--color-warning)' : 'var(--color-success)',
                           }}>{vitalStatus === 'overdue' ? 'VITALS OVERDUE' : vitalStatus === 'due' ? 'VITALS DUE' : 'VITALS OK'}</span>
                           <p className="text-[9px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{patient.hospitalNumber}</p>
                         </div>
@@ -617,11 +617,11 @@ export default function NurseDashboardPage() {
                             }}
                             title="Mark as given"
                           >
-                            <Check className="w-3 h-3" style={{ color: '#4ADE80' }} />
+                            <Check className="w-3 h-3" style={{ color: 'var(--color-success)' }} />
                           </button>
                         ) : (
                           <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: 'rgba(74,222,128,0.2)' }}>
-                            <Check className="w-3 h-3" style={{ color: '#4ADE80' }} />
+                            <Check className="w-3 h-3" style={{ color: 'var(--color-success)' }} />
                           </div>
                         )}
                       </div>
@@ -686,7 +686,7 @@ export default function NurseDashboardPage() {
                               ? (opt === 'clear' ? 'rgba(74,222,128,0.2)' : 'rgba(239,68,68,0.2)')
                               : 'var(--bg-card)',
                             color: triageData.airway === opt
-                              ? (opt === 'clear' ? '#4ADE80' : '#EF4444')
+                              ? (opt === 'clear' ? 'var(--color-success)' : 'var(--color-danger)')
                               : 'var(--text-secondary)',
                             border: `1px solid ${triageData.airway === opt
                               ? (opt === 'clear' ? 'rgba(74,222,128,0.3)' : 'rgba(239,68,68,0.3)')
@@ -716,7 +716,7 @@ export default function NurseDashboardPage() {
                               ? (opt === 'normal' ? 'rgba(74,222,128,0.2)' : opt === 'distressed' ? 'rgba(251,191,36,0.2)' : 'rgba(239,68,68,0.2)')
                               : 'var(--bg-card)',
                             color: triageData.breathing === opt
-                              ? (opt === 'normal' ? '#4ADE80' : opt === 'distressed' ? '#FBBF24' : '#EF4444')
+                              ? (opt === 'normal' ? 'var(--color-success)' : opt === 'distressed' ? 'var(--color-warning)' : 'var(--color-danger)')
                               : 'var(--text-secondary)',
                             border: `1px solid ${triageData.breathing === opt
                               ? (opt === 'normal' ? 'rgba(74,222,128,0.3)' : opt === 'distressed' ? 'rgba(251,191,36,0.3)' : 'rgba(239,68,68,0.3)')
@@ -746,7 +746,7 @@ export default function NurseDashboardPage() {
                               ? (opt === 'normal' ? 'rgba(74,222,128,0.2)' : opt === 'impaired' ? 'rgba(251,191,36,0.2)' : 'rgba(239,68,68,0.2)')
                               : 'var(--bg-card)',
                             color: triageData.circulation === opt
-                              ? (opt === 'normal' ? '#4ADE80' : opt === 'impaired' ? '#FBBF24' : '#EF4444')
+                              ? (opt === 'normal' ? 'var(--color-success)' : opt === 'impaired' ? 'var(--color-warning)' : 'var(--color-danger)')
                               : 'var(--text-secondary)',
                             border: `1px solid ${triageData.circulation === opt
                               ? (opt === 'normal' ? 'rgba(74,222,128,0.3)' : opt === 'impaired' ? 'rgba(251,191,36,0.3)' : 'rgba(239,68,68,0.3)')
@@ -781,7 +781,7 @@ export default function NurseDashboardPage() {
                               ? (opt.key === 'alert' ? 'rgba(74,222,128,0.2)' : opt.key === 'verbal' ? 'rgba(251,191,36,0.2)' : 'rgba(239,68,68,0.2)')
                               : 'var(--bg-card)',
                             color: triageData.consciousness === opt.key
-                              ? (opt.key === 'alert' ? '#4ADE80' : opt.key === 'verbal' ? '#FBBF24' : '#EF4444')
+                              ? (opt.key === 'alert' ? 'var(--color-success)' : opt.key === 'verbal' ? 'var(--color-warning)' : 'var(--color-danger)')
                               : 'var(--text-secondary)',
                             border: `1px solid ${triageData.consciousness === opt.key
                               ? (opt.key === 'alert' ? 'rgba(74,222,128,0.3)' : opt.key === 'verbal' ? 'rgba(251,191,36,0.3)' : 'rgba(239,68,68,0.3)')
@@ -898,7 +898,7 @@ export default function NurseDashboardPage() {
               </div>
               <div className="p-3 space-y-2">
                 {[
-                  { label: 'Vitals Taken', value: Math.max(8, Math.floor(patients.length * 0.4)), color: '#4ADE80' },
+                  { label: 'Vitals Taken', value: Math.max(8, Math.floor(patients.length * 0.4)), color: 'var(--color-success)' },
                   { label: 'Meds Given', value: Math.max(5, Math.floor(patients.length * 0.2)), color: '#60A5FA' },
                   { label: 'Assessments', value: Math.max(3, Math.floor(patients.length * 0.15)), color: '#A855F7' },
                   { label: 'Births Assisted', value: birthStats?.total || 0, color: ACCENT },
@@ -921,7 +921,7 @@ export default function NurseDashboardPage() {
               <p className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Quick Actions</p>
               <div className="grid grid-cols-2 gap-1.5">
                 {[
-                  { label: 'Record Vitals', icon: Activity, href: '/patients', color: '#4ADE80' },
+                  { label: 'Record Vitals', icon: Activity, href: '/patients', color: 'var(--color-success)' },
                   { label: 'ANC Visit', icon: HeartPulse, href: '/anc', color: '#F472B6' },
                   { label: 'Immunization', icon: Syringe, href: '/immunizations', color: '#A855F7' },
                   { label: 'Birth Reg.', icon: Baby, href: '/births', color: ACCENT },
@@ -1015,9 +1015,9 @@ export default function NurseDashboardPage() {
             {vitalsSaved ? (
               <div className="p-8 text-center">
                 <div className="w-14 h-14 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: 'rgba(74,222,128,0.15)' }}>
-                  <Check className="w-7 h-7" style={{ color: '#4ADE80' }} />
+                  <Check className="w-7 h-7" style={{ color: 'var(--color-success)' }} />
                 </div>
-                <p className="text-sm font-semibold" style={{ color: '#4ADE80' }}>Vitals Saved Successfully</p>
+                <p className="text-sm font-semibold" style={{ color: 'var(--color-success)' }}>Vitals Saved Successfully</p>
               </div>
             ) : (
               <div className="p-4 space-y-3">
@@ -1037,7 +1037,7 @@ export default function NurseDashboardPage() {
                         style={{
                           background: vitalFlags.systolic ? 'rgba(239,68,68,0.1)' : 'var(--overlay-subtle)',
                           border: `1px solid ${vitalFlags.systolic ? 'rgba(239,68,68,0.4)' : 'var(--border-light)'}`,
-                          color: vitalFlags.systolic ? '#EF4444' : 'var(--text-primary)',
+                          color: vitalFlags.systolic ? 'var(--color-danger)' : 'var(--text-primary)',
                         }}
                       />
                     </div>
@@ -1052,13 +1052,13 @@ export default function NurseDashboardPage() {
                         style={{
                           background: vitalFlags.diastolic ? 'rgba(239,68,68,0.1)' : 'var(--overlay-subtle)',
                           border: `1px solid ${vitalFlags.diastolic ? 'rgba(239,68,68,0.4)' : 'var(--border-light)'}`,
-                          color: vitalFlags.diastolic ? '#EF4444' : 'var(--text-primary)',
+                          color: vitalFlags.diastolic ? 'var(--color-danger)' : 'var(--text-primary)',
                         }}
                       />
                     </div>
                   </div>
                   {(vitalFlags.systolic || vitalFlags.diastolic) && (
-                    <p className="text-[10px] mt-1 font-semibold" style={{ color: '#EF4444' }}>
+                    <p className="text-[10px] mt-1 font-semibold" style={{ color: 'var(--color-danger)' }}>
                       <AlertCircle className="w-3 h-3 inline mr-1" />Abnormal BP detected
                     </p>
                   )}
@@ -1079,11 +1079,11 @@ export default function NurseDashboardPage() {
                     style={{
                       background: vitalFlags.temperature ? 'rgba(239,68,68,0.1)' : 'var(--overlay-subtle)',
                       border: `1px solid ${vitalFlags.temperature ? 'rgba(239,68,68,0.4)' : 'var(--border-light)'}`,
-                      color: vitalFlags.temperature ? '#EF4444' : 'var(--text-primary)',
+                      color: vitalFlags.temperature ? 'var(--color-danger)' : 'var(--text-primary)',
                     }}
                   />
                   {vitalFlags.temperature && (
-                    <p className="text-[10px] mt-1 font-semibold" style={{ color: '#EF4444' }}>
+                    <p className="text-[10px] mt-1 font-semibold" style={{ color: 'var(--color-danger)' }}>
                       <AlertCircle className="w-3 h-3 inline mr-1" />Fever detected ({'>'}38.5°C)
                     </p>
                   )}
@@ -1104,11 +1104,11 @@ export default function NurseDashboardPage() {
                       style={{
                         background: vitalFlags.pulse ? 'rgba(239,68,68,0.1)' : 'var(--overlay-subtle)',
                         border: `1px solid ${vitalFlags.pulse ? 'rgba(239,68,68,0.4)' : 'var(--border-light)'}`,
-                        color: vitalFlags.pulse ? '#EF4444' : 'var(--text-primary)',
+                        color: vitalFlags.pulse ? 'var(--color-danger)' : 'var(--text-primary)',
                       }}
                     />
                     {vitalFlags.pulse && (
-                      <p className="text-[10px] mt-1 font-semibold" style={{ color: '#EF4444' }}>
+                      <p className="text-[10px] mt-1 font-semibold" style={{ color: 'var(--color-danger)' }}>
                         <AlertCircle className="w-3 h-3 inline mr-1" />Abnormal pulse
                       </p>
                     )}
@@ -1128,11 +1128,11 @@ export default function NurseDashboardPage() {
                       style={{
                         background: vitalFlags.spo2 ? 'rgba(239,68,68,0.1)' : 'var(--overlay-subtle)',
                         border: `1px solid ${vitalFlags.spo2 ? 'rgba(239,68,68,0.4)' : 'var(--border-light)'}`,
-                        color: vitalFlags.spo2 ? '#EF4444' : 'var(--text-primary)',
+                        color: vitalFlags.spo2 ? 'var(--color-danger)' : 'var(--text-primary)',
                       }}
                     />
                     {vitalFlags.spo2 && (
-                      <p className="text-[10px] mt-1 font-semibold" style={{ color: '#EF4444' }}>
+                      <p className="text-[10px] mt-1 font-semibold" style={{ color: 'var(--color-danger)' }}>
                         <AlertCircle className="w-3 h-3 inline mr-1" />Low SpO2 ({'<'}95%)
                       </p>
                     )}
@@ -1172,11 +1172,11 @@ export default function NurseDashboardPage() {
                       style={{
                         background: vitalFlags.respiratoryRate ? 'rgba(239,68,68,0.1)' : 'var(--overlay-subtle)',
                         border: `1px solid ${vitalFlags.respiratoryRate ? 'rgba(239,68,68,0.4)' : 'var(--border-light)'}`,
-                        color: vitalFlags.respiratoryRate ? '#EF4444' : 'var(--text-primary)',
+                        color: vitalFlags.respiratoryRate ? 'var(--color-danger)' : 'var(--text-primary)',
                       }}
                     />
                     {vitalFlags.respiratoryRate && (
-                      <p className="text-[10px] mt-1 font-semibold" style={{ color: '#EF4444' }}>
+                      <p className="text-[10px] mt-1 font-semibold" style={{ color: 'var(--color-danger)' }}>
                         <AlertCircle className="w-3 h-3 inline mr-1" />Abnormal RR
                       </p>
                     )}
@@ -1206,10 +1206,10 @@ export default function NurseDashboardPage() {
                 {Object.keys(vitalFlags).length > 0 && (
                   <div className="p-3 rounded-xl" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
                     <div className="flex items-center gap-2 mb-1">
-                      <AlertTriangle className="w-4 h-4" style={{ color: '#EF4444' }} />
-                      <span className="text-xs font-semibold" style={{ color: '#EF4444' }}>Abnormal Values Detected</span>
+                      <AlertTriangle className="w-4 h-4" style={{ color: 'var(--color-danger)' }} />
+                      <span className="text-xs font-semibold" style={{ color: 'var(--color-danger)' }}>Abnormal Values Detected</span>
                     </div>
-                    <p className="text-[10px]" style={{ color: '#EF4444' }}>
+                    <p className="text-[10px]" style={{ color: 'var(--color-danger)' }}>
                       {Object.keys(vitalFlags).map(k => {
                         const labels: Record<string, string> = { systolic: 'Systolic BP', diastolic: 'Diastolic BP', temperature: 'Temperature', spo2: 'SpO2', pulse: 'Pulse', respiratoryRate: 'Respiratory Rate' };
                         return labels[k] || k;
@@ -1223,7 +1223,7 @@ export default function NurseDashboardPage() {
                   onClick={handleSaveVitals}
                   disabled={vitalsSaving}
                   className="w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-all"
-                  style={{ background: vitalsSaving ? '#94A3B8' : ACCENT }}
+                  style={{ background: vitalsSaving ? 'var(--text-muted)' : ACCENT }}
                 >
                   {vitalsSaving ? 'Saving...' : 'Save Vitals'}
                 </button>
@@ -1270,9 +1270,9 @@ export default function NurseDashboardPage() {
               {/* Critical Patients */}
               <div className="rounded-xl p-3" style={{ background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.15)' }}>
                 <div className="flex items-center gap-2 mb-2">
-                  <AlertCircle className="w-4 h-4" style={{ color: '#EF4444' }} />
-                  <span className="text-xs font-semibold" style={{ color: '#EF4444' }}>Critical Patients (Abnormal Vitals)</span>
-                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(239,68,68,0.15)', color: '#EF4444' }}>
+                  <AlertCircle className="w-4 h-4" style={{ color: 'var(--color-danger)' }} />
+                  <span className="text-xs font-semibold" style={{ color: 'var(--color-danger)' }}>Critical Patients (Abnormal Vitals)</span>
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(239,68,68,0.15)', color: 'var(--color-danger)' }}>
                     {criticalPatients.length}
                   </span>
                 </div>
@@ -1280,7 +1280,7 @@ export default function NurseDashboardPage() {
                   <div className="space-y-1">
                     {criticalPatients.map(p => (
                       <div key={p._id} className="flex items-center gap-2 p-2 rounded-lg" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
-                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white" style={{ background: '#EF4444' }}>
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white" style={{ background: 'var(--color-danger)' }}>
                           {(p.firstName || '?')[0]}{(p.surname || '?')[0]}
                         </div>
                         <span className="text-[10px] font-medium" style={{ color: 'var(--text-primary)' }}>{p.firstName} {p.surname}</span>
@@ -1296,8 +1296,8 @@ export default function NurseDashboardPage() {
               {/* Pending Tasks */}
               <div className="rounded-xl p-3" style={{ background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.15)' }}>
                 <div className="flex items-center gap-2 mb-2">
-                  <Clock className="w-4 h-4" style={{ color: '#FBBF24' }} />
-                  <span className="text-xs font-semibold" style={{ color: '#FBBF24' }}>Pending Tasks</span>
+                  <Clock className="w-4 h-4" style={{ color: 'var(--color-warning)' }} />
+                  <span className="text-xs font-semibold" style={{ color: 'var(--color-warning)' }}>Pending Tasks</span>
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center justify-between p-2 rounded-lg" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
@@ -1306,11 +1306,11 @@ export default function NurseDashboardPage() {
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-lg" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
                     <span className="text-[10px]" style={{ color: 'var(--text-primary)' }}>Medications overdue</span>
-                    <span className="text-xs font-bold" style={{ color: '#EF4444' }}>{overdueMarCount}</span>
+                    <span className="text-xs font-bold" style={{ color: 'var(--color-danger)' }}>{overdueMarCount}</span>
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-lg" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
                     <span className="text-[10px]" style={{ color: 'var(--text-primary)' }}>Medications due now</span>
-                    <span className="text-xs font-bold" style={{ color: '#FBBF24' }}>{dueMarCount}</span>
+                    <span className="text-xs font-bold" style={{ color: 'var(--color-warning)' }}>{dueMarCount}</span>
                   </div>
                 </div>
               </div>
@@ -1319,10 +1319,10 @@ export default function NurseDashboardPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-xl p-3" style={{ background: 'rgba(74,222,128,0.05)', border: '1px solid rgba(74,222,128,0.15)' }}>
                   <div className="flex items-center gap-2 mb-1">
-                    <BedDouble className="w-4 h-4" style={{ color: '#4ADE80' }} />
-                    <span className="text-xs font-semibold" style={{ color: '#4ADE80' }}>New Admissions Today</span>
+                    <BedDouble className="w-4 h-4" style={{ color: 'var(--color-success)' }} />
+                    <span className="text-xs font-semibold" style={{ color: 'var(--color-success)' }}>New Admissions Today</span>
                   </div>
-                  <p className="text-2xl font-bold" style={{ color: '#4ADE80' }}>{Math.max(1, Math.floor(patients.length * 0.05))}</p>
+                  <p className="text-2xl font-bold" style={{ color: 'var(--color-success)' }}>{Math.max(1, Math.floor(patients.length * 0.05))}</p>
                 </div>
                 <div className="rounded-xl p-3" style={{ background: 'rgba(96,165,250,0.05)', border: '1px solid rgba(96,165,250,0.15)' }}>
                   <div className="flex items-center gap-2 mb-1">

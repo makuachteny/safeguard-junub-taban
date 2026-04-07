@@ -19,9 +19,9 @@ const ACCENT = 'var(--accent-primary)';
 const EVENT_TYPES = [
   { type: 'arrival', label: 'Patient Arrived', color: '#14B8A6', icon: LogIn },
   { type: 'registered', label: 'Patient Registered', color: '#60A5FA', icon: UserPlus },
-  { type: 'checked_in', label: 'Patient Checked In', color: '#4ADE80', icon: ClipboardCheck },
+  { type: 'checked_in', label: 'Patient Checked In', color: 'var(--color-success)', icon: ClipboardCheck },
   { type: 'appointment', label: 'Appointment Scheduled', color: '#A855F7', icon: Calendar },
-  { type: 'referral', label: 'Referral Received', color: '#FCD34D', icon: ArrowRightLeft },
+  { type: 'referral', label: 'Referral Received', color: 'var(--color-warning)', icon: ArrowRightLeft },
   { type: 'message', label: 'Message Sent', color: '#FB923C', icon: MessageSquare },
   { type: 'triage', label: 'Triage Complete', color: '#EC4899', icon: Activity },
   { type: 'discharge', label: 'Patient Discharged', color: '#38BDF8', icon: FileText },
@@ -300,10 +300,10 @@ export default function FrontDeskDashboardPage() {
   });
 
   const statusColor = (s: QueueStatus) =>
-    s === 'WAITING' ? '#60A5FA' : s === 'IN CONSULT' ? '#FBBF24' : '#4ADE80';
+    s === 'WAITING' ? '#60A5FA' : s === 'IN CONSULT' ? 'var(--color-warning)' : 'var(--color-success)';
 
   const priorityColor = (p: string) =>
-    p === 'urgent' ? '#F87171' : p === 'normal' ? '#FBBF24' : '#4ADE80';
+    p === 'urgent' ? '#F87171' : p === 'normal' ? 'var(--color-warning)' : 'var(--color-success)';
 
   return (
     <>
@@ -330,7 +330,7 @@ export default function FrontDeskDashboardPage() {
           <div className="flex items-center gap-4">
             <div className="text-[10px] text-right" style={{ color: 'var(--text-muted)' }}>
               <div className="flex items-center gap-1">
-                <Wifi className="w-3 h-3" style={{ color: '#4ADE80' }} />
+                <Wifi className="w-3 h-3" style={{ color: 'var(--color-success)' }} />
                 <span>Connected · {hospital?.internetType || 'N/A'}</span>
               </div>
             </div>
@@ -342,9 +342,9 @@ export default function FrontDeskDashboardPage() {
           {[
             { label: 'Registrations', value: (hospital?.todayVisits || Math.max(12, patients.length)).toString(), icon: UserPlus, color: ACCENT },
             { label: 'Waiting', value: waitingQueue.length.toString(), icon: Clock, color: '#FB923C' },
-            { label: 'Check-ins', value: Math.floor(patients.length * 0.6).toString(), icon: ClipboardCheck, color: '#4ADE80' },
+            { label: 'Check-ins', value: Math.floor(patients.length * 0.6).toString(), icon: ClipboardCheck, color: 'var(--color-success)' },
             { label: 'Appointments', value: upcomingAppointments.length.toString(), icon: Calendar, color: '#60A5FA' },
-            { label: 'Referrals', value: pendingReferrals.length.toString(), icon: ArrowRightLeft, color: '#FCD34D' },
+            { label: 'Referrals', value: pendingReferrals.length.toString(), icon: ArrowRightLeft, color: 'var(--color-warning)' },
             { label: 'Messages', value: Math.floor(referrals.length * 1.5).toString(), icon: MessageSquare, color: '#A855F7' },
             { label: 'Active', value: patients.length.toString(), icon: Users, color: '#38BDF8' },
             { label: 'Pending', value: Math.ceil(patients.length * 0.15).toString(), icon: Bell, color: '#F87171' },
@@ -393,9 +393,9 @@ export default function FrontDeskDashboardPage() {
             <div className="p-3 space-y-2">
               {incomingReferrals.map(ref => {
                 const isExpanded = expandedReferralId === ref._id;
-                const urgencyColor = ref.urgency === 'emergency' ? '#EF4444' : ref.urgency === 'urgent' ? '#F59E0B' : '#4ADE80';
+                const urgencyColor = ref.urgency === 'emergency' ? 'var(--color-danger)' : ref.urgency === 'urgent' ? 'var(--color-warning)' : 'var(--color-success)';
                 const UrgencyIcon = ref.urgency === 'emergency' ? Zap : ref.urgency === 'urgent' ? AlertTriangle : CheckCircle;
-                const statusColor = ref.status === 'sent' ? '#60A5FA' : '#FBBF24';
+                const statusColor = ref.status === 'sent' ? '#60A5FA' : 'var(--color-warning)';
                 const isEmergency = ref.urgency === 'emergency';
 
                 return (
@@ -406,7 +406,7 @@ export default function FrontDeskDashboardPage() {
                   }}>
                     <div className="flex items-center gap-3 p-3">
                       <div className="w-9 h-9 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
-                        style={{ background: isEmergency ? '#EF4444' : ACCENT }}>
+                        style={{ background: isEmergency ? 'var(--color-danger)' : ACCENT }}>
                         {ref.patientName.split(' ').map(n => n[0]).join('').slice(0, 2)}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -726,7 +726,7 @@ export default function FrontDeskDashboardPage() {
             </div>
             <div className="p-3 space-y-2">
               {waitingQueue.map((item, idx) => {
-                const pColor = item.priority === 'urgent' ? '#F87171' : item.priority === 'normal' ? '#FBBF24' : '#4ADE80';
+                const pColor = item.priority === 'urgent' ? '#F87171' : item.priority === 'normal' ? 'var(--color-warning)' : 'var(--color-success)';
                 return (
                   <div key={idx} className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all"
                     onClick={() => router.push('/patients')}
@@ -824,7 +824,7 @@ export default function FrontDeskDashboardPage() {
             </div>
             <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
               {upcomingAppointments.map((appt, idx) => {
-                const sColor = appt.status === 'arrived' ? '#4ADE80' : appt.status === 'confirmed' ? '#60A5FA' : '#FBBF24';
+                const sColor = appt.status === 'arrived' ? 'var(--color-success)' : appt.status === 'confirmed' ? '#60A5FA' : 'var(--color-warning)';
                 return (
                   <div key={idx} className="p-2.5 rounded-xl transition-all cursor-pointer"
                     style={{
@@ -924,8 +924,8 @@ export default function FrontDeskDashboardPage() {
             <div className="space-y-2">
               {[
                 { label: 'Register Patient', icon: UserPlus, href: '/patients/new', color: ACCENT },
-                { label: 'Check In', icon: ClipboardCheck, href: '/patients', color: '#4ADE80' },
-                { label: 'Referrals', icon: ArrowRightLeft, href: '/referrals', color: '#FCD34D' },
+                { label: 'Check In', icon: ClipboardCheck, href: '/patients', color: 'var(--color-success)' },
+                { label: 'Referrals', icon: ArrowRightLeft, href: '/referrals', color: 'var(--color-warning)' },
                 { label: 'Message', icon: MessageSquare, href: '/messages', color: '#A855F7' },
               ].map(action => (
                 <button
@@ -948,7 +948,7 @@ export default function FrontDeskDashboardPage() {
               <p className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Referral Summary</p>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { label: 'Pending', value: pendingReferrals.length, color: '#FBBF24' },
+                  { label: 'Pending', value: pendingReferrals.length, color: 'var(--color-warning)' },
                   { label: 'Total', value: referrals.length, color: ACCENT },
                 ].map(stat => (
                   <div key={stat.label} className="text-center p-2 rounded-lg" style={{ background: `${stat.color}08` }}>

@@ -32,7 +32,7 @@ export default function EpidemicIntelligencePage() {
         <main className="page-container flex items-center justify-center">
           <div className="text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(239,68,68,0.1)' }}>
-              <Activity className="w-8 h-8" style={{ color: '#EF4444' }} />
+              <Activity className="w-8 h-8" style={{ color: 'var(--color-danger)' }} />
             </div>
             <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Loading epidemic intelligence...</p>
             <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Analyzing disease surveillance data</p>
@@ -45,15 +45,15 @@ export default function EpidemicIntelligencePage() {
   const { summary, epidemicCurves, rtEstimates, syndromicAlerts, idsrReport, geographicSpread, ewarsAlerts } = data;
 
   const riskColors: Record<string, { bg: string; text: string; border: string }> = {
-    low: { bg: 'rgba(74,222,128,0.1)', text: '#4ADE80', border: 'rgba(74,222,128,0.2)' },
-    moderate: { bg: 'rgba(251,191,36,0.1)', text: '#FBBF24', border: 'rgba(251,191,36,0.2)' },
+    low: { bg: 'rgba(74,222,128,0.1)', text: 'var(--color-success)', border: 'rgba(74,222,128,0.2)' },
+    moderate: { bg: 'rgba(251,191,36,0.1)', text: 'var(--color-warning)', border: 'rgba(251,191,36,0.2)' },
     high: { bg: 'rgba(251,146,60,0.1)', text: '#FB923C', border: 'rgba(251,146,60,0.2)' },
     critical: { bg: 'rgba(248,113,113,0.1)', text: '#F87171', border: 'rgba(248,113,113,0.2)' },
   };
 
   const severityColors: Record<string, { bg: string; text: string }> = {
-    low: { bg: 'rgba(74,222,128,0.12)', text: '#4ADE80' },
-    medium: { bg: 'rgba(251,191,36,0.12)', text: '#FBBF24' },
+    low: { bg: 'rgba(74,222,128,0.12)', text: 'var(--color-success)' },
+    medium: { bg: 'rgba(251,191,36,0.12)', text: 'var(--color-warning)' },
     high: { bg: 'rgba(251,146,60,0.12)', text: '#FB923C' },
     critical: { bg: 'rgba(248,113,113,0.12)', text: '#F87171' },
   };
@@ -127,12 +127,12 @@ export default function EpidemicIntelligencePage() {
         {/* ═══ KPI STRIP ═══ */}
         <div className="kpi-grid mb-4">
           {[
-            { label: 'Active Diseases', value: summary.totalActiveDiseases, icon: Bug, color: '#EF4444', bg: 'rgba(239,68,68,0.12)' },
+            { label: 'Active Diseases', value: summary.totalActiveDiseases, icon: Bug, color: 'var(--color-danger)', bg: 'rgba(239,68,68,0.12)' },
             { label: 'Cases This Week', value: summary.totalCasesThisWeek.toLocaleString(), icon: Activity, color: '#FB923C', bg: 'rgba(251,146,60,0.12)' },
             { label: 'Deaths This Week', value: summary.totalDeathsThisWeek, icon: AlertTriangle, color: '#F87171', bg: 'rgba(248,113,113,0.12)' },
-            { label: 'Highest Rt', value: summary.highestRt ? `${summary.highestRt.value.toFixed(2)}` : 'N/A', icon: TrendingUp, color: summary.highestRt && summary.highestRt.value > 1 ? '#EF4444' : '#4ADE80', bg: summary.highestRt && summary.highestRt.value > 1 ? 'rgba(239,68,68,0.12)' : 'rgba(74,222,128,0.12)' },
+            { label: 'Highest Rt', value: summary.highestRt ? `${summary.highestRt.value.toFixed(2)}` : 'N/A', icon: TrendingUp, color: summary.highestRt && summary.highestRt.value > 1 ? 'var(--color-danger)' : 'var(--color-success)', bg: summary.highestRt && summary.highestRt.value > 1 ? 'rgba(239,68,68,0.12)' : 'rgba(74,222,128,0.12)' },
             { label: 'Emergency States', value: summary.statesWithEmergency.length, icon: Zap, color: '#F87171', bg: 'rgba(248,113,113,0.12)' },
-            { label: 'EWARS Alerts', value: ewarsAlerts.length, icon: Radio, color: '#FBBF24', bg: 'rgba(251,191,36,0.12)' },
+            { label: 'EWARS Alerts', value: ewarsAlerts.length, icon: Radio, color: 'var(--color-warning)', bg: 'rgba(251,191,36,0.12)' },
           ].map((kpi) => (
             <div key={kpi.label} className="kpi">
               <div className="kpi__icon" style={{ background: kpi.bg }}>
@@ -175,7 +175,7 @@ export default function EpidemicIntelligencePage() {
             <div className="lg:col-span-2 card-elevated">
               <div className="px-3 py-2 border-b" style={{ borderColor: 'var(--border-light)' }}>
                 <h3 className="font-semibold text-sm flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-                  <TrendingUp className="w-4 h-4" style={{ color: '#EF4444' }} />
+                  <TrendingUp className="w-4 h-4" style={{ color: 'var(--color-danger)' }} />
                   Reproduction Number (Rt) Tracker
                 </h3>
                 <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>Rt {'>'} 1.0 = epidemic growing &middot; Rt {'<'} 1.0 = epidemic declining</p>
@@ -183,7 +183,7 @@ export default function EpidemicIntelligencePage() {
               <div className="p-4 space-y-3">
                 {rtEstimates.map(rt => {
                   const barWidth = Math.min(100, (rt.rt / 3) * 100);
-                  const rtColor = rt.rt > 1.5 ? '#EF4444' : rt.rt > 1.0 ? '#FB923C' : rt.rt > 0.8 ? '#FBBF24' : '#4ADE80';
+                  const rtColor = rt.rt > 1.5 ? 'var(--color-danger)' : rt.rt > 1.0 ? '#FB923C' : rt.rt > 0.8 ? 'var(--color-warning)' : 'var(--color-success)';
                   return (
                     <div key={rt.disease} className="p-3 rounded-xl" style={{
                       background: 'var(--overlay-subtle)',
@@ -202,14 +202,14 @@ export default function EpidemicIntelligencePage() {
                         <div className="flex items-center gap-2">
                           <div className="flex items-center gap-1">
                             {rt.trend === 'growing' ? (
-                              <TrendingUp className="w-3.5 h-3.5" style={{ color: '#EF4444' }} />
+                              <TrendingUp className="w-3.5 h-3.5" style={{ color: 'var(--color-danger)' }} />
                             ) : rt.trend === 'declining' ? (
-                              <TrendingDown className="w-3.5 h-3.5" style={{ color: '#4ADE80' }} />
+                              <TrendingDown className="w-3.5 h-3.5" style={{ color: 'var(--color-success)' }} />
                             ) : (
-                              <Minus className="w-3.5 h-3.5" style={{ color: '#FBBF24' }} />
+                              <Minus className="w-3.5 h-3.5" style={{ color: 'var(--color-warning)' }} />
                             )}
                             <span className="text-xs font-medium" style={{
-                              color: rt.trend === 'growing' ? '#EF4444' : rt.trend === 'declining' ? '#4ADE80' : '#FBBF24',
+                              color: rt.trend === 'growing' ? 'var(--color-danger)' : rt.trend === 'declining' ? 'var(--color-success)' : 'var(--color-warning)',
                             }}>
                               {rt.weeklyChange > 0 ? '+' : ''}{rt.weeklyChange}%
                             </span>
@@ -303,7 +303,7 @@ export default function EpidemicIntelligencePage() {
                     if (!state) return <div key={i} />;
                     const spread = geographicSpread.find(g => g.state === state);
                     const score = spread?.riskScore || 0;
-                    const color = score >= 70 ? '#F87171' : score >= 50 ? '#FB923C' : score >= 30 ? '#FBBF24' : '#4ADE80';
+                    const color = score >= 70 ? '#F87171' : score >= 50 ? '#FB923C' : score >= 30 ? 'var(--color-warning)' : 'var(--color-success)';
                     return (
                       <div key={state} className="p-3 rounded-xl text-center transition-all cursor-default" style={{
                         background: `${color}10`,
@@ -318,8 +318,8 @@ export default function EpidemicIntelligencePage() {
                 </div>
                 <div className="flex items-center justify-center gap-3 mt-3">
                   {[
-                    { label: 'Low Risk (0-29)', color: '#4ADE80' },
-                    { label: 'Moderate (30-49)', color: '#FBBF24' },
+                    { label: 'Low Risk (0-29)', color: 'var(--color-success)' },
+                    { label: 'Moderate (30-49)', color: 'var(--color-warning)' },
                     { label: 'High (50-69)', color: '#FB923C' },
                     { label: 'Critical (70+)', color: '#F87171' },
                   ].map(l => (
@@ -344,7 +344,7 @@ export default function EpidemicIntelligencePage() {
                 <div className="p-3 rounded-xl text-center" style={{ background: 'var(--overlay-subtle)' }}>
                   <p className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'var(--text-muted)' }}>Reporting Completeness</p>
                   <p className="text-2xl font-bold mt-1 stat-value" style={{
-                    color: idsrReport.completeness >= 80 ? '#4ADE80' : idsrReport.completeness >= 60 ? '#FBBF24' : '#F87171',
+                    color: idsrReport.completeness >= 80 ? 'var(--color-success)' : idsrReport.completeness >= 60 ? 'var(--color-warning)' : '#F87171',
                   }}>{idsrReport.completeness}%</p>
                   <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{idsrReport.totalFacilitiesReporting} facilities reporting</p>
                 </div>
@@ -397,7 +397,7 @@ export default function EpidemicIntelligencePage() {
             <div className="card-elevated">
               <div className="px-3 py-2 border-b" style={{ borderColor: 'var(--border-light)' }}>
                 <h3 className="font-semibold text-sm flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-                  <BarChart3 className="w-4 h-4" style={{ color: '#EF4444' }} />
+                  <BarChart3 className="w-4 h-4" style={{ color: 'var(--color-danger)' }} />
                   Epidemic Curve — {selectedDisease || 'All Diseases'}
                 </h3>
                 <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>Weekly case counts, 12-week window</p>
@@ -460,18 +460,18 @@ export default function EpidemicIntelligencePage() {
                     const totalCases = diseaseCases.reduce((s, c) => s + c.cases, 0);
                     const totalDeaths = diseaseCases.reduce((s, c) => s + c.deaths, 0);
                     const cfr = totalCases > 0 ? ((totalDeaths / totalCases) * 100).toFixed(1) : '0';
-                    const rtColor = rt.rt > 1.5 ? '#EF4444' : rt.rt > 1 ? '#FB923C' : '#4ADE80';
+                    const rtColor = rt.rt > 1.5 ? 'var(--color-danger)' : rt.rt > 1 ? '#FB923C' : 'var(--color-success)';
                     return (
                       <tr key={rt.disease}>
                         <td className="font-medium text-sm">{rt.disease}</td>
                         <td><span className="font-bold font-mono" style={{ color: rtColor }}>{rt.rt.toFixed(2)}</span></td>
                         <td>
                           <div className="flex items-center gap-1">
-                            {rt.trend === 'growing' ? <TrendingUp className="w-3.5 h-3.5" style={{ color: '#EF4444' }} /> :
-                             rt.trend === 'declining' ? <TrendingDown className="w-3.5 h-3.5" style={{ color: '#4ADE80' }} /> :
-                             <Minus className="w-3.5 h-3.5" style={{ color: '#FBBF24' }} />}
+                            {rt.trend === 'growing' ? <TrendingUp className="w-3.5 h-3.5" style={{ color: 'var(--color-danger)' }} /> :
+                             rt.trend === 'declining' ? <TrendingDown className="w-3.5 h-3.5" style={{ color: 'var(--color-success)' }} /> :
+                             <Minus className="w-3.5 h-3.5" style={{ color: 'var(--color-warning)' }} />}
                             <span className="text-xs capitalize" style={{
-                              color: rt.trend === 'growing' ? '#EF4444' : rt.trend === 'declining' ? '#4ADE80' : '#FBBF24',
+                              color: rt.trend === 'growing' ? 'var(--color-danger)' : rt.trend === 'declining' ? 'var(--color-success)' : 'var(--color-warning)',
                             }}>{rt.trend}</span>
                           </div>
                         </td>
@@ -481,7 +481,7 @@ export default function EpidemicIntelligencePage() {
                         <td>
                           <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{
                             background: rt.confidence === 'high' ? 'rgba(74,222,128,0.12)' : rt.confidence === 'medium' ? 'rgba(251,191,36,0.12)' : 'rgba(248,113,113,0.12)',
-                            color: rt.confidence === 'high' ? '#4ADE80' : rt.confidence === 'medium' ? '#FBBF24' : '#F87171',
+                            color: rt.confidence === 'high' ? 'var(--color-success)' : rt.confidence === 'medium' ? 'var(--color-warning)' : '#F87171',
                           }}>{rt.confidence}</span>
                         </td>
                       </tr>
@@ -537,7 +537,7 @@ export default function EpidemicIntelligencePage() {
               <div className="card-elevated">
                 <div className="px-3 py-2 border-b" style={{ borderColor: 'var(--border-light)' }}>
                   <h3 className="font-semibold text-sm flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-                    <Eye className="w-4 h-4" style={{ color: '#FBBF24' }} />
+                    <Eye className="w-4 h-4" style={{ color: 'var(--color-warning)' }} />
                     Under Watch
                   </h3>
                 </div>
@@ -549,7 +549,7 @@ export default function EpidemicIntelligencePage() {
                     }}>
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{alert.syndrome}</span>
-                        <span className="text-[10px]" style={{ color: '#FBBF24' }}>+{alert.percentChange}%</span>
+                        <span className="text-[10px]" style={{ color: 'var(--color-warning)' }}>+{alert.percentChange}%</span>
                       </div>
                       <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                         {alert.state} &middot; {alert.currentWeekCases} cases &middot; {alert.threshold ? Math.round((alert.currentWeekCases / alert.threshold) * 100) : 0}% of threshold
@@ -586,7 +586,7 @@ export default function EpidemicIntelligencePage() {
                       <td className="text-xs">{alert.previousWeekCases}</td>
                       <td>
                         <span className="text-xs font-bold" style={{
-                          color: alert.percentChange > 20 ? '#F87171' : alert.percentChange > 0 ? '#FBBF24' : '#4ADE80',
+                          color: alert.percentChange > 20 ? '#F87171' : alert.percentChange > 0 ? 'var(--color-warning)' : 'var(--color-success)',
                         }}>
                           {alert.percentChange > 0 ? '+' : ''}{alert.percentChange}%
                         </span>
@@ -612,7 +612,7 @@ export default function EpidemicIntelligencePage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               {geographicSpread.map(state => {
-                const color = state.riskScore >= 70 ? '#F87171' : state.riskScore >= 50 ? '#FB923C' : state.riskScore >= 30 ? '#FBBF24' : '#4ADE80';
+                const color = state.riskScore >= 70 ? '#F87171' : state.riskScore >= 50 ? '#FB923C' : state.riskScore >= 30 ? 'var(--color-warning)' : 'var(--color-success)';
                 return (
                   <div key={state.state} className="card-elevated p-4">
                     <div className="flex items-center justify-between mb-3">
@@ -644,7 +644,7 @@ export default function EpidemicIntelligencePage() {
                         <div key={i} className="flex items-center justify-between p-2 rounded-lg text-xs" style={{ background: 'var(--overlay-subtle)' }}>
                           <div className="flex items-center gap-2">
                             <span className="w-1.5 h-1.5 rounded-full" style={{
-                              background: d.alertLevel === 'emergency' ? '#F87171' : d.alertLevel === 'warning' ? '#FBBF24' : '#4ADE80',
+                              background: d.alertLevel === 'emergency' ? '#F87171' : d.alertLevel === 'warning' ? 'var(--color-warning)' : 'var(--color-success)',
                             }} />
                             <span style={{ color: 'var(--text-primary)' }}>{d.disease}</span>
                           </div>
@@ -652,11 +652,11 @@ export default function EpidemicIntelligencePage() {
                             <span className="font-semibold">{d.cases} cases</span>
                             <span style={{ color: '#F87171' }}>{d.deaths} deaths</span>
                             {d.trend === 'increasing' ? (
-                              <TrendingUp className="w-3 h-3" style={{ color: '#EF4444' }} />
+                              <TrendingUp className="w-3 h-3" style={{ color: 'var(--color-danger)' }} />
                             ) : d.trend === 'decreasing' ? (
-                              <TrendingDown className="w-3 h-3" style={{ color: '#4ADE80' }} />
+                              <TrendingDown className="w-3 h-3" style={{ color: 'var(--color-success)' }} />
                             ) : (
-                              <Minus className="w-3 h-3" style={{ color: '#FBBF24' }} />
+                              <Minus className="w-3 h-3" style={{ color: 'var(--color-warning)' }} />
                             )}
                           </div>
                         </div>
@@ -687,7 +687,7 @@ export default function EpidemicIntelligencePage() {
               <div className="card-elevated p-4">
                 <p className="text-xs uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>Completeness</p>
                 <p className="text-2xl font-bold stat-value" style={{
-                  color: idsrReport.completeness >= 80 ? '#4ADE80' : idsrReport.completeness >= 60 ? '#FBBF24' : '#F87171',
+                  color: idsrReport.completeness >= 80 ? 'var(--color-success)' : idsrReport.completeness >= 60 ? 'var(--color-warning)' : '#F87171',
                 }}>{idsrReport.completeness}%</p>
                 <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>WHO target: 80%</p>
               </div>

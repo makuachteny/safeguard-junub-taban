@@ -154,10 +154,10 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  functional: '#3ECF8E',
-  partially_functional: '#F59E0B',
-  non_functional: '#EF4444',
-  closed: '#94A3B8',
+  functional: 'var(--color-success)',
+  partially_functional: 'var(--color-warning)',
+  non_functional: 'var(--color-danger)',
+  closed: 'var(--text-muted)',
 };
 
 export default function MapView({
@@ -295,7 +295,7 @@ export default function MapView({
                       width: '6px',
                       height: '6px',
                       borderRadius: '50%',
-                      background: STATUS_COLORS[hospital.operationalStatus] || '#94A3B8',
+                      background: STATUS_COLORS[hospital.operationalStatus] || 'var(--text-muted)',
                     }} />
                   )}
                 </div>

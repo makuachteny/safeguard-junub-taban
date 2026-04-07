@@ -28,7 +28,7 @@ export default function AdminSystemPage() {
   const [signupsEnabled, setSignupsEnabled] = useState(true);
   const [trialDays, setTrialDays] = useState(30);
   const [maxOrganizations, setMaxOrganizations] = useState(100);
-  const [defaultPrimaryColor, setDefaultPrimaryColor] = useState('#0077D7');
+  const [defaultPrimaryColor, setDefaultPrimaryColor] = useState('var(--accent-primary)');
   const [defaultSecondaryColor, setDefaultSecondaryColor] = useState('#0F47AF');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -149,10 +149,10 @@ export default function AdminSystemPage() {
 
   const healthColor = (status: string) => {
     switch (status) {
-      case 'healthy': case 'synced': return '#10B981';
-      case 'warning': return '#F59E0B';
-      case 'critical': return '#EF4444';
-      default: return '#94A3B8';
+      case 'healthy': case 'synced': return 'var(--color-success)';
+      case 'warning': return 'var(--color-warning)';
+      case 'critical': return 'var(--color-danger)';
+      default: return 'var(--text-muted)';
     }
   };
 
@@ -174,7 +174,7 @@ export default function AdminSystemPage() {
         {/* SYSTEM HEALTH DASHBOARD */}
         <div className="rounded-2xl p-5 mb-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
           <div className="flex items-center gap-2 mb-4">
-            <Activity className="w-5 h-5" style={{ color: '#10B981' }} />
+            <Activity className="w-5 h-5" style={{ color: 'var(--color-success)' }} />
             <h2 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>System Health</h2>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
@@ -182,7 +182,7 @@ export default function AdminSystemPage() {
             <div className="p-3 rounded-xl" style={{ background: 'var(--overlay-subtle)', border: '1px solid var(--border-light)' }}>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Database</span>
-                <span className="w-2 h-2 rounded-full" style={{ background: totalDocs > 0 ? '#10B981' : '#94A3B8' }} />
+                <span className="w-2 h-2 rounded-full" style={{ background: totalDocs > 0 ? 'var(--color-success)' : 'var(--text-muted)' }} />
               </div>
               <p className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{dbStatsLoading ? '...' : totalDocs.toLocaleString()}</p>
               <p className="text-[9px]" style={{ color: 'var(--text-muted)' }}>{dbStats.length} databases</p>
@@ -192,7 +192,7 @@ export default function AdminSystemPage() {
             <div className="p-3 rounded-xl" style={{ background: 'var(--overlay-subtle)', border: '1px solid var(--border-light)' }}>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Org Sync</span>
-                <RefreshCw className="w-3.5 h-3.5" style={{ color: '#10B981' }} />
+                <RefreshCw className="w-3.5 h-3.5" style={{ color: 'var(--color-success)' }} />
               </div>
               <p className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
                 {syncStatuses.filter(s => s.status === 'synced').length}/{syncStatuses.length}
@@ -220,9 +220,9 @@ export default function AdminSystemPage() {
             <div className="p-3 rounded-xl" style={{ background: 'var(--overlay-subtle)', border: '1px solid var(--border-light)' }}>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Platform</span>
-                <span className="w-2 h-2 rounded-full" style={{ background: maintenanceMode ? '#F59E0B' : '#10B981' }} />
+                <span className="w-2 h-2 rounded-full" style={{ background: maintenanceMode ? 'var(--color-warning)' : 'var(--color-success)' }} />
               </div>
-              <p className="text-lg font-bold" style={{ color: maintenanceMode ? '#F59E0B' : '#10B981' }}>
+              <p className="text-lg font-bold" style={{ color: maintenanceMode ? 'var(--color-warning)' : 'var(--color-success)' }}>
                 {maintenanceMode ? 'Maintenance' : 'Operational'}
               </p>
               <p className="text-[9px]" style={{ color: 'var(--text-muted)' }}>
@@ -236,7 +236,7 @@ export default function AdminSystemPage() {
             <div className="flex flex-wrap gap-2">
               {syncStatuses.map(s => (
                 <span key={s.org} className="flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-lg" style={{ background: 'var(--overlay-subtle)', border: '1px solid var(--border-light)' }}>
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.status === 'synced' ? '#10B981' : '#EF4444' }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.status === 'synced' ? 'var(--color-success)' : 'var(--color-danger)' }} />
                   <span style={{ color: 'var(--text-secondary)' }}>{s.org}</span>
                 </span>
               ))}
@@ -298,7 +298,7 @@ export default function AdminSystemPage() {
             <div className="rounded-2xl p-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(220,38,38,0.1)' }}>
-                  <Shield className="w-5 h-5" style={{ color: '#DC2626' }} />
+                  <Shield className="w-5 h-5" style={{ color: 'var(--color-danger)' }} />
                 </div>
                 <div>
                   <h2 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>Feature Toggles</h2>
@@ -313,7 +313,7 @@ export default function AdminSystemPage() {
                   border: `1px solid ${maintenanceMode ? 'rgba(239,68,68,0.2)' : 'var(--border-light)'}`,
                 }}>
                   <div className="flex items-center gap-3">
-                    <AlertTriangle className="w-5 h-5" style={{ color: maintenanceMode ? '#EF4444' : 'var(--text-muted)' }} />
+                    <AlertTriangle className="w-5 h-5" style={{ color: maintenanceMode ? 'var(--color-danger)' : 'var(--text-muted)' }} />
                     <div>
                       <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Maintenance Mode</p>
                       <p className="text-xs" style={{ color: 'var(--text-muted)' }}>When enabled, only super admins can access the platform</p>
@@ -321,7 +321,7 @@ export default function AdminSystemPage() {
                   </div>
                   <button onClick={() => setMaintenanceMode(!maintenanceMode)}>
                     {maintenanceMode ? (
-                      <ToggleRight className="w-10 h-10" style={{ color: '#EF4444' }} />
+                      <ToggleRight className="w-10 h-10" style={{ color: 'var(--color-danger)' }} />
                     ) : (
                       <ToggleLeft className="w-10 h-10" style={{ color: 'var(--text-muted)' }} />
                     )}
@@ -336,7 +336,7 @@ export default function AdminSystemPage() {
                   </div>
                   <button onClick={() => setSignupsEnabled(!signupsEnabled)}>
                     {signupsEnabled ? (
-                      <ToggleRight className="w-10 h-10" style={{ color: '#059669' }} />
+                      <ToggleRight className="w-10 h-10" style={{ color: 'var(--color-success)' }} />
                     ) : (
                       <ToggleLeft className="w-10 h-10" style={{ color: 'var(--text-muted)' }} />
                     )}
@@ -364,7 +364,7 @@ export default function AdminSystemPage() {
                 {saving ? 'Saving...' : 'Save Configuration'}
               </button>
               {saved && (
-                <span className="text-sm font-medium" style={{ color: '#059669' }}>Configuration saved successfully</span>
+                <span className="text-sm font-medium" style={{ color: 'var(--color-success)' }}>Configuration saved successfully</span>
               )}
             </div>
           </div>

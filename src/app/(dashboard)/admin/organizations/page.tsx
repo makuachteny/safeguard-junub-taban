@@ -34,7 +34,7 @@ type OrgFormData = {
 
 const emptyForm: OrgFormData = {
   name: '', slug: '', orgType: 'public', contactEmail: '', country: 'South Sudan',
-  primaryColor: 'var(--accent-primary)', secondaryColor: '#0F47AF', accentColor: '#F59E0B',
+  primaryColor: 'var(--accent-primary)', secondaryColor: '#0F47AF', accentColor: 'var(--color-warning)',
   subscriptionPlan: 'professional', subscriptionStatus: 'trial',
   maxUsers: 50, maxHospitals: 10,
   epidemicIntelligence: true, mchAnalytics: true, dhis2Export: false,
@@ -105,7 +105,7 @@ export default function AdminOrganizationsPage() {
       country: org.country,
       primaryColor: org.primaryColor,
       secondaryColor: org.secondaryColor,
-      accentColor: org.accentColor || '#F59E0B',
+      accentColor: org.accentColor || 'var(--color-warning)',
       subscriptionPlan: org.subscriptionPlan,
       subscriptionStatus: org.subscriptionStatus,
       maxUsers: org.maxUsers,
@@ -209,7 +209,7 @@ export default function AdminOrganizationsPage() {
             <option value="cancelled">Cancelled</option>
           </select>
           <div className="flex-1" />
-          <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all" style={{ background: '#DC2626' }}>
+          <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all" style={{ background: 'var(--color-danger)' }}>
             <Plus className="w-4 h-4" /> New Organization
           </button>
         </div>
@@ -251,7 +251,7 @@ export default function AdminOrganizationsPage() {
                     <td className="px-4 py-3">
                       <span className="text-xs px-2 py-1 rounded-full" style={{
                         background: org.orgType === 'public' ? 'rgba(5,150,105,0.1)' : 'rgba(220,38,38,0.1)',
-                        color: org.orgType === 'public' ? '#059669' : '#DC2626',
+                        color: org.orgType === 'public' ? 'var(--color-success)' : 'var(--color-danger)',
                       }}>{org.orgType}</span>
                     </td>
                     <td className="px-4 py-3">
@@ -263,10 +263,10 @@ export default function AdminOrganizationsPage() {
                     <td className="px-4 py-3">
                       <span className="flex items-center gap-1.5 text-xs font-semibold">
                         <span className="w-2 h-2 rounded-full" style={{
-                          background: org.subscriptionStatus === 'active' ? '#10B981' : org.subscriptionStatus === 'trial' ? '#F59E0B' : '#EF4444',
+                          background: org.subscriptionStatus === 'active' ? 'var(--color-success)' : org.subscriptionStatus === 'trial' ? 'var(--color-warning)' : 'var(--color-danger)',
                         }} />
                         <span style={{
-                          color: org.subscriptionStatus === 'active' ? '#10B981' : org.subscriptionStatus === 'trial' ? '#F59E0B' : '#EF4444',
+                          color: org.subscriptionStatus === 'active' ? 'var(--color-success)' : org.subscriptionStatus === 'trial' ? 'var(--color-warning)' : 'var(--color-danger)',
                         }}>{org.subscriptionStatus}</span>
                       </span>
                     </td>
@@ -279,7 +279,7 @@ export default function AdminOrganizationsPage() {
                           <Edit3 className="w-3.5 h-3.5" />
                         </button>
                         {org.isActive && (
-                          <button onClick={() => handleDeactivate(org)} title="Deactivate" className="p-1.5 rounded-lg transition-colors" style={{ color: '#EF4444' }}>
+                          <button onClick={() => handleDeactivate(org)} title="Deactivate" className="p-1.5 rounded-lg transition-colors" style={{ color: 'var(--color-danger)' }}>
                             <Ban className="w-3.5 h-3.5" />
                           </button>
                         )}
@@ -317,7 +317,7 @@ export default function AdminOrganizationsPage() {
             <div className="space-y-5">
               {/* Basic Info */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: '#DC2626' }}>Basic Information</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--color-danger)' }}>Basic Information</h4>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="col-span-2">
                     <label style={labelStyle}>Organization Name</label>
@@ -352,7 +352,7 @@ export default function AdminOrganizationsPage() {
 
               {/* Subscription */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: '#DC2626' }}>Subscription</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--color-danger)' }}>Subscription</h4>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label style={labelStyle}>Plan</label>
@@ -384,7 +384,7 @@ export default function AdminOrganizationsPage() {
 
               {/* Branding */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: '#DC2626' }}>Branding Colors</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--color-danger)' }}>Branding Colors</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {[
                     { key: 'primaryColor' as const, label: 'Primary Color' },
@@ -406,7 +406,7 @@ export default function AdminOrganizationsPage() {
 
               {/* Feature Flags */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: '#DC2626' }}>Feature Flags</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--color-danger)' }}>Feature Flags</h4>
                 <div className="grid grid-cols-2 gap-x-6 gap-y-3">
                   {[
                     { key: 'epidemicIntelligence' as const, label: 'Epidemic Intelligence' },
@@ -420,7 +420,7 @@ export default function AdminOrganizationsPage() {
                       <button type="button" onClick={() => setForm(p => ({ ...p, [ff.key]: !p[ff.key] }))}
                         className="flex-shrink-0">
                         {form[ff.key] ? (
-                          <ToggleRight className="w-8 h-8" style={{ color: '#DC2626' }} />
+                          <ToggleRight className="w-8 h-8" style={{ color: 'var(--color-danger)' }} />
                         ) : (
                           <ToggleLeft className="w-8 h-8" style={{ color: 'var(--text-muted)' }} />
                         )}
@@ -435,7 +435,7 @@ export default function AdminOrganizationsPage() {
                 <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-xl text-sm font-medium" style={{ background: 'var(--overlay-subtle)', color: 'var(--text-primary)', border: '1px solid var(--border-light)' }}>
                   Cancel
                 </button>
-                <button onClick={handleSubmit} disabled={formLoading} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white" style={{ background: '#DC2626', opacity: formLoading ? 0.6 : 1 }}>
+                <button onClick={handleSubmit} disabled={formLoading} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white" style={{ background: 'var(--color-danger)', opacity: formLoading ? 0.6 : 1 }}>
                   {formLoading ? 'Saving...' : editingId ? 'Update Organization' : 'Create Organization'}
                 </button>
               </div>

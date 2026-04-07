@@ -50,7 +50,7 @@ const SOAP_TEMPLATES: SOAPTemplate[] = [
     id: 'malaria',
     name: 'Malaria',
     icon: 'bug',
-    color: '#E52E42',
+    color: 'var(--color-danger)',
     subjective: 'Patient presents with high-grade intermittent fever for 3 days, associated with chills, rigors, headache, body aches, and generalized weakness. Reports loss of appetite and occasional nausea. No vomiting or diarrhea. Lives in malaria-endemic area. No recent travel history. No use of insecticide-treated bed net.',
     objective: 'Temp: 38.8 C, HR: 102 bpm, BP: 110/70 mmHg, RR: 20/min, SpO2: 97%.\nGeneral: Febrile, mild pallor, no jaundice.\nAbdomen: Splenomegaly palpable 2cm below costal margin, mild hepatomegaly.\nNo neck stiffness. No rash.\nMalaria RDT: Positive (P. falciparum).',
     assessment: 'Uncomplicated Plasmodium falciparum Malaria (ICD-11: 1F40).',
@@ -80,7 +80,7 @@ const SOAP_TEMPLATES: SOAPTemplate[] = [
     id: 'diarrhea',
     name: 'Diarrheal Disease',
     icon: 'droplets',
-    color: '#FCD34D',
+    color: 'var(--color-warning)',
     subjective: 'Patient presents with watery diarrhea for 2 days, 4-6 episodes per day. Associated with mild abdominal cramps and decreased appetite. No blood or mucus in stool. Low-grade fever reported. Drinking fluids but reduced oral intake. No recent travel. Unimproved water source at home.',
     objective: 'Temp: 37.8 C, HR: 100 bpm, BP: 100/65 mmHg, RR: 20/min.\nGeneral: Mild dehydration - dry mucous membranes, slightly sunken eyes, skin turgor mildly decreased.\nAbdomen: Soft, mildly tender diffusely, hyperactive bowel sounds. No guarding or rigidity.\nNo blood in stool on examination.',
     assessment: 'Acute Watery Diarrhea with mild dehydration (ICD-11: 1A00).',
@@ -130,7 +130,7 @@ const PRESCRIPTION_PRESETS: PrescriptionPreset[] = [
   {
     id: 'malaria-adult',
     name: 'Malaria Adult',
-    color: '#E52E42',
+    color: 'var(--color-danger)',
     items: [
       { medication: 'Artemether-Lumefantrine (ACT)', dose: '20/120mg (4 tablets)', route: 'Oral', frequency: 'BD (twice daily)', duration: '3 days' },
       { medication: 'Paracetamol', dose: '500mg', route: 'Oral', frequency: 'TDS (three times daily)', duration: '3 days' },
@@ -165,7 +165,7 @@ const PRESCRIPTION_PRESETS: PrescriptionPreset[] = [
   {
     id: 'diarrhea',
     name: 'Diarrhea',
-    color: '#FCD34D',
+    color: 'var(--color-warning)',
     items: [
       { medication: 'ORS (Oral Rehydration Salts)', dose: '1 sachet per 200ml water', route: 'Oral', frequency: 'After each loose stool', duration: 'Until resolved' },
       { medication: 'Zinc', dose: '20mg', route: 'Oral', frequency: 'Once daily', duration: '10 days' },
@@ -225,7 +225,7 @@ function ChartTooltip({ active, payload, label }: {
   );
 }
 
-const SATISFACTION_COLORS = ['#3ECF8E', '#60A5FA', '#FCD34D', '#F87171'];
+const SATISFACTION_COLORS = ['var(--color-success)', '#60A5FA', 'var(--color-warning)', '#F87171'];
 
 // ═══════════════════════════════════════════════════
 // MODAL OVERLAY COMPONENT
@@ -389,9 +389,9 @@ export default function DashboardPage() {
 
   // Patient satisfaction data
   const satisfactionData = [
-    { name: 'Excellent', value: 54, color: '#3ECF8E' },
+    { name: 'Excellent', value: 54, color: 'var(--color-success)' },
     { name: 'Good', value: 23, color: '#60A5FA' },
-    { name: 'Average', value: 20, color: '#FCD34D' },
+    { name: 'Average', value: 20, color: 'var(--color-warning)' },
     { name: 'Poor', value: 3, color: '#F87171' },
   ];
   const satisfactionRate = 76;
@@ -411,11 +411,11 @@ export default function DashboardPage() {
 
   // Bed occupancy bar chart data
   const bedChartData = [
-    { status: 'ICU', beds: hospital?.icuBeds || 8, color: '#E52E42' },
+    { status: 'ICU', beds: hospital?.icuBeds || 8, color: 'var(--color-danger)' },
     { status: 'Maternity', beds: hospital?.maternityBeds || 30, color: '#EC4899' },
     { status: 'Pediatric', beds: hospital?.pediatricBeds || 20, color: '#60A5FA' },
-    { status: 'General', beds: Math.max(0, bedTotal - (hospital?.icuBeds || 0) - (hospital?.maternityBeds || 0) - (hospital?.pediatricBeds || 0)), color: '#3ECF8E' },
-    { status: 'Available', beds: Math.max(0, bedTotal - bedOccupancy), color: '#94A3B8' },
+    { status: 'General', beds: Math.max(0, bedTotal - (hospital?.icuBeds || 0) - (hospital?.maternityBeds || 0) - (hospital?.pediatricBeds || 0)), color: 'var(--color-success)' },
+    { status: 'Available', beds: Math.max(0, bedTotal - bedOccupancy), color: 'var(--text-muted)' },
   ];
 
   // In-patient / Out-patient rate line chart (weekly)
@@ -428,11 +428,11 @@ export default function DashboardPage() {
 
   // Module distribution donut (replaces "Covid" donut -- more relevant for South Sudan)
   const diseaseDistribution = [
-    { name: 'Malaria', value: Math.floor(patients.length * 0.35), color: '#E52E42' },
-    { name: 'Respiratory', value: Math.floor(patients.length * 0.2), color: '#FCD34D' },
+    { name: 'Malaria', value: Math.floor(patients.length * 0.35), color: 'var(--color-danger)' },
+    { name: 'Respiratory', value: Math.floor(patients.length * 0.2), color: 'var(--color-warning)' },
     { name: 'Diarrheal', value: Math.floor(patients.length * 0.15), color: '#60A5FA' },
     { name: 'Maternal', value: Math.floor(patients.length * 0.12), color: '#EC4899' },
-    { name: 'Other', value: Math.floor(patients.length * 0.18), color: '#94A3B8' },
+    { name: 'Other', value: Math.floor(patients.length * 0.18), color: 'var(--text-muted)' },
   ];
   const totalCases = diseaseDistribution.reduce((s, d) => s + d.value, 0);
 
@@ -440,8 +440,8 @@ export default function DashboardPage() {
 
   // Equipment status data
   const equipmentData = [
-    { name: 'Operational', value: 72, color: '#3ECF8E' },
-    { name: 'Needs Repair', value: 15, color: '#FCD34D' },
+    { name: 'Operational', value: 72, color: 'var(--color-success)' },
+    { name: 'Needs Repair', value: 15, color: 'var(--color-warning)' },
     { name: 'Out of Service', value: 8, color: '#F87171' },
     { name: 'On Order', value: 5, color: '#60A5FA' },
   ];
@@ -449,7 +449,7 @@ export default function DashboardPage() {
 
   // Department load data
   const departmentData = [
-    { name: 'OPD', value: 35, color: '#3ECF8E' },
+    { name: 'OPD', value: 35, color: 'var(--color-success)' },
     { name: 'Emergency', value: 25, color: '#F87171' },
     { name: 'Maternity', value: 22, color: '#EC4899' },
     { name: 'Pediatrics', value: 18, color: '#60A5FA' },
@@ -460,7 +460,7 @@ export default function DashboardPage() {
     { name: 'OPD', value: 45, color: '#60A5FA' },
     { name: 'Emergency', value: 12, color: '#F87171' },
     { name: 'Lab', value: 30, color: '#A855F7' },
-    { name: 'Pharmacy', value: 20, color: '#3ECF8E' },
+    { name: 'Pharmacy', value: 20, color: 'var(--color-success)' },
   ];
   const avgWaitTime = 27;
 
@@ -499,13 +499,13 @@ export default function DashboardPage() {
               style={{ background: 'rgba(229,46,66,0.04)' }}
             >
               <div className="flex items-center gap-2">
-                <Bell className="w-4 h-4" style={{ color: '#E52E42' }} />
+                <Bell className="w-4 h-4" style={{ color: 'var(--color-danger)' }} />
                 <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
                   Clinical Alerts
                 </span>
                 <span
                   className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                  style={{ background: 'rgba(229,46,66,0.12)', color: '#E52E42' }}
+                  style={{ background: 'rgba(229,46,66,0.12)', color: 'var(--color-danger)' }}
                 >
                   {totalAlertCount}
                 </span>
@@ -526,9 +526,9 @@ export default function DashboardPage() {
                     className="flex items-center gap-3 p-2.5 rounded-xl"
                     style={{ background: 'rgba(229,46,66,0.06)', border: '1px solid rgba(229,46,66,0.15)' }}
                   >
-                    <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color: '#E52E42' }} />
+                    <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--color-danger)' }} />
                     <div className="flex-1 min-w-0">
-                      <span className="text-[11px] font-semibold" style={{ color: '#E52E42' }}>CRITICAL</span>
+                      <span className="text-[11px] font-semibold" style={{ color: 'var(--color-danger)' }}>CRITICAL</span>
                       <p className="text-[12px] truncate" style={{ color: 'var(--text-primary)' }}>
                         {alert.disease} outbreak alert - {alert.state || 'Region'}: {alert.cases || 0} cases reported
                       </p>
@@ -536,7 +536,7 @@ export default function DashboardPage() {
                     <button
                       onClick={(e) => { e.stopPropagation(); router.push('/surveillance'); }}
                       className="text-[10px] font-medium flex-shrink-0 px-2 py-1 rounded-lg"
-                      style={{ background: 'rgba(229,46,66,0.1)', color: '#E52E42' }}
+                      style={{ background: 'rgba(229,46,66,0.1)', color: 'var(--color-danger)' }}
                     >
                       View
                     </button>
@@ -549,9 +549,9 @@ export default function DashboardPage() {
                     className="flex items-center gap-3 p-2.5 rounded-xl"
                     style={{ background: 'rgba(229,46,66,0.06)', border: '1px solid rgba(229,46,66,0.15)' }}
                   >
-                    <FlaskConical className="w-4 h-4 flex-shrink-0" style={{ color: '#E52E42' }} />
+                    <FlaskConical className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--color-danger)' }} />
                     <div className="flex-1 min-w-0">
-                      <span className="text-[11px] font-semibold" style={{ color: '#E52E42' }}>CRITICAL</span>
+                      <span className="text-[11px] font-semibold" style={{ color: 'var(--color-danger)' }}>CRITICAL</span>
                       <p className="text-[12px]" style={{ color: 'var(--text-primary)' }}>
                         {criticalLabCount} critical lab result(s) awaiting review
                       </p>
@@ -559,7 +559,7 @@ export default function DashboardPage() {
                     <button
                       onClick={(e) => { e.stopPropagation(); router.push('/lab'); }}
                       className="text-[10px] font-medium flex-shrink-0 px-2 py-1 rounded-lg"
-                      style={{ background: 'rgba(229,46,66,0.1)', color: '#E52E42' }}
+                      style={{ background: 'rgba(229,46,66,0.1)', color: 'var(--color-danger)' }}
                     >
                       Review
                     </button>
@@ -573,9 +573,9 @@ export default function DashboardPage() {
                     className="flex items-center gap-3 p-2.5 rounded-xl"
                     style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)' }}
                   >
-                    <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color: '#F59E0B' }} />
+                    <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--color-warning)' }} />
                     <div className="flex-1 min-w-0">
-                      <span className="text-[11px] font-semibold" style={{ color: '#F59E0B' }}>WARNING</span>
+                      <span className="text-[11px] font-semibold" style={{ color: 'var(--color-warning)' }}>WARNING</span>
                       <p className="text-[12px] truncate" style={{ color: 'var(--text-primary)' }}>
                         {alert.disease} surveillance warning - {alert.county}, {alert.state}: {alert.cases || 0} cases
                       </p>
@@ -583,7 +583,7 @@ export default function DashboardPage() {
                     <button
                       onClick={(e) => { e.stopPropagation(); router.push('/surveillance'); }}
                       className="text-[10px] font-medium flex-shrink-0 px-2 py-1 rounded-lg"
-                      style={{ background: 'rgba(245,158,11,0.1)', color: '#F59E0B' }}
+                      style={{ background: 'rgba(245,158,11,0.1)', color: 'var(--color-warning)' }}
                     >
                       View
                     </button>
@@ -624,7 +624,7 @@ export default function DashboardPage() {
           <div className="card-elevated" style={{ padding: '16px 18px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
               <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)' }}>Admitted Patients</p>
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#10B981', display: 'inline-flex', alignItems: 'center', gap: 2 }}><ArrowUpRight className="w-3 h-3" />2%</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-success)', display: 'inline-flex', alignItems: 'center', gap: 2 }}><ArrowUpRight className="w-3 h-3" />2%</span>
             </div>
             <div className="stat-value" style={{ fontSize: 32, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1, marginBottom: 14 }}>{patients.length || 0}</div>
             <div style={{ display: 'flex', gap: 14, marginBottom: 14 }}>
@@ -637,8 +637,8 @@ export default function DashboardPage() {
             </div>
             <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: 12, display: 'flex', gap: 0 }}>
               {[
-                { v: waitingCount, l: 'Waiting', c: '#F59E0B' },
-                { v: dischargeCount, l: 'Discharge', c: '#10B981' },
+                { v: waitingCount, l: 'Waiting', c: 'var(--color-warning)' },
+                { v: dischargeCount, l: 'Discharge', c: 'var(--color-success)' },
                 { v: transferCount, l: 'Transfer', c: 'var(--accent-primary)' },
               ].map((s, i) => (
                 <div key={s.l} style={{ flex: 1, textAlign: 'center', borderRight: i < 2 ? '1px solid var(--border-light)' : 'none' }}>
@@ -674,8 +674,8 @@ export default function DashboardPage() {
             <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 14 }}>Quick Overview</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[
-                { Icon: SendHorizontal, label: 'Pending Referrals', value: pendingReferrals.length, color: '#F59E0B' },
-                { Icon: AlertTriangle, label: 'Active Alerts', value: activeAlerts.length, color: '#E52E42' },
+                { Icon: SendHorizontal, label: 'Pending Referrals', value: pendingReferrals.length, color: 'var(--color-warning)' },
+                { Icon: AlertTriangle, label: 'Active Alerts', value: activeAlerts.length, color: 'var(--color-danger)' },
                 { Icon: Syringe, label: 'Immunizations', value: immStats?.totalVaccinations || 0, color: '#A855F7' },
                 { Icon: Baby, label: 'ANC / Births', value: `${ancStats?.totalVisits || 0} / ${birthStats?.total || 0}`, color: '#EC4899' },
               ].map(item => (
@@ -738,7 +738,7 @@ export default function DashboardPage() {
             <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Recently Admitted Patients</h3>
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1.5 text-[10px]">
-                <span className="w-2 h-2 rounded-full" style={{ background: '#E52E42' }} />
+                <span className="w-2 h-2 rounded-full" style={{ background: 'var(--color-danger)' }} />
                 <span style={{ color: 'var(--text-muted)' }}>Critical</span>
               </span>
               <button onClick={() => router.push('/patients')} className="text-[11px] font-medium flex items-center gap-0.5" style={{ color: 'var(--accent-primary)' }}>
@@ -775,7 +775,7 @@ export default function DashboardPage() {
                     <td className="px-4 py-2.5 text-[12px]" style={{ color: 'var(--text-secondary)' }}>{p.nurse}</td>
                     <td className="px-4 py-2.5">
                       {p.critical ? (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded" style={{ background: 'rgba(229,46,66,0.1)', color: '#E52E42' }}>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded" style={{ background: 'rgba(229,46,66,0.1)', color: 'var(--color-danger)' }}>
                           {p.division}
                         </span>
                       ) : (
@@ -836,8 +836,8 @@ export default function DashboardPage() {
             {/* Alert count */}
             {activeAlerts.length > 0 && (
               <div className="mx-4 mb-4 p-2 rounded-lg flex items-center gap-2" style={{ background: 'rgba(229,46,66,0.06)', border: '1px solid rgba(229,46,66,0.12)' }}>
-                <AlertTriangle className="w-3.5 h-3.5" style={{ color: '#E52E42' }} />
-                <span className="text-[11px] font-medium" style={{ color: '#E52E42' }}>{activeAlerts.length} active disease alert(s)</span>
+                <AlertTriangle className="w-3.5 h-3.5" style={{ color: 'var(--color-danger)' }} />
+                <span className="text-[11px] font-medium" style={{ color: 'var(--color-danger)' }}>{activeAlerts.length} active disease alert(s)</span>
               </div>
             )}
           </div>
@@ -883,8 +883,8 @@ export default function DashboardPage() {
                   <YAxis tick={{ fontSize: 10, fill: 'var(--text-muted)' }} axisLine={{ stroke: 'var(--border-light)' }} tickLine={false} />
                   <Tooltip content={<ChartTooltip />} />
                   <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '0.65rem', paddingTop: '6px' }} />
-                  <Line type="monotone" dataKey="In Patients" stroke="#E52E42" strokeWidth={2} dot={{ r: 4, fill: '#E52E42' }} />
-                  <Line type="monotone" dataKey="Out Patients" stroke="#FCD34D" strokeWidth={2} dot={{ r: 4, fill: '#FCD34D' }} />
+                  <Line type="monotone" dataKey="In Patients" stroke="#E52E42" strokeWidth={2} dot={{ r: 4, fill: 'var(--color-danger)' }} />
+                  <Line type="monotone" dataKey="Out Patients" stroke="#FCD34D" strokeWidth={2} dot={{ r: 4, fill: 'var(--color-warning)' }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -911,13 +911,13 @@ export default function DashboardPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {[
                 { label: 'New Patient', icon: Users, action: () => router.push('/patients/new'), color: 'var(--accent-primary)' },
-                { label: 'New Consultation', icon: ClipboardList, action: () => setSoapModalOpen(true), color: '#3ECF8E' },
+                { label: 'New Consultation', icon: ClipboardList, action: () => setSoapModalOpen(true), color: 'var(--color-success)' },
                 { label: 'Quick Prescribe', icon: Pill, action: () => setPrescribeModalOpen(true), color: '#A855F7' },
-                { label: 'Quick Lab Order', icon: TestTube, action: () => setLabModalOpen(true), color: '#F59E0B' },
+                { label: 'Quick Lab Order', icon: TestTube, action: () => setLabModalOpen(true), color: 'var(--color-warning)' },
                 { label: 'Immunization', icon: Syringe, action: () => router.push('/immunizations'), color: '#0D9488' },
                 { label: 'ANC Visit', icon: HeartPulse, action: () => router.push('/anc'), color: '#EC4899' },
                 { label: 'Birth Reg.', icon: Baby, action: () => router.push('/births'), color: '#60A5FA' },
-                { label: 'Referral', icon: SendHorizontal, action: () => router.push('/referrals'), color: '#E52E42' },
+                { label: 'Referral', icon: SendHorizontal, action: () => router.push('/referrals'), color: 'var(--color-danger)' },
               ].map(action => (
                 <button
                   key={action.label}
@@ -961,7 +961,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Reports Pending</span>
-                <span className="text-xs font-bold" style={{ color: '#F59E0B' }}>3</span>
+                <span className="text-xs font-bold" style={{ color: 'var(--color-warning)' }}>3</span>
               </div>
             </div>
             <div className="mt-3 p-2 rounded-lg text-center" style={{
@@ -1026,7 +1026,7 @@ export default function DashboardPage() {
           {(['subjective', 'objective', 'assessment', 'plan'] as const).map(field => (
             <div key={field} className="mb-3">
               <label className="text-[11px] font-semibold uppercase tracking-wider flex items-center gap-2 mb-1.5" style={{ color: 'var(--text-muted)' }}>
-                <span className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold text-white" style={{ background: field === 'subjective' ? '#0077D7' : field === 'objective' ? '#3ECF8E' : field === 'assessment' ? '#F59E0B' : '#A855F7' }}>
+                <span className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold text-white" style={{ background: field === 'subjective' ? 'var(--accent-primary)' : field === 'objective' ? 'var(--color-success)' : field === 'assessment' ? 'var(--color-warning)' : '#A855F7' }}>
                   {field[0].toUpperCase()}
                 </span>
                 {field === 'subjective' ? 'Subjective' : field === 'objective' ? 'Objective' : field === 'assessment' ? 'Assessment' : 'Plan'}
@@ -1066,7 +1066,7 @@ export default function DashboardPage() {
         <ModalOverlay open={prescribeModalOpen} onClose={() => { setPrescribeModalOpen(false); setPrescriptionItems([]); setPrescribePatientId(''); setPrescriptionSuccess(false); }} title="Quick Prescribe">
           {prescriptionSuccess ? (
             <div className="flex flex-col items-center justify-center py-8 gap-3">
-              <CheckCircle2 className="w-12 h-12" style={{ color: '#3ECF8E' }} />
+              <CheckCircle2 className="w-12 h-12" style={{ color: 'var(--color-success)' }} />
               <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Prescription Created Successfully</p>
             </div>
           ) : (
@@ -1137,13 +1137,13 @@ export default function DashboardPage() {
                           <p className="text-[12px] font-semibold" style={{ color: 'var(--text-primary)' }}>{item.medication}</p>
                           <div className="flex flex-wrap gap-2 mt-1">
                             <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'var(--accent-light)', color: 'var(--accent-primary)' }}>{item.dose}</span>
-                            <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(62,207,142,0.08)', color: '#3ECF8E' }}>{item.route}</span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(62,207,142,0.08)', color: 'var(--color-success)' }}>{item.route}</span>
                             <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(168,85,247,0.08)', color: '#A855F7' }}>{item.frequency}</span>
-                            <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(245,158,11,0.08)', color: '#F59E0B' }}>{item.duration}</span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(245,158,11,0.08)', color: 'var(--color-warning)' }}>{item.duration}</span>
                           </div>
                         </div>
                         <button onClick={() => handleRemovePrescriptionItem(i)} className="p-1 rounded-lg hover:opacity-80" style={{ background: 'rgba(229,46,66,0.08)' }}>
-                          <X className="w-3 h-3" style={{ color: '#E52E42' }} />
+                          <X className="w-3 h-3" style={{ color: 'var(--color-danger)' }} />
                         </button>
                       </div>
                     ))}
@@ -1178,7 +1178,7 @@ export default function DashboardPage() {
         <ModalOverlay open={labModalOpen} onClose={() => { setLabModalOpen(false); setSelectedLabTests(new Set()); setLabPatientId(''); setLabOrderSuccess(false); }} title="Quick Lab Order">
           {labOrderSuccess ? (
             <div className="flex flex-col items-center justify-center py-8 gap-3">
-              <CheckCircle2 className="w-12 h-12" style={{ color: '#3ECF8E' }} />
+              <CheckCircle2 className="w-12 h-12" style={{ color: 'var(--color-success)' }} />
               <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Lab Order Submitted Successfully</p>
               <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>{selectedLabTests.size} test(s) ordered</p>
             </div>
@@ -1225,7 +1225,7 @@ export default function DashboardPage() {
                         <div
                           className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0"
                           style={{
-                            background: isSelected ? '#0077D7' : 'transparent',
+                            background: isSelected ? 'var(--accent-primary)' : 'transparent',
                             border: isSelected ? 'none' : '2px solid var(--border-light)',
                           }}
                         >
@@ -1270,7 +1270,7 @@ export default function DashboardPage() {
                   onClick={handleSubmitLabOrder}
                   disabled={!labPatientId || selectedLabTests.size === 0}
                   className="px-4 py-2 rounded-xl text-[12px] font-semibold text-white disabled:opacity-40"
-                  style={{ background: '#F59E0B' }}
+                  style={{ background: 'var(--color-warning)' }}
                 >
                   <span className="flex items-center gap-1.5">
                     <TestTube className="w-3.5 h-3.5" />

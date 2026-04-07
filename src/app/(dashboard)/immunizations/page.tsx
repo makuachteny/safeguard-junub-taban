@@ -15,8 +15,8 @@ const SITES: Array<'left arm' | 'right arm' | 'left thigh' | 'right thigh' | 'or
 const statusConfig = {
   completed: { color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)', icon: CheckCircle2, label: 'Completed' },
   scheduled: { color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)', icon: Clock, label: 'Scheduled' },
-  overdue: { color: '#E52E42', bg: 'rgba(229,46,66,0.12)', icon: AlertTriangle, label: 'Overdue' },
-  missed: { color: '#94A3B8', bg: 'rgba(100,116,139,0.12)', icon: XCircle, label: 'Missed' },
+  overdue: { color: 'var(--color-danger)', bg: 'rgba(229,46,66,0.12)', icon: AlertTriangle, label: 'Overdue' },
+  missed: { color: 'var(--text-muted)', bg: 'rgba(100,116,139,0.12)', icon: XCircle, label: 'Missed' },
 };
 
 export default function ImmunizationsPage() {
@@ -126,7 +126,7 @@ export default function ImmunizationsPage() {
             {[
               { label: 'Total Vaccinations', value: stats.totalVaccinations.toString(), color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)', icon: Syringe },
               { label: 'Children Tracked', value: stats.totalChildren.toString(), color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)', icon: Users },
-              { label: 'Overdue Doses', value: stats.overdue.toString(), color: '#E52E42', bg: 'rgba(229,46,66,0.12)', icon: AlertTriangle },
+              { label: 'Overdue Doses', value: stats.overdue.toString(), color: 'var(--color-danger)', bg: 'rgba(229,46,66,0.12)', icon: AlertTriangle },
               { label: 'Coverage Rate', value: `${stats.coverageRate}%`, color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)', icon: CheckCircle2 },
             ].map(stat => (
               <div key={stat.label} className="kpi">
@@ -158,9 +158,9 @@ export default function ImmunizationsPage() {
                       className="h-full rounded-full flex items-center justify-end pr-2 transition-all duration-700"
                       style={{
                         width: `${Math.max(c.percentage, 8)}%`,
-                        background: c.percentage >= 80 ? '#0077D7' :
-                                   c.percentage >= 50 ? '#F59E0B' :
-                                   '#E52E42',
+                        background: c.percentage >= 80 ? 'var(--accent-primary)' :
+                                   c.percentage >= 50 ? 'var(--color-warning)' :
+                                   'var(--color-danger)',
                       }}
                     >
                       <span className="text-[10px] font-bold text-white">{c.percentage}%</span>
@@ -221,7 +221,7 @@ export default function ImmunizationsPage() {
                       {completedCount} given
                     </span>
                     {overdueCount > 0 && (
-                      <span className="text-xs px-2 py-1 rounded-full" style={{ background: 'rgba(229,46,66,0.12)', color: '#E52E42' }}>
+                      <span className="text-xs px-2 py-1 rounded-full" style={{ background: 'rgba(229,46,66,0.12)', color: 'var(--color-danger)' }}>
                         {overdueCount} overdue
                       </span>
                     )}

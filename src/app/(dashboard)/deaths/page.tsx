@@ -78,15 +78,15 @@ export default function DeathsPage() {
           <div className="grid grid-cols-5 gap-3 mb-6">
             <div className="card-elevated p-4">
               <p className="text-xs font-medium uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>Total Deaths</p>
-              <p className="text-2xl font-bold" style={{ color: '#E52E42' }}>{stats.total}</p>
+              <p className="text-2xl font-bold" style={{ color: 'var(--color-danger)' }}>{stats.total}</p>
             </div>
             <div className="card-elevated p-4">
               <p className="text-xs font-medium uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>Maternal Deaths</p>
-              <p className="text-2xl font-bold" style={{ color: '#E52E42' }}>{stats.maternalDeaths}</p>
+              <p className="text-2xl font-bold" style={{ color: 'var(--color-danger)' }}>{stats.maternalDeaths}</p>
             </div>
             <div className="card-elevated p-4">
               <p className="text-xs font-medium uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>Under-5 Deaths</p>
-              <p className="text-2xl font-bold" style={{ color: '#FCD34D' }}>{stats.under5Deaths}</p>
+              <p className="text-2xl font-bold" style={{ color: 'var(--color-warning)' }}>{stats.under5Deaths}</p>
             </div>
             <div className="card-elevated p-4">
               <p className="text-xs font-medium uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>With ICD-11 Code</p>
@@ -102,13 +102,13 @@ export default function DeathsPage() {
         {/* Top causes */}
         {stats && stats.topCauses.length > 0 && (
           <div className="card-elevated p-4 mb-6">
-            <h3 className="font-semibold text-sm mb-3 flex items-center gap-2"><AlertTriangle className="w-4 h-4" style={{ color: '#E52E42' }} /> Top Causes of Death (ICD-11)</h3>
+            <h3 className="font-semibold text-sm mb-3 flex items-center gap-2"><AlertTriangle className="w-4 h-4" style={{ color: 'var(--color-danger)' }} /> Top Causes of Death (ICD-11)</h3>
             <div className="grid grid-cols-5 gap-2">
               {stats.topCauses.slice(0, 5).map(c => (
                 <div key={c.code} className="p-2 rounded-lg" style={{ background: 'rgba(229,46,66,0.08)' }}>
-                  <span className="font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: 'rgba(229,46,66,0.15)', color: '#E52E42' }}>{c.code}</span>
+                  <span className="font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: 'rgba(229,46,66,0.15)', color: 'var(--color-danger)' }}>{c.code}</span>
                   <p className="text-xs font-medium mt-1">{c.cause}</p>
-                  <p className="text-lg font-bold" style={{ color: '#E52E42' }}>{c.count}</p>
+                  <p className="text-lg font-bold" style={{ color: 'var(--color-danger)' }}>{c.count}</p>
                 </div>
               ))}
             </div>
@@ -148,7 +148,7 @@ export default function DeathsPage() {
                   <td className="text-xs font-mono">{d.dateOfDeath}</td>
                   <td>
                     <div>
-                      {d.underlyingICD11 && <span className="font-mono text-[10px] px-1.5 py-0.5 rounded mr-1" style={{ background: 'rgba(229,46,66,0.12)', color: '#E52E42' }}>{d.underlyingICD11}</span>}
+                      {d.underlyingICD11 && <span className="font-mono text-[10px] px-1.5 py-0.5 rounded mr-1" style={{ background: 'rgba(229,46,66,0.12)', color: 'var(--color-danger)' }}>{d.underlyingICD11}</span>}
                       <span className="text-xs">{d.underlyingCause || d.immediateCause}</span>
                     </div>
                   </td>
@@ -178,12 +178,12 @@ export default function DeathsPage() {
                           <div><span className="font-semibold block mb-0.5" style={{ color: 'var(--text-muted)' }}>Place of Death</span>{d.placeOfDeath || d.facilityName}</div>
                         </div>
                         <div className="p-3 rounded-lg" style={{ background: 'rgba(229,46,66,0.06)', border: '1px solid rgba(229,46,66,0.15)' }}>
-                          <p className="text-xs font-semibold mb-2" style={{ color: '#E52E42' }}>Cause of Death Chain (WHO)</p>
+                          <p className="text-xs font-semibold mb-2" style={{ color: 'var(--color-danger)' }}>Cause of Death Chain (WHO)</p>
                           <div className="space-y-1 text-xs">
-                            <p><span className="font-medium">a) Immediate:</span> {d.immediateCause} {d.immediateICD11 && <span className="font-mono text-[10px] px-1 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: '#E52E42' }}>{d.immediateICD11}</span>}</p>
-                            {d.antecedentCause1 && <p><span className="font-medium">b) Due to:</span> {d.antecedentCause1} {d.antecedentICD11_1 && <span className="font-mono text-[10px] px-1 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: '#E52E42' }}>{d.antecedentICD11_1}</span>}</p>}
-                            {d.antecedentCause2 && <p><span className="font-medium">c) Due to:</span> {d.antecedentCause2} {d.antecedentICD11_2 && <span className="font-mono text-[10px] px-1 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: '#E52E42' }}>{d.antecedentICD11_2}</span>}</p>}
-                            {d.underlyingCause && <p><span className="font-medium">d) Underlying:</span> {d.underlyingCause} {d.underlyingICD11 && <span className="font-mono text-[10px] px-1 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: '#E52E42' }}>{d.underlyingICD11}</span>}</p>}
+                            <p><span className="font-medium">a) Immediate:</span> {d.immediateCause} {d.immediateICD11 && <span className="font-mono text-[10px] px-1 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: 'var(--color-danger)' }}>{d.immediateICD11}</span>}</p>
+                            {d.antecedentCause1 && <p><span className="font-medium">b) Due to:</span> {d.antecedentCause1} {d.antecedentICD11_1 && <span className="font-mono text-[10px] px-1 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: 'var(--color-danger)' }}>{d.antecedentICD11_1}</span>}</p>}
+                            {d.antecedentCause2 && <p><span className="font-medium">c) Due to:</span> {d.antecedentCause2} {d.antecedentICD11_2 && <span className="font-mono text-[10px] px-1 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: 'var(--color-danger)' }}>{d.antecedentICD11_2}</span>}</p>}
+                            {d.underlyingCause && <p><span className="font-medium">d) Underlying:</span> {d.underlyingCause} {d.underlyingICD11 && <span className="font-mono text-[10px] px-1 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: 'var(--color-danger)' }}>{d.underlyingICD11}</span>}</p>}
                             {d.contributingConditions && <p><span className="font-medium">Contributing:</span> {d.contributingConditions}</p>}
                           </div>
                         </div>
@@ -207,7 +207,7 @@ export default function DeathsPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.5)' }}>
             <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
               <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'var(--border-light)' }}>
-                <div className="flex items-center gap-2"><FileText className="w-5 h-5" style={{ color: '#E52E42' }} /><h2 className="font-semibold">WHO Medical Certificate of Cause of Death</h2></div>
+                <div className="flex items-center gap-2"><FileText className="w-5 h-5" style={{ color: 'var(--color-danger)' }} /><h2 className="font-semibold">WHO Medical Certificate of Cause of Death</h2></div>
                 <button onClick={() => setShowForm(false)}><X className="w-5 h-5" style={{ color: 'var(--text-muted)' }} /></button>
               </div>
               <div className="p-4 space-y-4">

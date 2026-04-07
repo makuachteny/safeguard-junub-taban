@@ -25,23 +25,23 @@ const ACCENT = 'var(--accent-primary)';
 
 // Quick Visit Templates
 const VISIT_TEMPLATES = [
-  { id: 'routine', label: 'Routine Household', icon: Home, color: '#059669',
+  { id: 'routine', label: 'Routine Household', icon: Home, color: 'var(--color-success)',
     chiefComplaint: 'Routine household health check', action: 'treated' as const, symptoms: [] as string[], conditionId: 'other' },
-  { id: 'sick-child', label: 'Sick Child', icon: Thermometer, color: '#EF4444',
+  { id: 'sick-child', label: 'Sick Child', icon: Thermometer, color: 'var(--color-danger)',
     chiefComplaint: 'Child illness assessment', action: '' as const, symptoms: ['fever'], conditionId: 'malaria' },
   { id: 'anc', label: 'ANC Follow-up', icon: Baby, color: '#EC4899',
     chiefComplaint: 'Antenatal care follow-up visit', action: '' as const, symptoms: ['pregnancy'], conditionId: 'pregnancy' },
   { id: 'immunization', label: 'Immunization Defaulter', icon: Syringe, color: '#8B5CF6',
     chiefComplaint: 'Immunization follow-up', action: 'referred' as const, symptoms: [] as string[], conditionId: 'other' },
-  { id: 'malnutrition', label: 'Malnutrition Screening', icon: UtensilsCrossed, color: '#F59E0B',
+  { id: 'malnutrition', label: 'Malnutrition Screening', icon: UtensilsCrossed, color: 'var(--color-warning)',
     chiefComplaint: 'Nutritional assessment', action: '' as const, symptoms: ['malnutrition'], conditionId: 'malnutrition' },
 ];
 
 const CONDITIONS = [
-  { id: 'malaria', label: 'Malaria', icon: Thermometer, color: '#EF4444' },
+  { id: 'malaria', label: 'Malaria', icon: Thermometer, color: 'var(--color-danger)' },
   { id: 'diarrhea', label: 'Diarrhea', icon: Droplets, color: '#3B82F6' },
   { id: 'pneumonia', label: 'Pneumonia', icon: Stethoscope, color: '#8B5CF6' },
-  { id: 'malnutrition', label: 'Malnutrition', icon: Apple, color: '#F59E0B' },
+  { id: 'malnutrition', label: 'Malnutrition', icon: Apple, color: 'var(--color-warning)' },
   { id: 'pregnancy', label: 'Pregnancy Issue', icon: Baby, color: '#EC4899' },
   { id: 'injury', label: 'Injury', icon: Bandage, color: '#FB923C' },
   { id: 'mental', label: 'Mental Health', icon: Brain, color: '#06B6D4' },
@@ -49,14 +49,14 @@ const CONDITIONS = [
 ];
 
 const SYMPTOM_GROUPS = [
-  { id: 'fever', label: 'Fever / Hot Body', icon: Thermometer, color: '#EF4444', bg: 'rgba(239,68,68,0.1)', keywords: 'fever headache chills sweating body ache' },
-  { id: 'diarrhea', label: 'Diarrhea / Vomiting', icon: Droplets, color: '#F59E0B', bg: 'rgba(245,158,11,0.1)', keywords: 'diarrhea vomiting watery stool dehydration loose stool' },
+  { id: 'fever', label: 'Fever / Hot Body', icon: Thermometer, color: 'var(--color-danger)', bg: 'rgba(239,68,68,0.1)', keywords: 'fever headache chills sweating body ache' },
+  { id: 'diarrhea', label: 'Diarrhea / Vomiting', icon: Droplets, color: 'var(--color-warning)', bg: 'rgba(245,158,11,0.1)', keywords: 'diarrhea vomiting watery stool dehydration loose stool' },
   { id: 'cough', label: 'Cough / Breathing', icon: Wind, color: '#3B82F6', bg: 'rgba(59,130,246,0.1)', keywords: 'cough difficulty breathing shortness of breath chest pain' },
   { id: 'skin', label: 'Rash / Skin Problem', icon: Activity, color: '#EC4899', bg: 'rgba(236,72,153,0.1)', keywords: 'rash skin red eyes measles itching swelling' },
   { id: 'weakness', label: 'Weakness / Pale', icon: Heart, color: '#8B5CF6', bg: 'rgba(139,92,246,0.1)', keywords: 'fatigue weakness pale pallor dizzy weight loss' },
   { id: 'pregnancy', label: 'Pregnancy Problem', icon: Baby, color: '#EC4899', bg: 'rgba(236,72,153,0.1)', keywords: 'pregnant bleeding swelling headache blurred vision edema' },
   { id: 'pain', label: 'Belly / Body Pain', icon: AlertTriangle, color: '#F97316', bg: 'rgba(249,115,22,0.1)', keywords: 'abdominal pain body pain burning urination' },
-  { id: 'malnutrition', label: 'Not Eating / Thin', icon: Apple, color: '#D97706', bg: 'rgba(217,119,6,0.1)', keywords: 'weight loss malnutrition wasting not eating swollen feet' },
+  { id: 'malnutrition', label: 'Not Eating / Thin', icon: Apple, color: 'var(--color-warning)', bg: 'rgba(217,119,6,0.1)', keywords: 'weight loss malnutrition wasting not eating swollen feet' },
   { id: 'injury', label: 'Injury / Wound', icon: Bandage, color: '#FB923C', bg: 'rgba(251,146,60,0.1)', keywords: 'injury wound cut fracture bleeding trauma' },
   { id: 'mental', label: 'Confusion / Mood', icon: Brain, color: '#06B6D4', bg: 'rgba(6,182,212,0.1)', keywords: 'confusion anxiety depression mood seizure convulsion' },
 ];
@@ -341,12 +341,12 @@ export default function BomaDashboardPage() {
         }}>
           {isOnline ? (
             pendingSyncCount > 0 ? (
-              <><Wifi className="w-3.5 h-3.5" style={{ color: '#F59E0B' }} /><span className="text-xs font-medium" style={{ color: '#F59E0B' }}>{pendingSyncCount} visit{pendingSyncCount !== 1 ? 's' : ''} pending sync</span></>
+              <><Wifi className="w-3.5 h-3.5" style={{ color: 'var(--color-warning)' }} /><span className="text-xs font-medium" style={{ color: 'var(--color-warning)' }}>{pendingSyncCount} visit{pendingSyncCount !== 1 ? 's' : ''} pending sync</span></>
             ) : (
-              <><CheckCircle2 className="w-3.5 h-3.5" style={{ color: '#059669' }} /><span className="text-xs font-medium" style={{ color: '#059669' }}>All synced</span></>
+              <><CheckCircle2 className="w-3.5 h-3.5" style={{ color: 'var(--color-success)' }} /><span className="text-xs font-medium" style={{ color: 'var(--color-success)' }}>All synced</span></>
             )
           ) : (
-            <><WifiOff className="w-3.5 h-3.5" style={{ color: '#EF4444' }} /><span className="text-xs font-medium" style={{ color: '#EF4444' }}>Offline {pendingSyncCount > 0 ? `- ${pendingSyncCount} visit${pendingSyncCount !== 1 ? 's' : ''} pending sync` : '- data saved locally'}</span></>
+            <><WifiOff className="w-3.5 h-3.5" style={{ color: 'var(--color-danger)' }} /><span className="text-xs font-medium" style={{ color: 'var(--color-danger)' }}>Offline {pendingSyncCount > 0 ? `- ${pendingSyncCount} visit${pendingSyncCount !== 1 ? 's' : ''} pending sync` : '- data saved locally'}</span></>
           )}
         </div>
 
@@ -371,8 +371,8 @@ export default function BomaDashboardPage() {
           {[
             { label: 'Households', value: stats?.uniqueHouseholds.toString() || '40', icon: Home, color: 'var(--accent-primary)', bg: 'rgba(0,119,215,0.12)' },
             { label: 'Seen Today', value: todaysVisits.length.toString(), icon: Users, color: '#3B82F6', bg: 'rgba(59,130,246,0.12)' },
-            { label: 'Follow-Ups', value: pendingFollowUps.length.toString(), icon: Clock, color: '#F59E0B', bg: 'rgba(245,158,11,0.12)' },
-            { label: 'Referrals', value: todayReferred.toString(), icon: ArrowRight, color: '#EF4444', bg: 'rgba(239,68,68,0.12)' },
+            { label: 'Follow-Ups', value: pendingFollowUps.length.toString(), icon: Clock, color: 'var(--color-warning)', bg: 'rgba(245,158,11,0.12)' },
+            { label: 'Referrals', value: todayReferred.toString(), icon: ArrowRight, color: 'var(--color-danger)', bg: 'rgba(239,68,68,0.12)' },
           ].map(kpi => (
             <div key={kpi.label} className="kpi cursor-pointer"
               onClick={() => { if (kpi.label === 'Referrals') router.push('/referrals'); }}>
@@ -392,9 +392,9 @@ export default function BomaDashboardPage() {
           <div className="rounded-2xl mb-4 overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid #F59E0B30', boxShadow: 'var(--card-shadow)' }}>
             <div className="flex items-center justify-between px-4 py-2.5" style={{ background: '#F59E0B10', borderBottom: '1px solid #F59E0B20' }}>
               <div className="flex items-center gap-2">
-                <CalendarClock className="w-4 h-4" style={{ color: '#D97706' }} />
-                <span className="text-xs font-bold" style={{ color: '#D97706' }}>Due Today</span>
-                <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold" style={{ background: '#F59E0B20', color: '#D97706' }}>{dueTodayFollowUps.length}</span>
+                <CalendarClock className="w-4 h-4" style={{ color: 'var(--color-warning)' }} />
+                <span className="text-xs font-bold" style={{ color: 'var(--color-warning)' }}>Due Today</span>
+                <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold" style={{ background: '#F59E0B20', color: 'var(--color-warning)' }}>{dueTodayFollowUps.length}</span>
               </div>
             </div>
             <div className="p-3 space-y-1.5" style={{ maxHeight: '200px', overflowY: 'auto' }}>
@@ -409,7 +409,7 @@ export default function BomaDashboardPage() {
                     className="w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-all active:scale-[0.98]"
                     style={{ background: daysOverdue > 0 ? '#EF444408' : 'var(--overlay-subtle)', border: daysOverdue > 0 ? '1px solid #EF444415' : '1px solid var(--border-light)' }}>
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
-                      style={{ background: daysOverdue > 2 ? '#EF4444' : '#F59E0B' }}>
+                      style={{ background: daysOverdue > 2 ? 'var(--color-danger)' : 'var(--color-warning)' }}>
                       {fu.patientName.split(' ').map(n => n[0]).join('').slice(0, 2)}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -419,7 +419,7 @@ export default function BomaDashboardPage() {
                         {fu.scheduledDate && <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{new Date(fu.scheduledDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>}
                       </div>
                     </div>
-                    {daysOverdue > 0 && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ background: '#EF444415', color: '#EF4444' }}>{daysOverdue}d overdue</span>}
+                    {daysOverdue > 0 && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ background: '#EF444415', color: 'var(--color-danger)' }}>{daysOverdue}d overdue</span>}
                     <ChevronRight className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
                   </button>
                 );
@@ -476,8 +476,8 @@ export default function BomaDashboardPage() {
               <div className="flex items-center gap-3">
                 {gpsStatus !== 'idle' && (
                   <div className="flex items-center gap-1 px-2 py-1 rounded-lg" style={{ background: gpsStatus === 'captured' ? '#05966910' : gpsStatus === 'capturing' ? '#3B82F610' : '#EF444410' }}>
-                    <Navigation className="w-3 h-3" style={{ color: gpsStatus === 'captured' ? '#059669' : gpsStatus === 'capturing' ? '#3B82F6' : '#EF4444' }} />
-                    <span className="text-[9px] font-bold" style={{ color: gpsStatus === 'captured' ? '#059669' : gpsStatus === 'capturing' ? '#3B82F6' : '#EF4444' }}>
+                    <Navigation className="w-3 h-3" style={{ color: gpsStatus === 'captured' ? 'var(--color-success)' : gpsStatus === 'capturing' ? '#3B82F6' : 'var(--color-danger)' }} />
+                    <span className="text-[9px] font-bold" style={{ color: gpsStatus === 'captured' ? 'var(--color-success)' : gpsStatus === 'capturing' ? '#3B82F6' : 'var(--color-danger)' }}>
                       {gpsStatus === 'captured' ? 'GPS Captured' : gpsStatus === 'capturing' ? 'Getting GPS...' : 'No GPS'}
                     </span>
                   </div>
@@ -487,8 +487,8 @@ export default function BomaDashboardPage() {
             </div>
             {visitForm.chiefComplaint && formStep === 'search' && (
               <div className="px-4 py-2 flex items-center gap-2" style={{ background: '#05966908', borderBottom: '1px solid #05966915' }}>
-                <CheckCircle2 className="w-3.5 h-3.5" style={{ color: '#059669' }} />
-                <span className="text-xs font-medium" style={{ color: '#059669' }}>Template: {visitForm.chiefComplaint}</span>
+                <CheckCircle2 className="w-3.5 h-3.5" style={{ color: 'var(--color-success)' }} />
+                <span className="text-xs font-medium" style={{ color: 'var(--color-success)' }}>Template: {visitForm.chiefComplaint}</span>
               </div>
             )}
             <div className="p-4">
@@ -538,7 +538,7 @@ export default function BomaDashboardPage() {
                   <div><label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Patient Name</label><input type="text" value={visitForm.patientName} onChange={e => setVisitForm(prev => ({ ...prev, patientName: e.target.value }))} placeholder="e.g. Deng Mabior" className="w-full px-4 py-3 rounded-xl text-base" style={{ background: 'var(--bg-input)', border: '2px solid var(--border-medium)', color: 'var(--text-primary)', minHeight: '48px' }} /></div>
                   <div><label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Geocode ID</label><input type="text" value={visitForm.geocodeId} onChange={e => setVisitForm(prev => ({ ...prev, geocodeId: e.target.value.toUpperCase() }))} placeholder="BOMA-XX-HH1001" className="w-full px-4 py-3 rounded-xl text-base font-mono" style={{ background: 'var(--bg-input)', border: '2px solid var(--border-medium)', color: 'var(--text-primary)', minHeight: '48px' }} /></div>
                   {voiceTranscript && (<div className="flex items-start gap-2 px-3 py-2 rounded-lg" style={{ background: 'var(--overlay-subtle)', border: '1px solid var(--border-light)' }}><Mic className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: 'var(--color-info)' }} /><p className="text-xs leading-relaxed flex-1" style={{ color: 'var(--text-secondary)' }}>{voiceTranscript}</p><button onClick={() => setVoiceTranscript('')} className="flex-shrink-0"><X className="w-3.5 h-3.5" style={{ color: 'var(--text-muted)' }} /></button></div>)}
-                  <button onClick={() => visitForm.patientName && setFormStep('symptoms')} disabled={!visitForm.patientName} className="w-full py-4 rounded-xl font-bold text-white flex items-center justify-center gap-2 transition-all active:scale-[0.98]" style={{ background: visitForm.patientName ? 'var(--accent-primary)' : '#94A3B8', minHeight: '56px', fontSize: '16px' }}>Next: Signs & Symptoms <ArrowRight className="w-5 h-5" /></button>
+                  <button onClick={() => visitForm.patientName && setFormStep('symptoms')} disabled={!visitForm.patientName} className="w-full py-4 rounded-xl font-bold text-white flex items-center justify-center gap-2 transition-all active:scale-[0.98]" style={{ background: visitForm.patientName ? 'var(--accent-primary)' : 'var(--text-muted)', minHeight: '56px', fontSize: '16px' }}>Next: Signs & Symptoms <ArrowRight className="w-5 h-5" /></button>
                 </div>
               )}
 
@@ -568,7 +568,7 @@ export default function BomaDashboardPage() {
                       );
                     })}
                   </div>
-                  <button onClick={runAiEvaluation} disabled={selectedSymptoms.length === 0 || evaluating} className="w-full py-4 rounded-xl font-bold text-white flex items-center justify-center gap-2 transition-all active:scale-[0.98]" style={{ background: selectedSymptoms.length > 0 ? '#059669' : '#94A3B8', minHeight: '56px', fontSize: '16px', boxShadow: selectedSymptoms.length > 0 ? '0 4px 16px rgba(5,150,105,0.3)' : 'none' }}>
+                  <button onClick={runAiEvaluation} disabled={selectedSymptoms.length === 0 || evaluating} className="w-full py-4 rounded-xl font-bold text-white flex items-center justify-center gap-2 transition-all active:scale-[0.98]" style={{ background: selectedSymptoms.length > 0 ? 'var(--color-success)' : 'var(--text-muted)', minHeight: '56px', fontSize: '16px', boxShadow: selectedSymptoms.length > 0 ? '0 4px 16px rgba(5,150,105,0.3)' : 'none' }}>
                     {evaluating ? (<><Loader2 className="w-5 h-5 animate-spin" /> Analyzing symptoms...</>) : (<><Stethoscope className="w-5 h-5" /> Evaluate ({selectedSymptoms.length} symptom{selectedSymptoms.length !== 1 ? 's' : ''}) <ArrowRight className="w-5 h-5" /></>)}
                   </button>
                 </div>
@@ -578,8 +578,8 @@ export default function BomaDashboardPage() {
                 <div>
                   <div className="p-3 rounded-xl mb-3" style={{ background: aiEvaluation.severityAssessment.includes('HIGH') ? 'rgba(239,68,68,0.1)' : aiEvaluation.severityAssessment.includes('MODERATE') ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)', border: `1px solid ${aiEvaluation.severityAssessment.includes('HIGH') ? 'rgba(239,68,68,0.2)' : aiEvaluation.severityAssessment.includes('MODERATE') ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)'}` }}>
                     <div className="flex items-center gap-2 mb-1">
-                      <AlertTriangle className="w-4 h-4" style={{ color: aiEvaluation.severityAssessment.includes('HIGH') ? '#EF4444' : aiEvaluation.severityAssessment.includes('MODERATE') ? '#F59E0B' : '#10B981' }} />
-                      <span className="text-xs font-bold" style={{ color: aiEvaluation.severityAssessment.includes('HIGH') ? '#EF4444' : aiEvaluation.severityAssessment.includes('MODERATE') ? '#F59E0B' : '#10B981' }}>{aiEvaluation.severityAssessment.split(' \u2014 ')[0]}</span>
+                      <AlertTriangle className="w-4 h-4" style={{ color: aiEvaluation.severityAssessment.includes('HIGH') ? 'var(--color-danger)' : aiEvaluation.severityAssessment.includes('MODERATE') ? 'var(--color-warning)' : 'var(--color-success)' }} />
+                      <span className="text-xs font-bold" style={{ color: aiEvaluation.severityAssessment.includes('HIGH') ? 'var(--color-danger)' : aiEvaluation.severityAssessment.includes('MODERATE') ? 'var(--color-warning)' : 'var(--color-success)' }}>{aiEvaluation.severityAssessment.split(' \u2014 ')[0]}</span>
                     </div>
                     <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{aiEvaluation.severityAssessment.split(' \u2014 ')[1]}</p>
                   </div>
@@ -588,16 +588,16 @@ export default function BomaDashboardPage() {
                     {aiEvaluation.suggestedDiagnoses.slice(0, 3).map((dx, i) => (
                       <div key={dx.icd10Code} className="p-3 rounded-xl" style={{ background: i === 0 ? 'rgba(5,150,105,0.06)' : 'var(--overlay-subtle)', border: i === 0 ? '1px solid rgba(5,150,105,0.2)' : '1px solid var(--border-light)' }}>
                         <div className="flex items-center justify-between mb-1">
-                          <div className="flex items-center gap-2"><span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: i === 0 ? '#059669' : 'var(--overlay-medium)', color: i === 0 ? 'white' : 'var(--text-muted)' }}>#{i + 1}</span><span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{dx.name}</span></div>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: dx.severity === 'severe' ? 'rgba(239,68,68,0.1)' : dx.severity === 'moderate' ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)', color: dx.severity === 'severe' ? '#EF4444' : dx.severity === 'moderate' ? '#F59E0B' : '#10B981' }}>{dx.severity}</span>
+                          <div className="flex items-center gap-2"><span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: i === 0 ? 'var(--color-success)' : 'var(--overlay-medium)', color: i === 0 ? 'white' : 'var(--text-muted)' }}>#{i + 1}</span><span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{dx.name}</span></div>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: dx.severity === 'severe' ? 'rgba(239,68,68,0.1)' : dx.severity === 'moderate' ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)', color: dx.severity === 'severe' ? 'var(--color-danger)' : dx.severity === 'moderate' ? 'var(--color-warning)' : 'var(--color-success)' }}>{dx.severity}</span>
                         </div>
-                        <div className="flex items-center gap-2 mb-1.5"><div className="flex-1 h-1.5 rounded-full" style={{ background: 'var(--overlay-medium)' }}><div className="h-full rounded-full" style={{ width: `${dx.confidence}%`, background: dx.confidence >= 60 ? '#059669' : dx.confidence >= 40 ? '#F59E0B' : 'var(--text-muted)' }} /></div><span className="text-[10px] font-mono font-bold" style={{ color: 'var(--text-muted)' }}>{dx.confidence}%</span></div>
-                        <div className="flex items-start gap-1.5"><Pill className="w-3 h-3 mt-0.5 flex-shrink-0" style={{ color: '#059669' }} /><p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{dx.suggestedTreatment}</p></div>
+                        <div className="flex items-center gap-2 mb-1.5"><div className="flex-1 h-1.5 rounded-full" style={{ background: 'var(--overlay-medium)' }}><div className="h-full rounded-full" style={{ width: `${dx.confidence}%`, background: dx.confidence >= 60 ? 'var(--color-success)' : dx.confidence >= 40 ? 'var(--color-warning)' : 'var(--text-muted)' }} /></div><span className="text-[10px] font-mono font-bold" style={{ color: 'var(--text-muted)' }}>{dx.confidence}%</span></div>
+                        <div className="flex items-start gap-1.5"><Pill className="w-3 h-3 mt-0.5 flex-shrink-0" style={{ color: 'var(--color-success)' }} /><p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{dx.suggestedTreatment}</p></div>
                       </div>
                     ))}
                   </div>
                   {aiEvaluation.recommendedTests.length > 0 && (<div className="mb-3"><p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>Recommended Tests</p><div className="flex flex-wrap gap-1.5">{aiEvaluation.recommendedTests.map(test => (<span key={test} className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium" style={{ background: 'rgba(59,130,246,0.1)', color: '#3B82F6', border: '1px solid rgba(59,130,246,0.15)' }}><FlaskConical className="w-2.5 h-2.5" /> {test}</span>))}</div></div>)}
-                  <div className="p-3 rounded-xl mb-4" style={{ background: 'rgba(5,150,105,0.05)', border: '1px solid rgba(5,150,105,0.15)' }}><p className="text-xs font-bold mb-1" style={{ color: '#059669' }}><ChevronRight className="w-3 h-3 inline" /> What should I do?</p><p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{aiEvaluation.severityAssessment.includes('HIGH') ? 'REFER IMMEDIATELY to the nearest facility. Give first aid and arrange transport.' : aiEvaluation.severityAssessment.includes('MODERATE') ? 'Consider referral if you cannot treat. Monitor closely. Follow up within 24 hours.' : 'You can treat at community level. Follow the suggestions above. Follow up in 2-3 days.'}</p></div>
+                  <div className="p-3 rounded-xl mb-4" style={{ background: 'rgba(5,150,105,0.05)', border: '1px solid rgba(5,150,105,0.15)' }}><p className="text-xs font-bold mb-1" style={{ color: 'var(--color-success)' }}><ChevronRight className="w-3 h-3 inline" /> What should I do?</p><p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{aiEvaluation.severityAssessment.includes('HIGH') ? 'REFER IMMEDIATELY to the nearest facility. Give first aid and arrange transport.' : aiEvaluation.severityAssessment.includes('MODERATE') ? 'Consider referral if you cannot treat. Monitor closely. Follow up within 24 hours.' : 'You can treat at community level. Follow the suggestions above. Follow up in 2-3 days.'}</p></div>
                   <button onClick={() => setFormStep('action')} className="w-full py-4 rounded-xl font-bold text-white flex items-center justify-center gap-2 transition-all active:scale-[0.98]" style={{ background: 'var(--accent-primary)', minHeight: '56px', fontSize: '16px' }}>Next: Take Action <ArrowRight className="w-5 h-5" /></button>
                   <p className="text-[9px] mt-2 text-center" style={{ color: 'var(--text-muted)' }}>AI suggestion based on WHO/IMCI guidelines. Use your clinical judgment.</p>
                 </div>

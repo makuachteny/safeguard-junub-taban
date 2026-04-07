@@ -19,10 +19,10 @@ import type { TelehealthType, TelehealthStatus, TelehealthSessionDoc } from '@/l
 /* ─── Config ─── */
 const statusConfig: Record<TelehealthStatus, { color: string; bg: string; label: string; icon: typeof Video }> = {
   scheduled: { color: 'var(--accent-primary)', bg: 'rgba(0,119,215,0.08)', label: 'Scheduled', icon: Calendar },
-  waiting_room: { color: '#D97706', bg: 'rgba(217,119,6,0.08)', label: 'Waiting', icon: Clock },
-  in_session: { color: '#059669', bg: 'rgba(5,150,105,0.08)', label: 'In Session', icon: Video },
-  completed: { color: '#10B981', bg: 'rgba(16,185,129,0.08)', label: 'Completed', icon: CheckCircle2 },
-  cancelled: { color: '#EF4444', bg: 'rgba(239,68,68,0.08)', label: 'Cancelled', icon: XCircle },
+  waiting_room: { color: 'var(--color-warning)', bg: 'rgba(217,119,6,0.08)', label: 'Waiting', icon: Clock },
+  in_session: { color: 'var(--color-success)', bg: 'rgba(5,150,105,0.08)', label: 'In Session', icon: Video },
+  completed: { color: 'var(--color-success)', bg: 'rgba(16,185,129,0.08)', label: 'Completed', icon: CheckCircle2 },
+  cancelled: { color: 'var(--color-danger)', bg: 'rgba(239,68,68,0.08)', label: 'Cancelled', icon: XCircle },
   failed: { color: '#6B7280', bg: 'rgba(107,114,128,0.08)', label: 'Failed', icon: WifiOff },
   no_show: { color: '#9CA3AF', bg: 'rgba(156,163,175,0.08)', label: 'No Show', icon: XCircle },
 };
@@ -34,8 +34,8 @@ const typeConfig: Record<TelehealthType, { label: string; icon: typeof Video }> 
 };
 
 const paymentLabels: Record<string, { color: string; label: string }> = {
-  pending: { color: '#D97706', label: 'Pending' },
-  paid: { color: '#10B981', label: 'Paid' },
+  pending: { color: 'var(--color-warning)', label: 'Pending' },
+  paid: { color: 'var(--color-success)', label: 'Paid' },
   waived: { color: '#6B7280', label: 'Waived' },
   insurance: { color: 'var(--accent-primary)', label: 'Insurance' },
 };
@@ -193,7 +193,7 @@ export default function TelehealthPage() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
           <div className="page-header" style={{ marginBottom: 0 }}>
             <div className="page-header__top">
-              <div className="page-header__icon" style={{ background: 'rgba(5,150,105,0.1)' }}><Video size={18} style={{ color: '#059669' }} /></div>
+              <div className="page-header__icon" style={{ background: 'rgba(5,150,105,0.1)' }}><Video size={18} style={{ color: 'var(--color-success)' }} /></div>
               <h1 className="page-header__title">Telehealth</h1>
             </div>
             <p className="page-header__subtitle">Virtual consultations &middot; ISO 13131 compliant</p>
@@ -210,7 +210,7 @@ export default function TelehealthPage() {
             <button onClick={() => setShowFilters(!showFilters)} className="btn btn-secondary btn-sm" style={{ gap: 4 }}>
               <Filter size={13} /> Filters
             </button>
-            <button onClick={() => setShowNewForm(true)} className="btn btn-primary btn-sm" style={{ gap: 4, background: '#059669', borderColor: '#059669' }}>
+            <button onClick={() => setShowNewForm(true)} className="btn btn-primary btn-sm" style={{ gap: 4, background: 'var(--color-success)', borderColor: 'var(--color-success)' }}>
               <Plus size={14} /> New Session
             </button>
           </div>
@@ -221,10 +221,10 @@ export default function TelehealthPage() {
           <div className="kpi-grid" style={{ marginBottom: 16 }}>
             {[
               { label: 'Today', value: stats.todayTotal, icon: Calendar, color: 'var(--accent-primary)' },
-              { label: 'Active', value: stats.todayActive, icon: Video, color: '#059669' },
-              { label: 'Completed', value: stats.completedTotal, icon: CheckCircle2, color: '#10B981' },
-              { label: 'Avg Duration', value: `${stats.avgDuration}m`, icon: Clock, color: '#D97706' },
-              { label: 'Rating', value: stats.avgRating > 0 ? `${stats.avgRating}/5` : '—', icon: Star, color: '#F59E0B' },
+              { label: 'Active', value: stats.todayActive, icon: Video, color: 'var(--color-success)' },
+              { label: 'Completed', value: stats.completedTotal, icon: CheckCircle2, color: 'var(--color-success)' },
+              { label: 'Avg Duration', value: `${stats.avgDuration}m`, icon: Clock, color: 'var(--color-warning)' },
+              { label: 'Rating', value: stats.avgRating > 0 ? `${stats.avgRating}/5` : '—', icon: Star, color: 'var(--color-warning)' },
               { label: 'Appointments', value: telehealthAppointments.length, icon: UserPlus, color: '#7C3AED' },
             ].map((c, i) => (
               <div key={i} className="kpi">
@@ -255,9 +255,9 @@ export default function TelehealthPage() {
           padding: '10px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10,
           borderLeft: '3px solid #059669',
         }}>
-          <Shield size={16} style={{ color: '#059669', flexShrink: 0 }} />
+          <Shield size={16} style={{ color: 'var(--color-success)', flexShrink: 0 }} />
           <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-            <strong style={{ color: '#059669' }}>ISO 13131</strong> &middot; Patient consent required &middot; End-to-end encrypted &middot; Quality monitored
+            <strong style={{ color: 'var(--color-success)' }}>ISO 13131</strong> &middot; Patient consent required &middot; End-to-end encrypted &middot; Quality monitored
           </span>
         </div>
 
@@ -294,13 +294,13 @@ export default function TelehealthPage() {
                       fontSize: 12, fontWeight: day.isToday ? 700 : 500,
                       color: day.isToday ? '#fff' : isSel ? 'var(--accent-primary)' : 'var(--text-primary)',
                       width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      background: day.isToday ? '#059669' : 'transparent',
+                      background: day.isToday ? 'var(--color-success)' : 'transparent',
                     }}>{day.day}</span>
                     {ev && (
                       <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
-                        {ev.telehealth > 0 && <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#059669' }} />}
+                        {ev.telehealth > 0 && <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--color-success)' }} />}
                         {ev.appointments > 0 && <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--accent-primary)' }} />}
-                        {ev.active > 0 && <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#F59E0B' }} />}
+                        {ev.active > 0 && <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--color-warning)' }} />}
                         <span style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 600 }}>{ev.telehealth + ev.appointments}</span>
                       </div>
                     )}
@@ -309,7 +309,7 @@ export default function TelehealthPage() {
               })}
             </div>
             <div style={{ display: 'flex', gap: 14, padding: '8px 16px', borderTop: '1px solid var(--border-medium)' }}>
-              {[{ c: '#059669', l: 'Telehealth' }, { c: 'var(--accent-primary)', l: 'Appointments' }, { c: '#F59E0B', l: 'Active' }].map(x => (
+              {[{ c: 'var(--color-success)', l: 'Telehealth' }, { c: 'var(--accent-primary)', l: 'Appointments' }, { c: 'var(--color-warning)', l: 'Active' }].map(x => (
                 <span key={x.l} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: 'var(--text-muted)' }}>
                   <span style={{ width: 5, height: 5, borderRadius: '50%', background: x.c }} />{x.l}
                 </span>
@@ -352,7 +352,7 @@ export default function TelehealthPage() {
               <div className="card-elevated" style={{ textAlign: 'center', padding: 48 }}>
                 <Video size={36} style={{ color: 'var(--text-muted)', opacity: 0.3, margin: '0 auto 12px' }} />
                 <p style={{ color: 'var(--text-secondary)', marginBottom: 12 }}>No sessions {selectedDate ? 'on this date' : 'found'}</p>
-                <button onClick={() => setShowNewForm(true)} className="btn btn-primary btn-sm" style={{ background: '#059669', borderColor: '#059669' }}>
+                <button onClick={() => setShowNewForm(true)} className="btn btn-primary btn-sm" style={{ background: 'var(--color-success)', borderColor: 'var(--color-success)' }}>
                   <Plus size={14} /> Schedule Session
                 </button>
               </div>
@@ -364,7 +364,7 @@ export default function TelehealthPage() {
                 return (
                   <div key={session._id} className="card-elevated" style={{
                     overflow: 'hidden', borderLeftWidth: 3, borderLeftStyle: 'solid',
-                    borderLeftColor: session.status === 'in_session' ? '#059669' : sc.color,
+                    borderLeftColor: session.status === 'in_session' ? 'var(--color-success)' : sc.color,
                   }}>
                     <div onClick={() => setExpandedId(isExp ? null : session._id)} style={{
                       display: 'flex', alignItems: 'center', padding: '10px 14px', cursor: 'pointer', gap: 10, flexWrap: 'wrap',
@@ -380,9 +380,9 @@ export default function TelehealthPage() {
                         <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: 13 }}>{session.patientName}</div>
                         <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{tc.label} &middot; {session.chiefComplaint.slice(0, 40)}{session.chiefComplaint.length > 40 ? '...' : ''}</div>
                       </div>
-                      {session.status === 'in_session' && <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#059669', animation: 'pulse 2s infinite' }} />}
+                      {session.status === 'in_session' && <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--color-success)', animation: 'pulse 2s infinite' }} />}
                       <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 4, color: sc.color, background: sc.bg }}>{sc.label}</span>
-                      {session.patientConsentGiven && <Lock size={12} style={{ color: '#10B981' }} />}
+                      {session.patientConsentGiven && <Lock size={12} style={{ color: 'var(--color-success)' }} />}
                       {isExp ? <ChevronUp size={14} style={{ color: 'var(--text-muted)' }} /> : <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />}
                     </div>
 
@@ -397,7 +397,7 @@ export default function TelehealthPage() {
                           {session.consultationFee !== undefined && (
                             <Detail l="Fee" v={`${session.currency} ${session.consultationFee}`} badge={session.paymentStatus ? paymentLabels[session.paymentStatus] : undefined} />
                           )}
-                          <Detail l="Consent" v={session.patientConsentGiven ? 'Given' : 'Pending'} color={session.patientConsentGiven ? '#10B981' : '#EF4444'} />
+                          <Detail l="Consent" v={session.patientConsentGiven ? 'Given' : 'Pending'} color={session.patientConsentGiven ? 'var(--color-success)' : 'var(--color-danger)'} />
                           {session.patientRating && <Detail l="Rating" v={`${session.patientRating}/5`} color="#F59E0B" />}
                         </div>
                         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
@@ -406,12 +406,12 @@ export default function TelehealthPage() {
                             <Btn c="#EF4444" onClick={() => updateStatus(session._id, 'cancelled', { cancelledReason: 'Cancelled', cancelledBy: currentUser?.name })}><X size={13} /> Cancel</Btn>
                           </>}
                           {(session.status === 'scheduled' || session.status === 'waiting_room') && (
-                            <button onClick={() => handleJoin(session)} className="btn btn-sm" style={{ background: '#059669', color: '#fff', border: 'none', gap: 4 }}>
+                            <button onClick={() => handleJoin(session)} className="btn btn-sm" style={{ background: 'var(--color-success)', color: '#fff', border: 'none', gap: 4 }}>
                               <Video size={13} /> Join
                             </button>
                           )}
                           {session.status === 'in_session' && <>
-                            <button onClick={() => { updateStatus(session._id, 'completed'); showToast('Completed', 'success'); }} className="btn btn-sm" style={{ background: '#EF4444', color: '#fff', border: 'none', gap: 4 }}>
+                            <button onClick={() => { updateStatus(session._id, 'completed'); showToast('Completed', 'success'); }} className="btn btn-sm" style={{ background: 'var(--color-danger)', color: '#fff', border: 'none', gap: 4 }}>
                               <PhoneOff size={13} /> End
                             </button>
                             <Btn c="#D97706" onClick={() => update(session._id, { connectionDrops: session.connectionDrops + 1 })}><WifiOff size={13} /> Drop</Btn>
@@ -448,7 +448,7 @@ export default function TelehealthPage() {
             <div><label>Fee (USD, optional)</label><input type="number" value={formFee} onChange={e => setFormFee(e.target.value)} placeholder="0.00" /></div>
             <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
               <button onClick={() => { setShowNewForm(false); resetForm(); }} className="btn btn-secondary" style={{ flex: 1 }}>Cancel</button>
-              <button onClick={handleCreate} disabled={submitting} className="btn btn-primary" style={{ flex: 1, background: '#059669', borderColor: '#059669', opacity: submitting ? 0.6 : 1 }}>{submitting ? 'Scheduling...' : 'Schedule'}</button>
+              <button onClick={handleCreate} disabled={submitting} className="btn btn-primary" style={{ flex: 1, background: 'var(--color-success)', borderColor: 'var(--color-success)', opacity: submitting ? 0.6 : 1 }}>{submitting ? 'Scheduling...' : 'Schedule'}</button>
             </div>
           </div>
         </Modal>}
@@ -471,14 +471,14 @@ export default function TelehealthPage() {
           <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 14 }}>
             {[1, 2, 3, 4, 5].map(n => (
               <button key={n} onClick={() => setRatingVal(n)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}>
-                <Star size={28} fill={n <= ratingVal ? '#F59E0B' : 'none'} style={{ color: n <= ratingVal ? '#F59E0B' : '#D1D5DB' }} />
+                <Star size={28} fill={n <= ratingVal ? 'var(--color-warning)' : 'none'} style={{ color: n <= ratingVal ? 'var(--color-warning)' : '#D1D5DB' }} />
               </button>
             ))}
           </div>
           <textarea value={ratingFb} onChange={e => setRatingFb(e.target.value)} rows={2} placeholder="Optional feedback..." style={{ marginBottom: 10 }} />
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={() => setRatingId(null)} className="btn btn-secondary" style={{ flex: 1 }}>Cancel</button>
-            <button onClick={() => { rate(ratingId, ratingVal, ratingFb || undefined); showToast('Rated', 'success'); setRatingId(null); setRatingFb(''); }} className="btn btn-primary" style={{ flex: 1, background: '#F59E0B', borderColor: '#F59E0B' }}>Submit</button>
+            <button onClick={() => { rate(ratingId, ratingVal, ratingFb || undefined); showToast('Rated', 'success'); setRatingId(null); setRatingFb(''); }} className="btn btn-primary" style={{ flex: 1, background: 'var(--color-warning)', borderColor: 'var(--color-warning)' }}>Submit</button>
           </div>
         </Modal>}
 

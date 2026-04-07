@@ -204,7 +204,7 @@ export default function OrgAdminDashboard() {
       label: 'Subscription',
       value: org?.subscriptionStatus === 'active' ? 'Active' : org?.subscriptionStatus || 'N/A',
       icon: CreditCard,
-      color: org?.subscriptionStatus === 'active' ? '#0077D7' : '#F59E0B',
+      color: org?.subscriptionStatus === 'active' ? 'var(--accent-primary)' : 'var(--color-warning)',
       bgOpacity: '15',
     },
   ];
@@ -335,11 +335,11 @@ export default function OrgAdminDashboard() {
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Patients Registered</span>
                 {stats.patientCount > lastMonthPatients ? (
-                  <TrendingUp className="w-4 h-4" style={{ color: '#10B981' }} />
+                  <TrendingUp className="w-4 h-4" style={{ color: 'var(--color-success)' }} />
                 ) : stats.patientCount < lastMonthPatients ? (
-                  <TrendingDown className="w-4 h-4" style={{ color: '#EF4444' }} />
+                  <TrendingDown className="w-4 h-4" style={{ color: 'var(--color-danger)' }} />
                 ) : (
-                  <Minus className="w-4 h-4" style={{ color: '#F59E0B' }} />
+                  <Minus className="w-4 h-4" style={{ color: 'var(--color-warning)' }} />
                 )}
               </div>
               <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{stats.patientCount}</p>
@@ -418,8 +418,8 @@ export default function OrgAdminDashboard() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{h.name}</span>
-                          {isTop && <span className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(16,185,129,0.12)', color: '#10B981' }}>TOP</span>}
-                          {isBottom && <span className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(239,68,68,0.12)', color: '#EF4444' }}>LOW</span>}
+                          {isTop && <span className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(16,185,129,0.12)', color: 'var(--color-success)' }}>TOP</span>}
+                          {isBottom && <span className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(239,68,68,0.12)', color: 'var(--color-danger)' }}>LOW</span>}
                         </div>
                       </td>
                       <td className="px-4 py-3 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{h.patientCount.toLocaleString()}</td>
@@ -427,7 +427,7 @@ export default function OrgAdminDashboard() {
                       <td className="px-4 py-3">
                         <span className="text-xs font-semibold px-2 py-1 rounded-full" style={{
                           background: occupancy > 90 ? 'rgba(239,68,68,0.12)' : occupancy > 70 ? 'rgba(245,158,11,0.12)' : 'rgba(16,185,129,0.12)',
-                          color: occupancy > 90 ? '#EF4444' : occupancy > 70 ? '#F59E0B' : '#10B981',
+                          color: occupancy > 90 ? 'var(--color-danger)' : occupancy > 70 ? 'var(--color-warning)' : 'var(--color-success)',
                         }}>{occupancy}%</span>
                       </td>
                     </tr>
@@ -462,7 +462,7 @@ export default function OrgAdminDashboard() {
                   className="text-xs font-medium px-2 py-0.5 rounded-full"
                   style={{
                     background: org?.subscriptionStatus === 'active' ? 'rgba(43,111,224,0.12)' : 'rgba(245,158,11,0.12)',
-                    color: org?.subscriptionStatus === 'active' ? '#0077D7' : '#F59E0B',
+                    color: org?.subscriptionStatus === 'active' ? 'var(--accent-primary)' : 'var(--color-warning)',
                   }}
                 >
                   {org?.subscriptionStatus || 'N/A'}
@@ -475,7 +475,7 @@ export default function OrgAdminDashboard() {
                     {stats.userCount} / {org?.maxUsers || '---'}
                   </span>
                   {org?.maxUsers && stats.userCount >= org.maxUsers && (
-                    <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: '#E52E42' }}>
+                    <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: 'var(--color-danger)' }}>
                       Limit reached
                     </span>
                   )}
@@ -488,7 +488,7 @@ export default function OrgAdminDashboard() {
                     {stats.hospitalCount} / {org?.maxHospitals || '---'}
                   </span>
                   {org?.maxHospitals && stats.hospitalCount >= org.maxHospitals && (
-                    <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: '#E52E42' }}>
+                    <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: 'var(--color-danger)' }}>
                       Limit reached
                     </span>
                   )}
@@ -506,7 +506,7 @@ export default function OrgAdminDashboard() {
           {/* Feature Flags */}
           <div className="p-5 rounded-xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
             <div className="flex items-center gap-2 mb-4">
-              <Zap className="w-5 h-5" style={{ color: '#F59E0B' }} />
+              <Zap className="w-5 h-5" style={{ color: 'var(--color-warning)' }} />
               <h2 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
                 Enabled Features
               </h2>
@@ -553,7 +553,7 @@ export default function OrgAdminDashboard() {
               <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>User Activity Log</span>
             </div>
             {inactiveUsers.length > 0 && (
-              <span className="text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1" style={{ background: 'rgba(245,158,11,0.12)', color: '#F59E0B' }}>
+              <span className="text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1" style={{ background: 'rgba(245,158,11,0.12)', color: 'var(--color-warning)' }}>
                 <AlertTriangle className="w-3 h-3" />
                 {inactiveUsers.length} inactive user{inactiveUsers.length !== 1 ? 's' : ''}
               </span>
@@ -586,7 +586,7 @@ export default function OrgAdminDashboard() {
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{log.username || 'System'}</span>
                           {isInactive && (
-                            <span className="text-[8px] font-bold px-1 py-0.5 rounded" style={{ background: 'rgba(245,158,11,0.12)', color: '#F59E0B' }}>INACTIVE</span>
+                            <span className="text-[8px] font-bold px-1 py-0.5 rounded" style={{ background: 'rgba(245,158,11,0.12)', color: 'var(--color-warning)' }}>INACTIVE</span>
                           )}
                         </div>
                       </td>
@@ -600,7 +600,7 @@ export default function OrgAdminDashboard() {
                       <td className="px-4 py-3">
                         <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{
                           background: log.success ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)',
-                          color: log.success ? '#10B981' : '#EF4444',
+                          color: log.success ? 'var(--color-success)' : 'var(--color-danger)',
                         }}>
                           {log.success ? 'Success' : 'Failed'}
                         </span>

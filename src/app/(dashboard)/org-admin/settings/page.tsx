@@ -40,8 +40,8 @@ export default function OrgSettingsPage() {
 
   const statusColors: Record<string, string> = {
     active: 'var(--accent-primary)',
-    trial: '#F59E0B',
-    suspended: '#E52E42',
+    trial: 'var(--color-warning)',
+    suspended: 'var(--color-danger)',
     cancelled: '#6B7280',
   };
 
@@ -107,7 +107,7 @@ export default function OrgSettingsPage() {
                 label="Status"
                 value={org?.isActive ? 'Active' : 'Inactive'}
                 badge
-                badgeColor={org?.isActive ? '#0077D7' : '#E52E42'}
+                badgeColor={org?.isActive ? 'var(--accent-primary)' : 'var(--color-danger)'}
               />
             </div>
           </div>
@@ -115,7 +115,7 @@ export default function OrgSettingsPage() {
           {/* Subscription */}
           <div className="p-5 rounded-xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
             <div className="flex items-center gap-2 mb-4">
-              <CreditCard className="w-5 h-5" style={{ color: '#F59E0B' }} />
+              <CreditCard className="w-5 h-5" style={{ color: 'var(--color-warning)' }} />
               <h2 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>Subscription</h2>
             </div>
 
@@ -148,7 +148,7 @@ export default function OrgSettingsPage() {
           {/* Feature Flags */}
           <div className="lg:col-span-2 p-5 rounded-xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
             <div className="flex items-center gap-2 mb-4">
-              <Zap className="w-5 h-5" style={{ color: '#F59E0B' }} />
+              <Zap className="w-5 h-5" style={{ color: 'var(--color-warning)' }} />
               <h2 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>Feature Flags</h2>
               <span className="text-xs px-2 py-0.5 rounded-full ml-2" style={{ background: 'var(--overlay-subtle)', color: 'var(--text-muted)', border: '1px solid var(--border-light)' }}>
                 Read-only

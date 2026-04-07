@@ -59,13 +59,13 @@ export default function RadiologyDashboard() {
         <div className="kpi-grid mb-4">
           {[
             { label: 'Total Studies', value: stats.total, icon: Scan, color: ACCENT },
-            { label: 'Pending', value: stats.pending, icon: Clock, color: '#D97706' },
+            { label: 'Pending', value: stats.pending, icon: Clock, color: 'var(--color-warning)' },
             { label: 'In Progress', value: stats.inProgress, icon: Activity, color: 'var(--accent-primary)' },
-            { label: 'Completed', value: stats.completed, icon: CheckCircle2, color: '#059669' },
-            { label: 'Urgent/Emergency', value: stats.urgent, icon: AlertTriangle, color: '#DC2626' },
+            { label: 'Completed', value: stats.completed, icon: CheckCircle2, color: 'var(--color-success)' },
+            { label: 'Urgent/Emergency', value: stats.urgent, icon: AlertTriangle, color: 'var(--color-danger)' },
             { label: 'X-Rays', value: stats.xray, icon: Image, color: '#0891B2' },
             { label: 'Ultrasounds', value: stats.ultrasound, icon: Eye, color: '#EC4899' },
-            { label: 'Avg. TAT', value: stats.avgTAT, icon: TrendingUp, color: '#059669' },
+            { label: 'Avg. TAT', value: stats.avgTAT, icon: TrendingUp, color: 'var(--color-success)' },
           ].map(k => (
             <div key={k.label} className="kpi">
               <div className="kpi__icon" style={{ background: `${k.color}15` }}><k.icon style={{ color: k.color }} /></div>
@@ -109,16 +109,16 @@ export default function RadiologyDashboard() {
                     <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{
                       background: study.status === 'completed' ? '#05966915' : study.priority === 'emergency' ? '#DC262615' : study.priority === 'urgent' ? '#D9770615' : `${ACCENT}15`,
                     }}>
-                      {study.status === 'completed' ? <CheckCircle2 className="w-4 h-4" style={{ color: '#059669' }} /> :
-                       study.priority === 'emergency' ? <AlertTriangle className="w-4 h-4" style={{ color: '#DC2626' }} /> :
-                       <Scan className="w-4 h-4" style={{ color: study.priority === 'urgent' ? '#D97706' : ACCENT }} />}
+                      {study.status === 'completed' ? <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--color-success)' }} /> :
+                       study.priority === 'emergency' ? <AlertTriangle className="w-4 h-4" style={{ color: 'var(--color-danger)' }} /> :
+                       <Scan className="w-4 h-4" style={{ color: study.priority === 'urgent' ? 'var(--color-warning)' : ACCENT }} />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{study.patientName}</span>
                         <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{
                           background: study.priority === 'emergency' ? '#DC262615' : study.priority === 'urgent' ? '#D9770615' : 'var(--overlay-subtle)',
-                          color: study.priority === 'emergency' ? '#DC2626' : study.priority === 'urgent' ? '#D97706' : 'var(--text-muted)',
+                          color: study.priority === 'emergency' ? 'var(--color-danger)' : study.priority === 'urgent' ? 'var(--color-warning)' : 'var(--text-muted)',
                         }}>{study.priority.toUpperCase()}</span>
                       </div>
                       <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
@@ -127,7 +127,7 @@ export default function RadiologyDashboard() {
                     </div>
                     <span className="text-[10px] font-bold px-2 py-1 rounded-full" style={{
                       background: study.status === 'completed' ? '#05966915' : study.status === 'in_progress' ? '#0077D715' : '#D9770615',
-                      color: study.status === 'completed' ? '#059669' : study.status === 'in_progress' ? '#0077D7' : '#D97706',
+                      color: study.status === 'completed' ? 'var(--color-success)' : study.status === 'in_progress' ? 'var(--accent-primary)' : 'var(--color-warning)',
                     }}>{study.status.replace('_', ' ')}</span>
                   </div>
 
@@ -141,7 +141,7 @@ export default function RadiologyDashboard() {
 
                       {study.findings && (
                         <div className="mb-3 p-3 rounded-lg" style={{ background: '#05966908', border: '1px solid #05966920' }}>
-                          <span className="text-[9px] font-bold uppercase" style={{ color: '#059669' }}>Findings</span>
+                          <span className="text-[9px] font-bold uppercase" style={{ color: 'var(--color-success)' }}>Findings</span>
                           <p className="text-xs mt-1" style={{ color: 'var(--text-primary)' }}>{study.findings}</p>
                         </div>
                       )}
@@ -222,7 +222,7 @@ export default function RadiologyDashboard() {
             <div className="glass-section">
               <div className="glass-section-header">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4" style={{ color: '#059669' }} />
+                  <TrendingUp className="w-4 h-4" style={{ color: 'var(--color-success)' }} />
                   <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Performance</span>
                 </div>
               </div>

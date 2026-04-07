@@ -180,8 +180,8 @@ export default function NewPatientPage() {
                   <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
                       <label>First Name *</label>
-                      <input type="text" value={form.firstName} onChange={e => update('firstName', e.target.value)} placeholder="e.g. Deng" style={errors.firstName ? { borderColor: '#EF4444' } : {}} />
-                      {errors.firstName && <p className="text-[11px] mt-1" style={{ color: '#EF4444' }}>{errors.firstName}</p>}
+                      <input type="text" value={form.firstName} onChange={e => update('firstName', e.target.value)} placeholder="e.g. Deng" style={errors.firstName ? { borderColor: 'var(--color-danger)' } : {}} />
+                      {errors.firstName && <p className="text-[11px] mt-1" style={{ color: 'var(--color-danger)' }}>{errors.firstName}</p>}
                     </div>
                     <div>
                       <label>Middle Name</label>
@@ -189,8 +189,8 @@ export default function NewPatientPage() {
                     </div>
                     <div>
                       <label>Surname *</label>
-                      <input type="text" value={form.surname} onChange={e => update('surname', e.target.value)} placeholder="e.g. Garang" style={errors.surname ? { borderColor: '#EF4444' } : {}} />
-                      {errors.surname && <p className="text-[11px] mt-1" style={{ color: '#EF4444' }}>{errors.surname}</p>}
+                      <input type="text" value={form.surname} onChange={e => update('surname', e.target.value)} placeholder="e.g. Garang" style={errors.surname ? { borderColor: 'var(--color-danger)' } : {}} />
+                      {errors.surname && <p className="text-[11px] mt-1" style={{ color: 'var(--color-danger)' }}>{errors.surname}</p>}
                     </div>
                   </div>
                 </div>
@@ -201,8 +201,8 @@ export default function NewPatientPage() {
                   </div>
                   <div>
                     <label>Date of Birth {!form.estimatedAge && '*'}</label>
-                    <input type="date" value={form.dateOfBirth} onChange={e => update('dateOfBirth', e.target.value)} style={errors.dateOfBirth ? { borderColor: '#EF4444' } : {}} />
-                    {errors.dateOfBirth && <p className="text-[11px] mt-1" style={{ color: '#EF4444' }}>{errors.dateOfBirth}</p>}
+                    <input type="date" value={form.dateOfBirth} onChange={e => update('dateOfBirth', e.target.value)} style={errors.dateOfBirth ? { borderColor: 'var(--color-danger)' } : {}} />
+                    {errors.dateOfBirth && <p className="text-[11px] mt-1" style={{ color: 'var(--color-danger)' }}>{errors.dateOfBirth}</p>}
                   </div>
                   <div>
                     <label>Estimated Age (if DOB unknown)</label>
@@ -212,12 +212,12 @@ export default function NewPatientPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
                     <label>Gender *</label>
-                    <select value={form.gender} onChange={e => update('gender', e.target.value)} style={errors.gender ? { borderColor: '#EF4444' } : {}}>
+                    <select value={form.gender} onChange={e => update('gender', e.target.value)} style={errors.gender ? { borderColor: 'var(--color-danger)' } : {}}>
                       <option value="">Select gender</option>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
                     </select>
-                    {errors.gender && <p className="text-[11px] mt-1" style={{ color: '#EF4444' }}>{errors.gender}</p>}
+                    {errors.gender && <p className="text-[11px] mt-1" style={{ color: 'var(--color-danger)' }}>{errors.gender}</p>}
                   </div>
                   <div>
                     <label>Tribe / Ethnicity</label>
@@ -289,11 +289,11 @@ export default function NewPatientPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label>State *</label>
-                      <select value={form.state} onChange={e => { update('state', e.target.value); update('county', ''); }} style={errors.state ? { borderColor: '#EF4444' } : {}}>
+                      <select value={form.state} onChange={e => { update('state', e.target.value); update('county', ''); }} style={errors.state ? { borderColor: 'var(--color-danger)' } : {}}>
                         <option value="">Select state</option>
                         {states.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
-                      {errors.state && <p className="text-[11px] mt-1" style={{ color: '#EF4444' }}>{errors.state}</p>}
+                      {errors.state && <p className="text-[11px] mt-1" style={{ color: 'var(--color-danger)' }}>{errors.state}</p>}
                     </div>
                     <div>
                       <label>County *</label>
@@ -370,7 +370,7 @@ export default function NewPatientPage() {
                   <textarea value={form.chronicConditions} onChange={e => update('chronicConditions', e.target.value)} rows={2} placeholder="List chronic conditions (e.g. HIV, Hypertension, Diabetes). Write 'None' if none." className="resize-none" />
                 </div>
                 <div className="p-4 rounded-lg" style={{ background: 'rgba(252,211,77,0.10)', border: '1px solid rgba(252,211,77,0.2)' }}>
-                  <p className="text-xs font-medium" style={{ color: '#FCD34D' }}>
+                  <p className="text-xs font-medium" style={{ color: 'var(--color-warning)' }}>
                     Important: Allergy and chronic condition information is critical for patient safety. Please verify with the patient before proceeding.
                   </p>
                 </div>

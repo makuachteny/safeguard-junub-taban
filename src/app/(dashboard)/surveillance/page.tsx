@@ -18,10 +18,10 @@ import {
 // Chart colors
 const COLORS = {
   malaria: 'var(--accent-primary)',
-  cholera: '#E52E42',
-  measles: '#FCD34D',
+  cholera: 'var(--color-danger)',
+  measles: 'var(--color-warning)',
   pneumonia: '#38BDF8',
-  diarrhea: '#3ECF8E',
+  diarrhea: 'var(--color-success)',
   tb: '#D4A843',
   hiv: '#7C3AED',
 };
@@ -36,10 +36,10 @@ const severityOrder: Record<string, number> = {
 
 // Alert level styling
 const alertLevelConfig: Record<string, { bg: string; color: string; iconColor: string }> = {
-  emergency: { bg: 'rgba(229,46,66,0.16)', color: '#F87171', iconColor: '#EF4444' },
-  warning: { bg: 'rgba(252,211,77,0.12)', color: '#FB923C', iconColor: '#FCD34D' },
-  watch: { bg: 'rgba(252,211,77,0.14)', color: '#FCD34D', iconColor: '#CA8A04' },
-  normal: { bg: 'rgba(62,207,142,0.12)', color: '#4ADE80', iconColor: '#4ADE80' },
+  emergency: { bg: 'rgba(229,46,66,0.16)', color: '#F87171', iconColor: 'var(--color-danger)' },
+  warning: { bg: 'rgba(252,211,77,0.12)', color: '#FB923C', iconColor: 'var(--color-warning)' },
+  watch: { bg: 'rgba(252,211,77,0.14)', color: 'var(--color-warning)', iconColor: '#CA8A04' },
+  normal: { bg: 'rgba(62,207,142,0.12)', color: 'var(--color-success)', iconColor: 'var(--color-success)' },
 };
 
 // Hospital map positions - rough placement on SVG to represent South Sudan geography
@@ -57,10 +57,10 @@ function latLngToSvg(lat: number, lng: number): { x: number; y: number } {
 
 
 const alertDotColors: Record<string, string> = {
-  emergency: '#EF4444',
-  warning: '#FCD34D',
+  emergency: 'var(--color-danger)',
+  warning: 'var(--color-warning)',
   watch: '#CA8A04',
-  normal: '#4ADE80',
+  normal: 'var(--color-success)',
 };
 
 // IDSR Weekly Report Summary data
@@ -124,8 +124,8 @@ export default function SurveillancePage() {
 
   const summaryCards = [
     { label: 'Total Alerts', value: totalAlerts.toString(), icon: Bell, color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)' },
-    { label: 'Emergencies', value: emergencies.toString(), icon: AlertTriangle, color: '#E52E42', bg: 'rgba(229,46,66,0.10)' },
-    { label: 'Warnings', value: warnings.toString(), icon: Shield, color: '#FCD34D', bg: 'rgba(252,211,77,0.10)' },
+    { label: 'Emergencies', value: emergencies.toString(), icon: AlertTriangle, color: 'var(--color-danger)', bg: 'rgba(229,46,66,0.10)' },
+    { label: 'Warnings', value: warnings.toString(), icon: Shield, color: 'var(--color-warning)', bg: 'rgba(252,211,77,0.10)' },
     { label: 'Watch Items', value: watchItems.toString(), icon: Eye, color: '#38BDF8', bg: 'rgba(43,111,224,0.10)' },
   ];
 
@@ -425,14 +425,14 @@ export default function SurveillancePage() {
                           </div>
                           <div className="flex items-center gap-1">
                             {alert.trend === 'increasing' ? (
-                              <TrendingUp className="w-3 h-3" style={{ color: '#EF4444' }} />
+                              <TrendingUp className="w-3 h-3" style={{ color: 'var(--color-danger)' }} />
                             ) : alert.trend === 'decreasing' ? (
-                              <TrendingDown className="w-3 h-3" style={{ color: '#4ADE80' }} />
+                              <TrendingDown className="w-3 h-3" style={{ color: 'var(--color-success)' }} />
                             ) : (
-                              <Minus className="w-3 h-3" style={{ color: '#FCD34D' }} />
+                              <Minus className="w-3 h-3" style={{ color: 'var(--color-warning)' }} />
                             )}
                             <span className="text-[10px] font-medium" style={{
-                              color: alert.trend === 'increasing' ? '#EF4444' : alert.trend === 'decreasing' ? '#4ADE80' : '#FCD34D'
+                              color: alert.trend === 'increasing' ? 'var(--color-danger)' : alert.trend === 'decreasing' ? 'var(--color-success)' : 'var(--color-warning)'
                             }}>
                               {alert.trend}
                             </span>
@@ -507,14 +507,14 @@ export default function SurveillancePage() {
                             <td className="px-3 py-2 text-center" style={{ borderBottom: '1px solid var(--table-row-border)' }}>
                               <div className="inline-flex items-center gap-0.5">
                                 {isUp ? (
-                                  <TrendingUp className="w-3 h-3" style={{ color: '#EF4444' }} />
+                                  <TrendingUp className="w-3 h-3" style={{ color: 'var(--color-danger)' }} />
                                 ) : isDown ? (
-                                  <TrendingDown className="w-3 h-3" style={{ color: '#4ADE80' }} />
+                                  <TrendingDown className="w-3 h-3" style={{ color: 'var(--color-success)' }} />
                                 ) : (
-                                  <Minus className="w-3 h-3" style={{ color: '#FCD34D' }} />
+                                  <Minus className="w-3 h-3" style={{ color: 'var(--color-warning)' }} />
                                 )}
                                 <span className="text-[10px] font-medium" style={{
-                                  color: isUp ? '#EF4444' : isDown ? '#4ADE80' : '#FCD34D'
+                                  color: isUp ? 'var(--color-danger)' : isDown ? 'var(--color-success)' : 'var(--color-warning)'
                                 }}>
                                   {isUp ? '+' : ''}{change}
                                 </span>
@@ -527,7 +527,7 @@ export default function SurveillancePage() {
                               {row.deaths}
                             </td>
                             <td className="px-3 py-2 text-xs text-right" style={{
-                              color: row.cfrPercent >= 10 ? '#EF4444' : row.cfrPercent >= 5 ? '#FCD34D' : 'var(--text-secondary)',
+                              color: row.cfrPercent >= 10 ? 'var(--color-danger)' : row.cfrPercent >= 5 ? 'var(--color-warning)' : 'var(--text-secondary)',
                               fontWeight: row.cfrPercent >= 10 ? 600 : 400,
                               borderBottom: '1px solid var(--table-row-border)'
                             }}>
@@ -548,8 +548,8 @@ export default function SurveillancePage() {
                         </td>
                         <td className="px-3 py-2 text-center">
                           <div className="inline-flex items-center gap-0.5">
-                            <TrendingUp className="w-3 h-3" style={{ color: '#EF4444' }} />
-                            <span className="text-[10px] font-medium" style={{ color: '#EF4444' }}>
+                            <TrendingUp className="w-3 h-3" style={{ color: 'var(--color-danger)' }} />
+                            <span className="text-[10px] font-medium" style={{ color: 'var(--color-danger)' }}>
                               +{idsrSummary.reduce((s, r) => s + r.casesThisWeek, 0) - idsrSummary.reduce((s, r) => s + r.casesPrevWeek, 0)}
                             </span>
                           </div>

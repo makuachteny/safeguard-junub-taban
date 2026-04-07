@@ -31,15 +31,15 @@ const ROLE_LABELS: Record<UserRole, string> = {
 };
 
 const ROLE_COLORS: Record<string, string> = {
-  super_admin: '#DC2626',
+  super_admin: 'var(--color-danger)',
   org_admin: '#7C3AED',
   doctor: '#2563EB',
   clinical_officer: '#0891B2',
-  nurse: '#059669',
-  lab_tech: '#D97706',
+  nurse: 'var(--color-success)',
+  lab_tech: 'var(--color-warning)',
   pharmacist: '#EC4899',
   front_desk: '#6B7280',
-  government: '#10B981',
+  government: 'var(--color-success)',
   boma_health_worker: '#F97316',
   payam_supervisor: '#8B5CF6',
   data_entry_clerk: '#0891B2',
@@ -141,8 +141,8 @@ export default function AdminUsersPage() {
         <div className="kpi-grid mb-6">
           {[
             { label: 'Total Users', value: users.length, icon: Users, color: '#2563EB', bg: '#2563EB15' },
-            { label: 'Active Users', value: users.filter(u => u.isActive).length, icon: UserCheck, color: '#059669', bg: '#05966915' },
-            { label: 'Inactive Users', value: users.filter(u => !u.isActive).length, icon: UserX, color: '#EF4444', bg: '#EF444415' },
+            { label: 'Active Users', value: users.filter(u => u.isActive).length, icon: UserCheck, color: 'var(--color-success)', bg: '#05966915' },
+            { label: 'Inactive Users', value: users.filter(u => !u.isActive).length, icon: UserX, color: 'var(--color-danger)', bg: '#EF444415' },
             { label: 'Admin Users', value: users.filter(u => u.role === 'super_admin' || u.role === 'org_admin').length, icon: Shield, color: '#7C3AED', bg: '#7C3AED15' },
           ].map(stat => (
             <div key={stat.label} className="kpi">
@@ -230,8 +230,8 @@ export default function AdminUsersPage() {
                       </td>
                       <td className="px-4 py-3">
                         <span className="flex items-center gap-1.5 text-xs font-semibold">
-                          <span className="w-2 h-2 rounded-full" style={{ background: u.isActive ? '#10B981' : '#94A3B8' }} />
-                          <span style={{ color: u.isActive ? '#10B981' : '#94A3B8' }}>{u.isActive ? 'Active' : 'Inactive'}</span>
+                          <span className="w-2 h-2 rounded-full" style={{ background: u.isActive ? 'var(--color-success)' : 'var(--text-muted)' }} />
+                          <span style={{ color: u.isActive ? 'var(--color-success)' : 'var(--text-muted)' }}>{u.isActive ? 'Active' : 'Inactive'}</span>
                         </span>
                       </td>
                       <td className="px-4 py-3">
@@ -239,7 +239,7 @@ export default function AdminUsersPage() {
                           onClick={() => handleToggleActive(u._id, u.isActive)}
                           title={u.isActive ? 'Deactivate' : 'Activate'}
                           className="p-1.5 rounded-lg transition-colors"
-                          style={{ color: u.isActive ? '#EF4444' : '#10B981' }}
+                          style={{ color: u.isActive ? 'var(--color-danger)' : 'var(--color-success)' }}
                         >
                           {u.isActive ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
                         </button>

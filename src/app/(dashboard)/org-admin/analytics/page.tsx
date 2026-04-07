@@ -18,7 +18,7 @@ const RechartsBarChart = dynamic(
     const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } = mod;
 
     function ChartComponent({ data, brandColor }: { data: { name: string; patients: number }[]; brandColor: string }) {
-      const barColors = [brandColor, '#0077D7', '#3ECF8E', '#F59E0B', '#EC4899', '#06B6D4', '#8B5CF6', '#14B8A6'];
+      const barColors = [brandColor, 'var(--accent-primary)', 'var(--color-success)', 'var(--color-warning)', '#EC4899', '#06B6D4', '#8B5CF6', '#14B8A6'];
 
       return (
         <ResponsiveContainer width="100%" height={300}>
@@ -134,7 +134,7 @@ export default function OrgAnalyticsPage() {
       label: 'Active Referrals',
       value: activeReferrals,
       icon: ArrowRightLeft,
-      color: '#F59E0B',
+      color: 'var(--color-warning)',
       trend: `${referrals.length} total`,
       trendUp: false,
     },
@@ -216,8 +216,8 @@ export default function OrgAnalyticsPage() {
                   {card.value.toLocaleString()}
                 </p>
                 <div className="flex items-center gap-1 mt-1">
-                  <TrendingUp className="w-3 h-3" style={{ color: card.trendUp ? '#0077D7' : 'var(--text-muted)' }} />
-                  <span className="text-xs" style={{ color: card.trendUp ? '#0077D7' : 'var(--text-muted)' }}>
+                  <TrendingUp className="w-3 h-3" style={{ color: card.trendUp ? 'var(--accent-primary)' : 'var(--text-muted)' }} />
+                  <span className="text-xs" style={{ color: card.trendUp ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
                     {card.trend}
                   </span>
                 </div>
@@ -291,7 +291,7 @@ export default function OrgAnalyticsPage() {
                         <span
                           className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
                           style={{
-                            background: i === 0 ? brandColor : i === 1 ? '#0077D7' : i === 2 ? '#005FBC' : 'var(--text-muted)',
+                            background: i === 0 ? brandColor : i === 1 ? 'var(--accent-primary)' : i === 2 ? 'var(--accent-hover)' : 'var(--text-muted)',
                           }}
                         >
                           {i + 1}
@@ -316,7 +316,7 @@ export default function OrgAnalyticsPage() {
         {/* Referrals Overview Table */}
         <div className="mt-6 p-5 rounded-xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
           <div className="flex items-center gap-2 mb-4">
-            <ArrowRightLeft className="w-5 h-5" style={{ color: '#F59E0B' }} />
+            <ArrowRightLeft className="w-5 h-5" style={{ color: 'var(--color-warning)' }} />
             <h2 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
               Recent Referrals
             </h2>
@@ -346,7 +346,7 @@ export default function OrgAnalyticsPage() {
                 ) : (
                   referrals.slice(0, 10).map(ref => {
                     const statusColor: Record<string, string> = {
-                      sent: '#F59E0B',
+                      sent: 'var(--color-warning)',
                       received: 'var(--accent-primary)',
                       seen: '#8B5CF6',
                       completed: 'var(--accent-primary)',

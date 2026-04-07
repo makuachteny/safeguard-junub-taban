@@ -138,7 +138,7 @@ export default function FileUpload({ attachments, onAdd, onRemove, uploaderName,
                 </div>
               ) : (
                 <div className="w-10 h-10 rounded flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(229,46,66,0.12)' }}>
-                  <FileText className="w-5 h-5" style={{ color: '#EF4444' }} />
+                  <FileText className="w-5 h-5" style={{ color: 'var(--color-danger)' }} />
                 </div>
               )}
 
@@ -186,7 +186,7 @@ export default function FileUpload({ attachments, onAdd, onRemove, uploaderName,
           >
             <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'var(--border-light)' }}>
               <div className="flex items-center gap-2">
-                {isImage(previewAttachment.mimeType) ? <ImageIcon className="w-4 h-4" style={{ color: 'var(--taban-blue)' }} /> : <FileText className="w-4 h-4" style={{ color: '#EF4444' }} />}
+                {isImage(previewAttachment.mimeType) ? <ImageIcon className="w-4 h-4" style={{ color: 'var(--taban-blue)' }} /> : <FileText className="w-4 h-4" style={{ color: 'var(--color-danger)' }} />}
                 <span className="text-sm font-medium">{previewAttachment.name}</span>
                 <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{formatSize(previewAttachment.sizeBytes)}</span>
               </div>

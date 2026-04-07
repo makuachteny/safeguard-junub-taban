@@ -65,8 +65,8 @@ export default function BirthsPage() {
             {[
               { label: 'Total Registered', value: stats.total, icon: Baby, color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)' },
               { label: 'This Month', value: stats.thisMonth, icon: Calendar, color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)' },
-              { label: 'Male / Female', value: <><span style={{ color: 'var(--accent-primary)' }}>{stats.byGender.male}</span><span style={{ color: 'var(--text-muted)' }}> / </span><span style={{ color: '#E52E42' }}>{stats.byGender.female}</span></>, icon: Users, color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)' },
-              { label: 'Caesarean Rate', value: `${stats.total ? Math.round(stats.byDeliveryType.caesarean / stats.total * 100) : 0}%`, icon: Activity, color: '#FCD34D', bg: 'rgba(252,211,77,0.12)' },
+              { label: 'Male / Female', value: <><span style={{ color: 'var(--accent-primary)' }}>{stats.byGender.male}</span><span style={{ color: 'var(--text-muted)' }}> / </span><span style={{ color: 'var(--color-danger)' }}>{stats.byGender.female}</span></>, icon: Users, color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)' },
+              { label: 'Caesarean Rate', value: `${stats.total ? Math.round(stats.byDeliveryType.caesarean / stats.total * 100) : 0}%`, icon: Activity, color: 'var(--color-warning)', bg: 'rgba(252,211,77,0.12)' },
             ].map(stat => (
               <div key={stat.label} className="kpi">
                 <div className="kpi__icon" style={{ background: stat.bg }}>
@@ -114,7 +114,7 @@ export default function BirthsPage() {
                   <tr key={b._id} className="cursor-pointer hover:bg-[var(--table-row-hover)]" onClick={() => setExpandedBirth(expandedBirth === b._id ? null : b._id)}>
                     <td className="font-mono text-xs">{b.certificateNumber}</td>
                     <td className="font-medium text-sm">{b.childFirstName} {b.childSurname}</td>
-                    <td><span className="badge text-[10px]" style={{ background: b.childGender === 'Male' ? 'rgba(43,111,224,0.12)' : 'rgba(229,46,66,0.12)', color: b.childGender === 'Male' ? '#0077D7' : '#E52E42' }}>{b.childGender}</span></td>
+                    <td><span className="badge text-[10px]" style={{ background: b.childGender === 'Male' ? 'rgba(43,111,224,0.12)' : 'rgba(229,46,66,0.12)', color: b.childGender === 'Male' ? 'var(--accent-primary)' : 'var(--color-danger)' }}>{b.childGender}</span></td>
                     <td className="text-xs font-mono">{b.dateOfBirth}</td>
                     <td className="text-sm">{b.birthWeight}g</td>
                     <td className="text-xs capitalize">{b.deliveryType}</td>

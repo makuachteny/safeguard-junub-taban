@@ -16,10 +16,10 @@ const ACCENT = 'var(--accent-primary)';
 
 const EVENT_TYPES = [
   { type: 'rx_received', label: 'Prescription Received', color: '#60A5FA', icon: ClipboardList },
-  { type: 'dispensed', label: 'Medication Dispensed', color: '#4ADE80', icon: CheckCircle2 },
+  { type: 'dispensed', label: 'Medication Dispensed', color: 'var(--color-success)', icon: CheckCircle2 },
   { type: 'stock_alert', label: 'Stock Alert Triggered', color: '#F87171', icon: AlertTriangle },
   { type: 'controlled', label: 'Controlled Substance Logged', color: '#A855F7', icon: ShieldCheck },
-  { type: 'expired', label: 'Expired Item Flagged', color: '#EF4444', icon: XCircle },
+  { type: 'expired', label: 'Expired Item Flagged', color: 'var(--color-danger)', icon: XCircle },
   { type: 'pickup', label: 'Awaiting Patient Pickup', color: ACCENT, icon: Clock },
   { type: 'restock', label: 'Restock Order Placed', color: '#38BDF8', icon: Package },
   { type: 'message', label: 'Pharmacist Message', color: '#EC4899', icon: MessageSquare },
@@ -54,8 +54,8 @@ const DRUG_INTERACTIONS: DrugInteraction[] = [
 ];
 
 const INTERACTION_COLORS: Record<string, { bg: string; border: string; text: string }> = {
-  HIGH: { bg: 'rgba(239,68,68,0.1)', border: 'rgba(239,68,68,0.3)', text: '#EF4444' },
-  MODERATE: { bg: 'rgba(251,191,36,0.1)', border: 'rgba(251,191,36,0.3)', text: '#FBBF24' },
+  HIGH: { bg: 'rgba(239,68,68,0.1)', border: 'rgba(239,68,68,0.3)', text: 'var(--color-danger)' },
+  MODERATE: { bg: 'rgba(251,191,36,0.1)', border: 'rgba(251,191,36,0.3)', text: 'var(--color-warning)' },
   LOW: { bg: 'rgba(96,165,250,0.1)', border: 'rgba(96,165,250,0.3)', text: '#60A5FA' },
 };
 
@@ -103,10 +103,10 @@ const EXPIRY_DATA: ExpiryItem[] = [
 function getExpiryStatus(expiryDate: string): { label: string; color: string; bgColor: string } {
   const exp = new Date(expiryDate);
   const diffDays = Math.ceil((exp.getTime() - today.getTime()) / 86400000);
-  if (diffDays <= 0) return { label: 'EXPIRED', color: '#EF4444', bgColor: 'rgba(239,68,68,0.1)' };
+  if (diffDays <= 0) return { label: 'EXPIRED', color: 'var(--color-danger)', bgColor: 'rgba(239,68,68,0.1)' };
   if (diffDays <= 30) return { label: `${diffDays}d left`, color: '#F97316', bgColor: 'rgba(249,115,22,0.1)' };
-  if (diffDays <= 90) return { label: `${diffDays}d left`, color: '#FBBF24', bgColor: 'rgba(251,191,36,0.1)' };
-  return { label: `${diffDays}d left`, color: '#4ADE80', bgColor: 'rgba(74,222,128,0.1)' };
+  if (diffDays <= 90) return { label: `${diffDays}d left`, color: 'var(--color-warning)', bgColor: 'rgba(251,191,36,0.1)' };
+  return { label: `${diffDays}d left`, color: 'var(--color-success)', bgColor: 'rgba(74,222,128,0.1)' };
 }
 
 // ===================== PATIENT MEDICATION HISTORY =====================
@@ -305,7 +305,7 @@ function DispenseModal({ rx, onConfirm, onCancel, interactions }: {
             background: 'var(--overlay-subtle)', color: 'var(--text-primary)', border: '1px solid var(--border-light)',
           }}>Cancel</button>
           <button onClick={onConfirm} className="flex-1 py-2 rounded-lg text-sm font-bold text-white transition-all flex items-center justify-center gap-1.5" style={{
-            background: '#4ADE80',
+            background: 'var(--color-success)',
           }}>
             <Check className="w-4 h-4" /> Dispense
           </button>
@@ -544,7 +544,7 @@ export default function PharmacyDashboardPage() {
           <div className="flex items-center gap-4">
             <div className="text-[10px] text-right" style={{ color: 'var(--text-muted)' }}>
               <div className="flex items-center gap-1"><Zap className="w-3 h-3" style={{ color: ACCENT }} /><span>{dataRate || 14} dispensing/hr</span></div>
-              <div className="flex items-center gap-1"><Wifi className="w-3 h-3" style={{ color: '#4ADE80' }} /><span>Inventory Synced</span></div>
+              <div className="flex items-center gap-1"><Wifi className="w-3 h-3" style={{ color: 'var(--color-success)' }} /><span>Inventory Synced</span></div>
             </div>
           </div>
         </div>
@@ -553,8 +553,8 @@ export default function PharmacyDashboardPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 mb-4">
           {[
             { label: 'Pending Rx', value: pendingRx, icon: ClipboardList, color: ACCENT },
-            { label: 'Dispensed', value: dispensedToday, icon: CheckCircle2, color: '#4ADE80' },
-            { label: 'Low Stock', value: lowStockCount, icon: TrendingDown, color: '#FBBF24' },
+            { label: 'Dispensed', value: dispensedToday, icon: CheckCircle2, color: 'var(--color-success)' },
+            { label: 'Low Stock', value: lowStockCount, icon: TrendingDown, color: 'var(--color-warning)' },
             { label: 'Expired', value: expiredCount, icon: XCircle, color: '#F87171' },
             { label: 'Expiring', value: expiringCount, icon: Calendar, color: '#F97316' },
             { label: 'Pickup', value: awaitingPickup, icon: Clock, color: '#38BDF8' },
@@ -615,7 +615,7 @@ export default function PharmacyDashboardPage() {
                     <span className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{
                       background: rx.status === 'dispensed' ? 'rgba(74,222,128,0.15)' :
                         rx.status === 'awaiting_pickup' ? 'rgba(56,189,248,0.15)' : `${ACCENT}15`,
-                      color: rx.status === 'dispensed' ? '#4ADE80' :
+                      color: rx.status === 'dispensed' ? 'var(--color-success)' :
                         rx.status === 'awaiting_pickup' ? '#38BDF8' : ACCENT,
                     }}>{rx.status === 'awaiting_pickup' ? 'PICKUP' : rx.status.toUpperCase()}</span>
                     {rx.priority === 'urgent' && (
@@ -627,7 +627,7 @@ export default function PharmacyDashboardPage() {
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDispense(rx); }}
                         className="mt-1 px-3 py-1 rounded-lg text-[10px] font-bold text-white transition-all hover:opacity-90 flex items-center gap-1"
-                        style={{ background: '#4ADE80' }}
+                        style={{ background: 'var(--color-success)' }}
                       >
                         <Pill className="w-3 h-3" /> Dispense
                       </button>
@@ -664,17 +664,17 @@ export default function PharmacyDashboardPage() {
                       <span className="text-[11px] font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{item.name}</span>
                       <span className="text-[8px] font-bold px-1.5 py-0.5 rounded flex-shrink-0 ml-1" style={{
                         background: item.status === 'critical' ? 'rgba(248,113,113,0.15)' : 'rgba(251,191,36,0.15)',
-                        color: item.status === 'critical' ? '#F87171' : '#FBBF24',
+                        color: item.status === 'critical' ? '#F87171' : 'var(--color-warning)',
                       }}>{item.status.toUpperCase()}</span>
                     </div>
                     <div className="flex items-center justify-between text-[10px] mb-1.5" style={{ color: 'var(--text-muted)' }}>
                       <span>{item.stock} / {item.reorder} {item.unit}</span>
-                      <span style={{ color: item.status === 'critical' ? '#F87171' : '#FBBF24' }}>{pct}%</span>
+                      <span style={{ color: item.status === 'critical' ? '#F87171' : 'var(--color-warning)' }}>{pct}%</span>
                     </div>
                     <div className="h-1 rounded-full overflow-hidden" style={{ background: 'var(--overlay-subtle)' }}>
                       <div className="h-full rounded-full transition-all duration-700" style={{
                         width: `${pct}%`,
-                        background: item.status === 'critical' ? '#EF4444' : '#F59E0B',
+                        background: item.status === 'critical' ? 'var(--color-danger)' : 'var(--color-warning)',
                       }} />
                     </div>
                   </div>
@@ -690,7 +690,7 @@ export default function PharmacyDashboardPage() {
           }}>
             <div className="px-3 py-2 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-light)' }}>
               <div className="flex items-center gap-2">
-                <Radio className="w-4 h-4" style={{ color: '#4ADE80' }} />
+                <Radio className="w-4 h-4" style={{ color: 'var(--color-success)' }} />
                 <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Activity Feed</span>
               </div>
               <span className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>{eventCounter} events</span>
@@ -763,18 +763,18 @@ export default function PharmacyDashboardPage() {
                   }}>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-0.5">
-                        {item.stock === 0 && <AlertOctagon className="w-3 h-3 flex-shrink-0" style={{ color: '#EF4444' }} />}
+                        {item.stock === 0 && <AlertOctagon className="w-3 h-3 flex-shrink-0" style={{ color: 'var(--color-danger)' }} />}
                         <span className="text-[11px] font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{item.name}</span>
                       </div>
                       <div className="flex items-center gap-3 text-[10px]" style={{ color: 'var(--text-muted)' }}>
-                        <span>Stock: <strong style={{ color: item.stock === 0 ? '#EF4444' : '#F97316' }}>{item.stock}</strong></span>
+                        <span>Stock: <strong style={{ color: item.stock === 0 ? 'var(--color-danger)' : '#F97316' }}>{item.stock}</strong></span>
                         <span>Reorder: {item.reorder}</span>
                         <span>Order: <strong style={{ color: ACCENT }}>{item.reorder * 2}</strong> {item.unit}</span>
                       </div>
                     </div>
                     <span className="text-[8px] font-bold px-1.5 py-0.5 rounded flex-shrink-0 ml-2" style={{
                       background: item.stock === 0 ? 'rgba(239,68,68,0.15)' : 'rgba(249,115,22,0.15)',
-                      color: item.stock === 0 ? '#EF4444' : '#F97316',
+                      color: item.stock === 0 ? 'var(--color-danger)' : '#F97316',
                     }}>{item.stock === 0 ? 'OUT' : 'LOW'}</span>
                   </div>
                 ))
@@ -788,14 +788,14 @@ export default function PharmacyDashboardPage() {
           }}>
             <div className="flex items-center justify-between px-3 py-2 border-b" style={{ borderColor: 'var(--border-light)' }}>
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" style={{ color: '#EF4444' }} />
+                <Calendar className="w-4 h-4" style={{ color: 'var(--color-danger)' }} />
                 <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Expiry Tracker (FEFO)</span>
               </div>
               {expiredCount > 0 && (
                 <button
                   onClick={handleRemoveExpired}
                   className="text-[10px] font-bold flex items-center gap-1 px-2.5 py-1 rounded-lg text-white transition-all hover:opacity-90"
-                  style={{ background: '#EF4444' }}
+                  style={{ background: 'var(--color-danger)' }}
                 >
                   <Trash2 className="w-3 h-3" /> Remove Expired ({expiredCount})
                 </button>
@@ -906,7 +906,7 @@ export default function PharmacyDashboardPage() {
                             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{
                               background: entry.status === 'dispensed' ? 'rgba(74,222,128,0.15)' :
                                 entry.status === 'awaiting_pickup' ? 'rgba(56,189,248,0.15)' : `${ACCENT}15`,
-                              color: entry.status === 'dispensed' ? '#4ADE80' :
+                              color: entry.status === 'dispensed' ? 'var(--color-success)' :
                                 entry.status === 'awaiting_pickup' ? '#38BDF8' : ACCENT,
                             }}>{entry.status === 'awaiting_pickup' ? 'PICKUP' : entry.status.toUpperCase()}</span>
                           </td>
@@ -947,19 +947,19 @@ export default function PharmacyDashboardPage() {
                       <span className="text-[11px] font-semibold" style={{ color: ACCENT }}>{cat.category}</span>
                       <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{
                         background: adequatePct > 80 ? 'rgba(74,222,128,0.15)' : adequatePct > 60 ? 'rgba(251,191,36,0.15)' : 'rgba(248,113,113,0.15)',
-                        color: adequatePct > 80 ? '#4ADE80' : adequatePct > 60 ? '#FBBF24' : '#F87171',
+                        color: adequatePct > 80 ? 'var(--color-success)' : adequatePct > 60 ? 'var(--color-warning)' : '#F87171',
                       }}>{adequatePct}%</span>
                     </div>
                     <p className="text-lg font-bold mb-1.5" style={{ color: 'var(--text-primary)' }}>{cat.total}</p>
                     <div className="h-1.5 rounded-full overflow-hidden mb-2" style={{ background: 'var(--border-light)' }}>
                       <div className="h-full rounded-full" style={{
                         width: `${adequatePct}%`,
-                        background: adequatePct > 80 ? '#4ADE80' : adequatePct > 60 ? '#FBBF24' : '#EF4444',
+                        background: adequatePct > 80 ? 'var(--color-success)' : adequatePct > 60 ? 'var(--color-warning)' : 'var(--color-danger)',
                       }} />
                     </div>
                     <div className="flex justify-between text-[9px]" style={{ color: 'var(--text-muted)' }}>
-                      <span style={{ color: '#4ADE80' }}>{cat.adequate} OK</span>
-                      <span style={{ color: '#FBBF24' }}>{cat.low} Low</span>
+                      <span style={{ color: 'var(--color-success)' }}>{cat.adequate} OK</span>
+                      <span style={{ color: 'var(--color-warning)' }}>{cat.low} Low</span>
                       <span style={{ color: '#F87171' }}>{cat.critical} Crit</span>
                     </div>
                   </div>
@@ -978,7 +978,7 @@ export default function PharmacyDashboardPage() {
                 { label: 'Dispense', icon: Pill, color: ACCENT },
                 { label: 'Check Stock', icon: Search, color: '#60A5FA' },
                 { label: 'Message', icon: Send, href: '/messages', color: '#EC4899' },
-                { label: 'Inventory', icon: Package, color: '#4ADE80' },
+                { label: 'Inventory', icon: Package, color: 'var(--color-success)' },
               ].map(action => (
                 <button key={action.label} onClick={() => action.href ? router.push(action.href) : undefined}
                   className="flex items-center gap-2 p-2.5 rounded-lg transition-all"

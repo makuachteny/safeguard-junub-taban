@@ -30,7 +30,7 @@ import type { ImmunizationDefaulter } from '@/lib/services/immunization-service'
 const DEPARTMENTS = ['OPD', 'Emergency', 'Maternity', 'Pediatrics', 'Surgery', 'Lab', 'Pharmacy', 'ICU'];
 const DOCTORS = ['Dr. Wani James', 'Dr. Akol Deng', 'Dr. Ladu Morris', 'Dr. Achol Mabior', 'Dr. Taban Philip'];
 const NURSES = ['Nurse Ayen', 'Nurse Nyamal', 'Nurse Rose', 'Nurse Abuk', 'Nurse Dorothy'];
-const ACCENT = '#D97706';
+const ACCENT = 'var(--color-warning)';
 
 function ChartTooltip({ active, payload, label }: {
   active?: boolean;
@@ -52,7 +52,7 @@ function ChartTooltip({ active, payload, label }: {
   );
 }
 
-const SATISFACTION_COLORS = ['#3ECF8E', '#60A5FA', '#FCD34D', '#F87171'];
+const SATISFACTION_COLORS = ['var(--color-success)', '#60A5FA', 'var(--color-warning)', '#F87171'];
 
 export default function PayamSupervisorDashboard() {
   const router = useRouter();
@@ -144,9 +144,9 @@ export default function PayamSupervisorDashboard() {
   const getBHWAlerts = useCallback((bhw: BHWPerformance) => {
     const alerts: { label: string; color: string; bg: string }[] = [];
     const days = bhw.lastActiveDate ? Math.floor((Date.now() - new Date(bhw.lastActiveDate).getTime()) / 86400000) : 999;
-    if (days >= 3) alerts.push({ label: 'INACTIVE', color: '#EF4444', bg: '#EF444415' });
-    if (bhw.referralRate > 50) alerts.push({ label: 'HIGH REFERRAL RATE', color: '#F59E0B', bg: '#F59E0B15' });
-    if (bhw.followUpCompletionRate < 50) alerts.push({ label: 'LOW FOLLOW-UP', color: '#F59E0B', bg: '#F59E0B15' });
+    if (days >= 3) alerts.push({ label: 'INACTIVE', color: 'var(--color-danger)', bg: '#EF444415' });
+    if (bhw.referralRate > 50) alerts.push({ label: 'HIGH REFERRAL RATE', color: 'var(--color-warning)', bg: '#F59E0B15' });
+    if (bhw.followUpCompletionRate < 50) alerts.push({ label: 'LOW FOLLOW-UP', color: 'var(--color-warning)', bg: '#F59E0B15' });
     return alerts;
   }, []);
 
@@ -187,9 +187,9 @@ export default function PayamSupervisorDashboard() {
   const totalNurses = hospital?.nurses || 0;
 
   const satisfactionData = [
-    { name: 'Excellent', value: 54, color: '#3ECF8E' },
+    { name: 'Excellent', value: 54, color: 'var(--color-success)' },
     { name: 'Good', value: 23, color: '#60A5FA' },
-    { name: 'Average', value: 20, color: '#FCD34D' },
+    { name: 'Average', value: 20, color: 'var(--color-warning)' },
     { name: 'Poor', value: 3, color: '#F87171' },
   ];
   const satisfactionRate = 76;
@@ -207,11 +207,11 @@ export default function PayamSupervisorDashboard() {
   }));
 
   const bedChartData = [
-    { status: 'ICU', beds: hospital?.icuBeds || 8, color: '#E52E42' },
+    { status: 'ICU', beds: hospital?.icuBeds || 8, color: 'var(--color-danger)' },
     { status: 'Maternity', beds: hospital?.maternityBeds || 30, color: '#EC4899' },
     { status: 'Pediatric', beds: hospital?.pediatricBeds || 20, color: '#60A5FA' },
-    { status: 'General', beds: Math.max(0, bedTotal - (hospital?.icuBeds || 0) - (hospital?.maternityBeds || 0) - (hospital?.pediatricBeds || 0)), color: '#3ECF8E' },
-    { status: 'Available', beds: Math.max(0, bedTotal - bedOccupancy), color: '#94A3B8' },
+    { status: 'General', beds: Math.max(0, bedTotal - (hospital?.icuBeds || 0) - (hospital?.maternityBeds || 0) - (hospital?.pediatricBeds || 0)), color: 'var(--color-success)' },
+    { status: 'Available', beds: Math.max(0, bedTotal - bedOccupancy), color: 'var(--text-muted)' },
   ];
 
   const inOutData = [
@@ -222,11 +222,11 @@ export default function PayamSupervisorDashboard() {
   ];
 
   const diseaseDistribution = [
-    { name: 'Malaria', value: Math.floor(patients.length * 0.35), color: '#E52E42' },
-    { name: 'Respiratory', value: Math.floor(patients.length * 0.2), color: '#FCD34D' },
+    { name: 'Malaria', value: Math.floor(patients.length * 0.35), color: 'var(--color-danger)' },
+    { name: 'Respiratory', value: Math.floor(patients.length * 0.2), color: 'var(--color-warning)' },
     { name: 'Diarrheal', value: Math.floor(patients.length * 0.15), color: '#60A5FA' },
     { name: 'Maternal', value: Math.floor(patients.length * 0.12), color: '#EC4899' },
-    { name: 'Other', value: Math.floor(patients.length * 0.18), color: '#94A3B8' },
+    { name: 'Other', value: Math.floor(patients.length * 0.18), color: 'var(--text-muted)' },
   ];
   const totalCases = diseaseDistribution.reduce((s, d) => s + d.value, 0);
 
@@ -315,7 +315,7 @@ export default function PayamSupervisorDashboard() {
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Users className="w-3.5 h-3.5" style={{ color: '#059669' }} />
+                  <Users className="w-3.5 h-3.5" style={{ color: 'var(--color-success)' }} />
                   <span className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>Active BHWs</span>
                 </div>
                 <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{activeBHWs}/{totalBHWs}</span>
@@ -333,11 +333,11 @@ export default function PayamSupervisorDashboard() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>Pending Referrals</span>
-                <span className="text-sm font-bold" style={{ color: '#F59E0B' }}>{pendingReferrals.length}</span>
+                <span className="text-sm font-bold" style={{ color: 'var(--color-warning)' }}>{pendingReferrals.length}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>Active Alerts</span>
-                <span className="text-sm font-bold" style={{ color: '#E52E42' }}>{activeAlerts.length}</span>
+                <span className="text-sm font-bold" style={{ color: 'var(--color-danger)' }}>{activeAlerts.length}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>Immunizations</span>
@@ -359,7 +359,7 @@ export default function PayamSupervisorDashboard() {
                   onClick={() => setActiveTab(tab)}
                   className="px-1.5 py-1 text-[9px] font-semibold uppercase tracking-wider transition-colors"
                   style={{
-                    color: activeTab === tab ? '#0077D7' : 'var(--text-muted)',
+                    color: activeTab === tab ? 'var(--accent-primary)' : 'var(--text-muted)',
                     borderBottom: activeTab === tab ? '2px solid #0077D7' : '2px solid transparent',
                   }}
                 >
@@ -445,7 +445,7 @@ export default function PayamSupervisorDashboard() {
                       <td className="px-4 py-2.5">
                         <button
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all"
-                          style={{ background: '#059669' }}
+                          style={{ background: 'var(--color-success)' }}
                           onClick={async () => {
                             try {
                               await accept(ref._id);
@@ -472,7 +472,7 @@ export default function PayamSupervisorDashboard() {
             <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Recently Admitted Patients</h3>
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1.5 text-[10px]">
-                <span className="w-2 h-2 rounded-full" style={{ background: '#E52E42' }} />
+                <span className="w-2 h-2 rounded-full" style={{ background: 'var(--color-danger)' }} />
                 <span style={{ color: 'var(--text-muted)' }}>Critical</span>
               </span>
               <button onClick={() => router.push('/patients')} className="text-[11px] font-medium flex items-center gap-0.5" style={{ color: 'var(--accent-primary)' }}>
@@ -509,7 +509,7 @@ export default function PayamSupervisorDashboard() {
                     <td className="px-4 py-2.5 text-[12px]" style={{ color: 'var(--text-secondary)' }}>{p.nurse}</td>
                     <td className="px-4 py-2.5">
                       {p.critical ? (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded" style={{ background: 'rgba(229,46,66,0.1)', color: '#E52E42' }}>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded" style={{ background: 'rgba(229,46,66,0.1)', color: 'var(--color-danger)' }}>
                           {p.division}
                         </span>
                       ) : (
@@ -569,8 +569,8 @@ export default function PayamSupervisorDashboard() {
             </div>
             {activeAlerts.length > 0 && (
               <div className="mx-4 mb-4 p-2 rounded-lg flex items-center gap-2" style={{ background: 'rgba(229,46,66,0.06)', border: '1px solid rgba(229,46,66,0.12)' }}>
-                <AlertTriangle className="w-3.5 h-3.5" style={{ color: '#E52E42' }} />
-                <span className="text-[11px] font-medium" style={{ color: '#E52E42' }}>{activeAlerts.length} active disease alert(s)</span>
+                <AlertTriangle className="w-3.5 h-3.5" style={{ color: 'var(--color-danger)' }} />
+                <span className="text-[11px] font-medium" style={{ color: 'var(--color-danger)' }}>{activeAlerts.length} active disease alert(s)</span>
               </div>
             )}
           </div>
@@ -613,8 +613,8 @@ export default function PayamSupervisorDashboard() {
                   <YAxis tick={{ fontSize: 10, fill: 'var(--text-muted)' }} axisLine={{ stroke: 'var(--border-light)' }} tickLine={false} />
                   <Tooltip content={<ChartTooltip />} />
                   <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '0.65rem', paddingTop: '6px' }} />
-                  <Line type="monotone" dataKey="In Patients" stroke="#E52E42" strokeWidth={2} dot={{ r: 4, fill: '#E52E42' }} />
-                  <Line type="monotone" dataKey="Out Patients" stroke="#FCD34D" strokeWidth={2} dot={{ r: 4, fill: '#FCD34D' }} />
+                  <Line type="monotone" dataKey="In Patients" stroke="#E52E42" strokeWidth={2} dot={{ r: 4, fill: 'var(--color-danger)' }} />
+                  <Line type="monotone" dataKey="Out Patients" stroke="#FCD34D" strokeWidth={2} dot={{ r: 4, fill: 'var(--color-warning)' }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -631,7 +631,7 @@ export default function PayamSupervisorDashboard() {
               { label: 'Referral', icon: ArrowRightLeft, href: '/referrals', color: ACCENT },
               { label: 'Immunization', icon: Syringe, href: '/immunizations', color: '#A855F7' },
               { label: 'ANC Visit', icon: HeartPulse, href: '/anc', color: '#EC4899' },
-              { label: 'Birth Reg.', icon: Baby, href: '/births', color: '#F59E0B' },
+              { label: 'Birth Reg.', icon: Baby, href: '/births', color: 'var(--color-warning)' },
               { label: 'Lab Results', icon: FlaskConical, href: '/lab', color: '#38BDF8' },
             ].map(action => (
               <button
@@ -682,7 +682,7 @@ export default function PayamSupervisorDashboard() {
               {bhwPerformance.map(bhw => {
                 const daysSinceActive = bhw.lastActiveDate ? Math.floor((Date.now() - new Date(bhw.lastActiveDate).getTime()) / 86400000) : 0;
                 const perfScore = getPerformanceScore(bhw);
-                const scoreColor = perfScore > 80 ? '#059669' : perfScore >= 50 ? '#F59E0B' : '#EF4444';
+                const scoreColor = perfScore > 80 ? 'var(--color-success)' : perfScore >= 50 ? 'var(--color-warning)' : 'var(--color-danger)';
                 const alerts = getBHWAlerts(bhw);
                 const feedback = feedbackMap[bhw.workerId];
                 return (
@@ -690,7 +690,7 @@ export default function PayamSupervisorDashboard() {
                     <div className="p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold text-white" style={{ background: bhw.isActive ? '#059669' : '#94A3B8' }}>
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold text-white" style={{ background: bhw.isActive ? 'var(--color-success)' : 'var(--text-muted)' }}>
                             {bhw.workerName.split(' ').map(n => n[0]).join('').slice(0, 2)}
                           </div>
                           <div>
@@ -712,7 +712,7 @@ export default function PayamSupervisorDashboard() {
                               </div>
                             </div>
                           </div>
-                          <span className="text-[10px] font-bold px-2 py-1 rounded-full" style={{ background: bhw.isActive ? '#05966915' : '#EF444415', color: bhw.isActive ? '#059669' : '#EF4444' }}>
+                          <span className="text-[10px] font-bold px-2 py-1 rounded-full" style={{ background: bhw.isActive ? '#05966915' : '#EF444415', color: bhw.isActive ? 'var(--color-success)' : 'var(--color-danger)' }}>
                             {bhw.isActive ? 'ACTIVE' : `INACTIVE ${daysSinceActive}d`}
                           </span>
                         </div>
@@ -732,10 +732,10 @@ export default function PayamSupervisorDashboard() {
                       <div className="grid grid-cols-5 gap-2">
                         {[
                           { label: 'This Week', value: bhw.thisWeekVisits, color: '#3B82F6' },
-                          { label: 'Total Visits', value: bhw.totalVisits, color: '#059669' },
-                          { label: 'Treated', value: bhw.treated, color: '#10B981' },
-                          { label: 'Referred', value: bhw.referred, color: '#F59E0B' },
-                          { label: 'Follow-Up %', value: `${bhw.followUpCompletionRate}%`, color: bhw.followUpCompletionRate >= 80 ? '#059669' : '#EF4444' },
+                          { label: 'Total Visits', value: bhw.totalVisits, color: 'var(--color-success)' },
+                          { label: 'Treated', value: bhw.treated, color: 'var(--color-success)' },
+                          { label: 'Referred', value: bhw.referred, color: 'var(--color-warning)' },
+                          { label: 'Follow-Up %', value: `${bhw.followUpCompletionRate}%`, color: bhw.followUpCompletionRate >= 80 ? 'var(--color-success)' : 'var(--color-danger)' },
                         ].map(metric => (
                           <div key={metric.label} className="p-2 rounded-lg text-center" style={{ background: 'var(--overlay-subtle)' }}>
                             <p className="text-base font-bold" style={{ color: metric.color }}>{metric.value}</p>
@@ -747,7 +747,7 @@ export default function PayamSupervisorDashboard() {
                       <div className="mt-2 flex items-center gap-2">
                         <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Referral Rate:</span>
                         <div className="flex-1 h-1.5 rounded-full" style={{ background: 'var(--overlay-subtle)' }}>
-                          <div className="h-full rounded-full" style={{ width: `${bhw.referralRate}%`, background: bhw.referralRate > 40 ? '#EF4444' : bhw.referralRate > 20 ? '#F59E0B' : '#059669' }} />
+                          <div className="h-full rounded-full" style={{ width: `${bhw.referralRate}%`, background: bhw.referralRate > 40 ? 'var(--color-danger)' : bhw.referralRate > 20 ? 'var(--color-warning)' : 'var(--color-success)' }} />
                         </div>
                         <span className="text-[10px] font-mono font-bold" style={{ color: 'var(--text-muted)' }}>{bhw.referralRate}%</span>
                       </div>
@@ -759,7 +759,7 @@ export default function PayamSupervisorDashboard() {
                       {/* Feedback indicator */}
                       {feedback && (
                         <div className="mt-2 flex items-center gap-1.5 px-2 py-1 rounded-lg" style={{ background: feedback.type === 'good' ? '#05966908' : feedback.type === 'urgent' ? '#EF444408' : '#F59E0B08' }}>
-                          <MessageSquare className="w-3 h-3" style={{ color: feedback.type === 'good' ? '#059669' : feedback.type === 'urgent' ? '#EF4444' : '#F59E0B' }} />
+                          <MessageSquare className="w-3 h-3" style={{ color: feedback.type === 'good' ? 'var(--color-success)' : feedback.type === 'urgent' ? 'var(--color-danger)' : 'var(--color-warning)' }} />
                           <span className="text-[9px] font-medium" style={{ color: 'var(--text-muted)' }}>
                             Feedback: {feedback.type === 'good' ? 'Good Work' : feedback.type === 'urgent' ? 'Urgent Attention' : 'Needs Improvement'} ({new Date(feedback.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })})
                           </span>
@@ -771,9 +771,9 @@ export default function PayamSupervisorDashboard() {
                         <div className="mt-3 p-3 rounded-xl" style={{ background: 'var(--overlay-subtle)', border: '1px solid var(--border-light)' }}>
                           <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Send Feedback</p>
                           <div className="flex gap-2 mb-2">
-                            <button onClick={() => saveFeedback(bhw.workerId, 'good')} className="flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95" style={{ background: '#05966915', color: '#059669', border: '1px solid #05966920' }}><ThumbsUp className="w-3.5 h-3.5" /> Good Work</button>
-                            <button onClick={() => saveFeedback(bhw.workerId, 'needs_improvement')} className="flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95" style={{ background: '#F59E0B15', color: '#F59E0B', border: '1px solid #F59E0B20' }}><AlertTriangle className="w-3.5 h-3.5" /> Needs Work</button>
-                            <button onClick={() => saveFeedback(bhw.workerId, 'urgent')} className="flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95" style={{ background: '#EF444415', color: '#EF4444', border: '1px solid #EF444420' }}><Flag className="w-3.5 h-3.5" /> Urgent</button>
+                            <button onClick={() => saveFeedback(bhw.workerId, 'good')} className="flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95" style={{ background: '#05966915', color: 'var(--color-success)', border: '1px solid #05966920' }}><ThumbsUp className="w-3.5 h-3.5" /> Good Work</button>
+                            <button onClick={() => saveFeedback(bhw.workerId, 'needs_improvement')} className="flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95" style={{ background: '#F59E0B15', color: 'var(--color-warning)', border: '1px solid #F59E0B20' }}><AlertTriangle className="w-3.5 h-3.5" /> Needs Work</button>
+                            <button onClick={() => saveFeedback(bhw.workerId, 'urgent')} className="flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95" style={{ background: '#EF444415', color: 'var(--color-danger)', border: '1px solid #EF444420' }}><Flag className="w-3.5 h-3.5" /> Urgent</button>
                           </div>
                           <textarea value={feedbackNote} onChange={e => setFeedbackNote(e.target.value)} placeholder="Optional note..." className="w-full px-3 py-2 rounded-lg text-xs mb-2" style={{ background: 'var(--bg-input)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)', minHeight: '50px' }} />
                           <button onClick={() => { setFeedbackWorkerId(null); setFeedbackNote(''); }} className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>Cancel</button>
@@ -807,7 +807,7 @@ export default function PayamSupervisorDashboard() {
                 </div>
                 {selectedVisits.size > 0 && (
                   <div className="flex items-center gap-2">
-                    <button onClick={handleBulkApprove} disabled={bulkApproving} className="flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-lg text-white transition-all active:scale-95" style={{ background: '#059669', opacity: bulkApproving ? 0.7 : 1 }}>
+                    <button onClick={handleBulkApprove} disabled={bulkApproving} className="flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-lg text-white transition-all active:scale-95" style={{ background: 'var(--color-success)', opacity: bulkApproving ? 0.7 : 1 }}>
                       <CheckCircle2 className="w-3 h-3" />{bulkApproving ? 'Approving...' : `Approve Selected (${selectedVisits.size})`}
                     </button>
                     <button onClick={() => setSelectedVisits(new Set())} className="text-[10px] font-medium px-2 py-1" style={{ color: 'var(--text-muted)' }}>Clear</button>
@@ -815,7 +815,7 @@ export default function PayamSupervisorDashboard() {
                 )}
               </div>
 
-              {filteredReviewQueue.length === 0 && (<div className="text-center py-12"><CheckCircle2 className="w-12 h-12 mx-auto mb-3" style={{ color: '#059669', opacity: 0.3 }} /><p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>All visits reviewed!</p></div>)}
+              {filteredReviewQueue.length === 0 && (<div className="text-center py-12"><CheckCircle2 className="w-12 h-12 mx-auto mb-3" style={{ color: 'var(--color-success)', opacity: 0.3 }} /><p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>All visits reviewed!</p></div>)}
 
               <div className="space-y-2">
                 {filteredReviewQueue.map(visit => (
@@ -823,10 +823,10 @@ export default function PayamSupervisorDashboard() {
                     <div className="p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <button onClick={() => toggleVisitSelection(visit._id)} className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition-all" style={{ background: selectedVisits.has(visit._id) ? '#059669' : 'transparent', border: selectedVisits.has(visit._id) ? '2px solid #059669' : '2px solid var(--border-medium)' }}>
+                          <button onClick={() => toggleVisitSelection(visit._id)} className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition-all" style={{ background: selectedVisits.has(visit._id) ? 'var(--color-success)' : 'transparent', border: selectedVisits.has(visit._id) ? '2px solid #059669' : '2px solid var(--border-medium)' }}>
                             {selectedVisits.has(visit._id) && <Check className="w-3 h-3 text-white" />}
                           </button>
-                          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white" style={{ background: visit.action === 'treated' ? '#059669' : '#EF4444' }}>
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white" style={{ background: visit.action === 'treated' ? 'var(--color-success)' : 'var(--color-danger)' }}>
                             {visit.patientName.split(' ').map(n => n[0]).join('').slice(0, 2)}
                           </div>
                           <div>
@@ -835,7 +835,7 @@ export default function PayamSupervisorDashboard() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: visit.action === 'treated' ? '#05966915' : '#EF444415', color: visit.action === 'treated' ? '#059669' : '#EF4444' }}>{visit.action.toUpperCase()}</span>
+                          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: visit.action === 'treated' ? '#05966915' : '#EF444415', color: visit.action === 'treated' ? 'var(--color-success)' : 'var(--color-danger)' }}>{visit.action.toUpperCase()}</span>
                           <p className="text-[9px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{new Date(visit.visitDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p>
                         </div>
                       </div>
@@ -844,14 +844,14 @@ export default function PayamSupervisorDashboard() {
                         <div className="p-1.5 rounded-lg" style={{ background: 'var(--overlay-subtle)' }}><p className="text-[9px]" style={{ color: 'var(--text-muted)' }}>Condition</p><p className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>{visit.suspectedCondition}</p></div>
                         <div className="p-1.5 rounded-lg" style={{ background: 'var(--overlay-subtle)' }}><p className="text-[9px]" style={{ color: 'var(--text-muted)' }}>BHW</p><p className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>{visit.workerName}</p></div>
                       </div>
-                      {visit.treatmentGiven && <p className="text-xs mb-2 p-1.5 rounded-lg" style={{ background: '#05966908', color: '#059669' }}>Treatment: {visit.treatmentGiven}</p>}
-                      {visit.referredTo && <p className="text-xs mb-2 p-1.5 rounded-lg" style={{ background: '#EF444408', color: '#EF4444' }}>Referred to: {visit.referredTo}</p>}
+                      {visit.treatmentGiven && <p className="text-xs mb-2 p-1.5 rounded-lg" style={{ background: '#05966908', color: 'var(--color-success)' }}>Treatment: {visit.treatmentGiven}</p>}
+                      {visit.referredTo && <p className="text-xs mb-2 p-1.5 rounded-lg" style={{ background: '#EF444408', color: 'var(--color-danger)' }}>Referred to: {visit.referredTo}</p>}
                       {reviewingId === visit._id ? (
                         <div className="space-y-2 mt-2">
                           <textarea value={reviewNotes} onChange={e => setReviewNotes(e.target.value)} placeholder="Add review notes (optional)..." className="w-full px-3 py-2 rounded-lg text-xs" style={{ background: 'var(--bg-input)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)', minHeight: '60px' }} />
                           <div className="flex gap-2">
-                            <button onClick={() => handleReview(visit._id, 'reviewed')} className="flex-1 py-2.5 rounded-lg text-xs font-bold text-white flex items-center justify-center gap-1.5" style={{ background: '#059669' }}><CheckCircle2 className="w-3.5 h-3.5" /> Approve</button>
-                            <button onClick={() => handleReview(visit._id, 'flagged')} className="flex-1 py-2.5 rounded-lg text-xs font-bold text-white flex items-center justify-center gap-1.5" style={{ background: '#EF4444' }}><Flag className="w-3.5 h-3.5" /> Flag</button>
+                            <button onClick={() => handleReview(visit._id, 'reviewed')} className="flex-1 py-2.5 rounded-lg text-xs font-bold text-white flex items-center justify-center gap-1.5" style={{ background: 'var(--color-success)' }}><CheckCircle2 className="w-3.5 h-3.5" /> Approve</button>
+                            <button onClick={() => handleReview(visit._id, 'flagged')} className="flex-1 py-2.5 rounded-lg text-xs font-bold text-white flex items-center justify-center gap-1.5" style={{ background: 'var(--color-danger)' }}><Flag className="w-3.5 h-3.5" /> Flag</button>
                             <button onClick={() => { setReviewingId(null); setReviewNotes(''); }} className="px-3 py-2.5 rounded-lg text-xs font-medium" style={{ background: 'var(--overlay-subtle)', color: 'var(--text-muted)' }}>Cancel</button>
                           </div>
                         </div>
@@ -870,10 +870,10 @@ export default function PayamSupervisorDashboard() {
             <div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                 {[
-                  { label: 'Total Overdue', value: defaulterStats.totalDefaulters, color: '#EF4444' },
+                  { label: 'Total Overdue', value: defaulterStats.totalDefaulters, color: 'var(--color-danger)' },
                   { label: 'Children', value: defaulterStats.uniqueChildren, color: '#8B5CF6' },
-                  { label: 'Critical (>30d)', value: defaulterStats.critical, color: '#DC2626' },
-                  { label: 'High (>14d)', value: defaulterStats.high, color: '#F59E0B' },
+                  { label: 'Critical (>30d)', value: defaulterStats.critical, color: 'var(--color-danger)' },
+                  { label: 'High (>14d)', value: defaulterStats.high, color: 'var(--color-warning)' },
                 ].map(stat => (
                   <div key={stat.label} className="rounded-xl p-3" style={{ background: `${stat.color}08`, border: `1px solid ${stat.color}15` }}>
                     <p className="text-xl font-bold" style={{ color: stat.color }}>{stat.value}</p>
@@ -881,13 +881,13 @@ export default function PayamSupervisorDashboard() {
                   </div>
                 ))}
               </div>
-              {defaulters.length === 0 && (<div className="text-center py-12"><Syringe className="w-12 h-12 mx-auto mb-3" style={{ color: '#059669', opacity: 0.3 }} /><p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>No immunization defaulters!</p></div>)}
+              {defaulters.length === 0 && (<div className="text-center py-12"><Syringe className="w-12 h-12 mx-auto mb-3" style={{ color: 'var(--color-success)', opacity: 0.3 }} /><p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>No immunization defaulters!</p></div>)}
               <div className="space-y-2">
                 {defaulters.map((d, i) => (
                   <div key={`${d.patientId}-${d.vaccine}-${i}`} className="rounded-2xl p-3" style={{ background: 'var(--bg-card)', border: `1px solid ${d.urgency === 'critical' ? 'rgba(239,68,68,0.3)' : d.urgency === 'high' ? 'rgba(245,158,11,0.2)' : 'var(--border-light)'}`, boxShadow: 'var(--card-shadow)' }}>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white" style={{ background: d.urgency === 'critical' ? '#EF4444' : d.urgency === 'high' ? '#F59E0B' : '#8B5CF6' }}>
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white" style={{ background: d.urgency === 'critical' ? 'var(--color-danger)' : d.urgency === 'high' ? 'var(--color-warning)' : '#8B5CF6' }}>
                           {d.patientName.split(' ').map(n => n[0]).join('').slice(0, 2)}
                         </div>
                         <div>
@@ -895,7 +895,7 @@ export default function PayamSupervisorDashboard() {
                           <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{d.gender} &middot; {d.ageMonths} months &middot; {d.facilityName}</p>
                         </div>
                       </div>
-                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: d.urgency === 'critical' ? '#EF444415' : d.urgency === 'high' ? '#F59E0B15' : '#8B5CF615', color: d.urgency === 'critical' ? '#EF4444' : d.urgency === 'high' ? '#F59E0B' : '#8B5CF6' }}>
+                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: d.urgency === 'critical' ? '#EF444415' : d.urgency === 'high' ? '#F59E0B15' : '#8B5CF615', color: d.urgency === 'critical' ? 'var(--color-danger)' : d.urgency === 'high' ? 'var(--color-warning)' : '#8B5CF6' }}>
                         {d.daysOverdue} DAYS OVERDUE
                       </span>
                     </div>

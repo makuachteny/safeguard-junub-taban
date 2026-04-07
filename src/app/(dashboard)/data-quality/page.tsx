@@ -9,7 +9,7 @@ export default function DataQualityPage() {
 
   if (loading || !data) return <><TopBar title="Data Quality" /><main className="page-container flex items-center justify-center"><p className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading data quality metrics...</p></main></>;
 
-  const scoreColor = (score: number) => score >= 70 ? '#0077D7' : score >= 50 ? '#FCD34D' : '#E52E42';
+  const scoreColor = (score: number) => score >= 70 ? 'var(--accent-primary)' : score >= 50 ? 'var(--color-warning)' : 'var(--color-danger)';
   const scoreBg = (score: number) => score >= 70 ? 'rgba(43,111,224,0.12)' : score >= 50 ? 'rgba(252,211,77,0.12)' : 'rgba(229,46,66,0.12)';
 
   return (
@@ -115,8 +115,8 @@ export default function DataQualityPage() {
             </h3>
             <div className="flex items-center gap-3 text-[10px]">
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ background: 'var(--accent-primary)' }} /> ≥70%</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ background: '#FCD34D' }} /> 50–69%</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ background: '#E52E42' }} /> &lt;50%</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ background: 'var(--color-warning)' }} /> 50–69%</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ background: 'var(--color-danger)' }} /> &lt;50%</span>
             </div>
           </div>
           <table className="data-table">

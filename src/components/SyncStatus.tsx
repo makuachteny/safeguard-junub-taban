@@ -24,7 +24,7 @@ const STATE_CONFIG: Record<AggregateState, {
   idle: {
     icon: Wifi,
     label: 'Connected',
-    color: '#4ADE80',
+    color: 'var(--color-success)',
     bg: 'rgba(43,111,224,0.1)',
     border: 'rgba(43,111,224,0.2)',
     glow: '0 0 12px rgba(43,111,224,0.1)',
@@ -40,7 +40,7 @@ const STATE_CONFIG: Record<AggregateState, {
   synced: {
     icon: CheckCircle2,
     label: 'Synced',
-    color: '#4ADE80',
+    color: 'var(--color-success)',
     bg: 'rgba(43,111,224,0.1)',
     border: 'rgba(43,111,224,0.2)',
     glow: '0 0 12px rgba(43,111,224,0.1)',
@@ -56,7 +56,7 @@ const STATE_CONFIG: Record<AggregateState, {
   offline: {
     icon: WifiOff,
     label: 'Offline',
-    color: '#FCD34D',
+    color: 'var(--color-warning)',
     bg: 'rgba(252,211,77,0.1)',
     border: 'rgba(252,211,77,0.2)',
     glow: '0 0 12px rgba(252,211,77,0.1)',
@@ -179,7 +179,7 @@ export default function SyncStatus() {
           <div className="max-h-48 overflow-y-auto space-y-1">
             {Object.entries(syncStatus.databases).map(([name, dbStatus]) => {
               const shortName = name.replace('taban_', '');
-              const stateColor = dbStatus.state === 'active' ? '#4ADE80'
+              const stateColor = dbStatus.state === 'active' ? 'var(--color-success)'
                 : dbStatus.state === 'error' ? '#F87171'
                 : dbStatus.state === 'paused' ? '#60A5FA'
                 : 'var(--text-muted)';

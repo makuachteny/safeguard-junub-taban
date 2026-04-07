@@ -122,7 +122,7 @@ export default function ReferralsPage() {
 
   const stats = [
     { label: 'Total Referrals', value: totalReferrals, icon: ArrowRightLeft, color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)' },
-    { label: 'Pending', value: pendingCount, icon: Clock, color: '#FCD34D', bg: 'rgba(252,211,77,0.10)' },
+    { label: 'Pending', value: pendingCount, icon: Clock, color: 'var(--color-warning)', bg: 'rgba(252,211,77,0.10)' },
     { label: 'In Progress', value: inProgressCount, icon: Stethoscope, color: '#38BDF8', bg: 'rgba(43,111,224,0.10)' },
     { label: 'Completed', value: completedCount, icon: CheckCircle2, color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)' },
   ];
@@ -302,7 +302,7 @@ export default function ReferralsPage() {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={`data:${att.mimeType};base64,${att.base64Data}`} alt={att.name} className="w-8 h-8 rounded object-cover flex-shrink-0" />
                   ) : (
-                    <FileText className="w-5 h-5 flex-shrink-0" style={{ color: '#EF4444' }} />
+                    <FileText className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--color-danger)' }} />
                   )}
                   <div className="min-w-0">
                     <p className="text-xs font-medium truncate">{att.name}</p>
@@ -347,8 +347,8 @@ export default function ReferralsPage() {
           )}
           {demo.chronicConditions?.length > 0 && demo.chronicConditions[0] !== 'None' && (
             <div className="mt-1 flex items-center gap-2">
-              <Activity className="w-3.5 h-3.5" style={{ color: '#FCD34D' }} />
-              <span className="text-xs font-medium" style={{ color: '#FCD34D' }}>
+              <Activity className="w-3.5 h-3.5" style={{ color: 'var(--color-warning)' }} />
+              <span className="text-xs font-medium" style={{ color: 'var(--color-warning)' }}>
                 Chronic: {demo.chronicConditions.join(', ')}
               </span>
             </div>
@@ -453,7 +453,7 @@ export default function ReferralsPage() {
                   {pkg.labResults.map((lab, i) => (
                     <tr key={i} style={{ borderBottom: '1px solid var(--border-light)' }}>
                       <td className="py-1.5 pr-3 font-medium">{lab.testName}</td>
-                      <td className="py-1.5 pr-3" style={{ color: lab.abnormal ? (lab.critical ? '#EF4444' : '#F59E0B') : 'inherit', fontWeight: lab.abnormal ? 600 : 400 }}>
+                      <td className="py-1.5 pr-3" style={{ color: lab.abnormal ? (lab.critical ? 'var(--color-danger)' : 'var(--color-warning)') : 'inherit', fontWeight: lab.abnormal ? 600 : 400 }}>
                         {lab.result} {lab.unit}
                       </td>
                       <td className="py-1.5 pr-3" style={{ color: 'var(--text-muted)' }}>{lab.referenceRange}</td>
@@ -489,7 +489,7 @@ export default function ReferralsPage() {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={`data:${att.mimeType};base64,${att.base64Data}`} alt={att.name} className="w-12 h-12 rounded object-cover" />
                   ) : (
-                    <FileText className="w-8 h-8" style={{ color: '#EF4444' }} />
+                    <FileText className="w-8 h-8" style={{ color: 'var(--color-danger)' }} />
                   )}
                   <p className="text-[10px] font-medium truncate w-full">{att.name}</p>
                   <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{formatFileSize(att.sizeBytes)}</p>
@@ -717,7 +717,7 @@ export default function ReferralsPage() {
                   <span
                     className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full"
                     style={{
-                      background: '#EF4444',
+                      background: 'var(--color-danger)',
                       color: '#fff',
                       animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     }}
@@ -836,7 +836,7 @@ export default function ReferralsPage() {
                             <button
                               className="btn btn-sm"
                               title="Decline this referral"
-                              style={{ padding: '5px 10px', background: 'rgba(239,68,68,0.12)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.25)' }}
+                              style={{ padding: '5px 10px', background: 'rgba(239,68,68,0.12)', color: 'var(--color-danger)', border: '1px solid rgba(239,68,68,0.25)' }}
                               onClick={() => { setDeclineModalId(ref._id); setDeclineReason(''); }}
                             >
                               <XCircle className="w-3.5 h-3.5" />
@@ -912,7 +912,7 @@ export default function ReferralsPage() {
               >
                 <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'var(--border-light)' }}>
                   <div className="flex items-center gap-2">
-                    {isImage(previewAttachment.mimeType) ? <ImageIcon className="w-4 h-4" style={{ color: 'var(--taban-blue)' }} /> : <FileText className="w-4 h-4" style={{ color: '#EF4444' }} />}
+                    {isImage(previewAttachment.mimeType) ? <ImageIcon className="w-4 h-4" style={{ color: 'var(--taban-blue)' }} /> : <FileText className="w-4 h-4" style={{ color: 'var(--color-danger)' }} />}
                     <span className="text-sm font-medium">{previewAttachment.name}</span>
                     <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{formatFileSize(previewAttachment.sizeBytes)}</span>
                   </div>

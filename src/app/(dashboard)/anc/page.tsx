@@ -17,8 +17,8 @@ const RISK_FACTOR_OPTIONS = [
 
 const riskColors = {
   low: { color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)', label: 'Low Risk' },
-  moderate: { color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', label: 'Moderate' },
-  high: { color: '#E52E42', bg: 'rgba(229,46,66,0.12)', label: 'High Risk' },
+  moderate: { color: 'var(--color-warning)', bg: 'rgba(245,158,11,0.12)', label: 'Moderate' },
+  high: { color: 'var(--color-danger)', bg: 'rgba(229,46,66,0.12)', label: 'High Risk' },
 };
 
 export default function ANCPage() {
@@ -161,7 +161,7 @@ export default function ANCPage() {
             {[
               { label: 'Mothers Enrolled', value: stats.totalMothers.toString(), color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)', icon: Users },
               { label: 'ANC4+ Rate', value: `${stats.anc4PlusRate}%`, color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)', icon: Activity },
-              { label: 'High Risk', value: stats.highRiskCount.toString(), color: '#E52E42', bg: 'rgba(229,46,66,0.12)', icon: AlertTriangle },
+              { label: 'High Risk', value: stats.highRiskCount.toString(), color: 'var(--color-danger)', bg: 'rgba(229,46,66,0.12)', icon: AlertTriangle },
               { label: 'This Month', value: stats.thisMonthVisits.toString(), color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)', icon: Calendar },
             ].map(stat => (
               <div key={stat.label} className="kpi">
@@ -283,7 +283,7 @@ export default function ANCPage() {
                           {(v.riskFactors?.length ?? 0) > 0 && (
                             <div className="flex flex-wrap gap-1 mt-2">
                               {(v.riskFactors || []).map(rf => (
-                                <span key={rf} className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(229,46,66,0.1)', color: '#E52E42' }}>
+                                <span key={rf} className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(229,46,66,0.1)', color: 'var(--color-danger)' }}>
                                   {rf.replace(/_/g, ' ')}
                                 </span>
                               ))}
@@ -489,9 +489,9 @@ export default function ANCPage() {
                         }}
                         className="text-xs px-2 py-1 rounded-full border transition-colors"
                         style={{
-                          borderColor: form.riskFactors.includes(rf) ? '#E52E42' : 'var(--border-light)',
+                          borderColor: form.riskFactors.includes(rf) ? 'var(--color-danger)' : 'var(--border-light)',
                           background: form.riskFactors.includes(rf) ? 'rgba(229,46,66,0.12)' : 'transparent',
-                          color: form.riskFactors.includes(rf) ? '#E52E42' : 'var(--text-muted)',
+                          color: form.riskFactors.includes(rf) ? 'var(--color-danger)' : 'var(--text-muted)',
                         }}
                       >
                         {rf.replace(/_/g, ' ')}

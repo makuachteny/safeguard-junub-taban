@@ -11,7 +11,7 @@ export default function FacilityAssessmentsPage() {
 
   if (loading) return <><TopBar title="Facility Assessments" /><main className="page-container flex items-center justify-center"><p className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading...</p></main></>;
 
-  const scoreColor = (score: number) => score >= 70 ? '#0077D7' : score >= 50 ? '#FCD34D' : '#E52E42';
+  const scoreColor = (score: number) => score >= 70 ? 'var(--accent-primary)' : score >= 50 ? 'var(--color-warning)' : 'var(--color-danger)';
   const scoreBg = (score: number) => score >= 70 ? 'rgba(43,111,224,0.12)' : score >= 50 ? 'rgba(252,211,77,0.12)' : 'rgba(229,46,66,0.12)';
 
   return (
@@ -111,7 +111,7 @@ export default function FacilityAssessmentsPage() {
                   <td className="text-xs" style={{ color: scoreColor(a.dataQualityScore) }}>{a.dataQualityScore}%</td>
                   <td>{a.hasDHIS2Reporting ? <span className="badge badge-normal text-[10px]">Yes</span> : <span className="badge badge-warning text-[10px]">No</span>}</td>
                   <td className="text-sm text-center">{a.hisStaffCount} ({a.hisStaffTrained})</td>
-                  <td>{a.hasCleanWater ? <Droplets className="w-3.5 h-3.5" style={{ color: 'var(--accent-primary)' }} /> : <span className="text-xs" style={{ color: '#E52E42' }}>No</span>}</td>
+                  <td>{a.hasCleanWater ? <Droplets className="w-3.5 h-3.5" style={{ color: 'var(--accent-primary)' }} /> : <span className="text-xs" style={{ color: 'var(--color-danger)' }}>No</span>}</td>
                   <td className="text-xs font-mono">
                     <div className="flex items-center gap-1">
                       {a.assessmentDate}
@@ -143,7 +143,7 @@ export default function FacilityAssessmentsPage() {
                             { label: 'DHIS2 Reporting', value: a.hasDHIS2Reporting },
                           ].map(item => (
                             <div key={item.label} className="flex items-center gap-2 text-xs">
-                              <span className="w-2 h-2 rounded-full" style={{ background: item.value ? '#0077D7' : '#E52E42' }} />
+                              <span className="w-2 h-2 rounded-full" style={{ background: item.value ? 'var(--accent-primary)' : 'var(--color-danger)' }} />
                               <span>{item.label}: {item.value ? 'Yes' : 'No'}</span>
                             </div>
                           ))}

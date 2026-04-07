@@ -15,7 +15,7 @@ const SYMPTOM_GROUPS = [
     id: 'fever',
     label: 'Fever / Hot',
     icon: Thermometer,
-    color: '#EF4444',
+    color: 'var(--color-danger)',
     bg: 'rgba(239,68,68,0.1)',
     keywords: 'fever headache chills sweating body ache',
     followUp: [
@@ -27,7 +27,7 @@ const SYMPTOM_GROUPS = [
     id: 'diarrhea',
     label: 'Diarrhea / Vomiting',
     icon: Droplets,
-    color: '#F59E0B',
+    color: 'var(--color-warning)',
     bg: 'rgba(245,158,11,0.1)',
     keywords: 'diarrhea vomiting watery stool dehydration loose stool',
     followUp: [
@@ -90,7 +90,7 @@ const SYMPTOM_GROUPS = [
     id: 'malnutrition',
     label: 'Not Eating / Thin',
     icon: Brain,
-    color: '#D97706',
+    color: 'var(--color-warning)',
     bg: 'rgba(217,119,6,0.1)',
     keywords: 'weight loss malnutrition wasting not eating poor appetite failure to thrive edema swelling',
     followUp: [
@@ -183,9 +183,9 @@ export default function SymptomChecker({
 
   const severityColor = (severity: string) => {
     switch (severity) {
-      case 'severe': return { color: '#EF4444', bg: 'rgba(239,68,68,0.1)' };
-      case 'moderate': return { color: '#F59E0B', bg: 'rgba(245,158,11,0.1)' };
-      default: return { color: '#10B981', bg: 'rgba(16,185,129,0.1)' };
+      case 'severe': return { color: 'var(--color-danger)', bg: 'rgba(239,68,68,0.1)' };
+      case 'moderate': return { color: 'var(--color-warning)', bg: 'rgba(245,158,11,0.1)' };
+      default: return { color: 'var(--color-success)', bg: 'rgba(16,185,129,0.1)' };
     }
   };
 
@@ -194,7 +194,7 @@ export default function SymptomChecker({
       {/* Header */}
       <div className="p-4 flex items-center justify-between" style={{ borderBottom: '1px solid var(--border-light)' }}>
         <div className="flex items-center gap-2">
-          <Stethoscope className="w-5 h-5" style={{ color: '#059669' }} />
+          <Stethoscope className="w-5 h-5" style={{ color: 'var(--color-success)' }} />
           <h3 className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
             AI Health Companion
           </h3>
@@ -260,7 +260,7 @@ export default function SymptomChecker({
             disabled={selectedSymptoms.length === 0 || evaluating}
             className="w-full py-3.5 rounded-xl font-bold text-sm text-white flex items-center justify-center gap-2 transition-all"
             style={{
-              background: selectedSymptoms.length > 0 ? '#059669' : 'var(--overlay-medium)',
+              background: selectedSymptoms.length > 0 ? 'var(--color-success)' : 'var(--overlay-medium)',
               opacity: selectedSymptoms.length === 0 ? 0.5 : 1,
               minHeight: '52px',
             }}
@@ -298,17 +298,17 @@ export default function SymptomChecker({
             <div className="flex items-center gap-2 mb-1">
               <AlertTriangle className="w-4 h-4" style={{
                 color: evaluation.severityAssessment.includes('HIGH')
-                  ? '#EF4444'
+                  ? 'var(--color-danger)'
                   : evaluation.severityAssessment.includes('MODERATE')
-                    ? '#F59E0B'
-                    : '#10B981',
+                    ? 'var(--color-warning)'
+                    : 'var(--color-success)',
               }} />
               <span className="text-xs font-bold" style={{
                 color: evaluation.severityAssessment.includes('HIGH')
-                  ? '#EF4444'
+                  ? 'var(--color-danger)'
                   : evaluation.severityAssessment.includes('MODERATE')
-                    ? '#F59E0B'
-                    : '#10B981',
+                    ? 'var(--color-warning)'
+                    : 'var(--color-success)',
               }}>
                 {evaluation.severityAssessment.split(' \u2014 ')[0]}
               </span>
@@ -333,7 +333,7 @@ export default function SymptomChecker({
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold px-1.5 py-0.5 rounded" style={{
-                        background: i === 0 ? '#059669' : 'var(--overlay-medium)',
+                        background: i === 0 ? 'var(--color-success)' : 'var(--overlay-medium)',
                         color: i === 0 ? 'white' : 'var(--text-muted)',
                       }}>
                         #{i + 1}
@@ -355,7 +355,7 @@ export default function SymptomChecker({
                     <div className="flex-1 h-1.5 rounded-full" style={{ background: 'var(--overlay-medium)' }}>
                       <div className="h-full rounded-full" style={{
                         width: `${dx.confidence}%`,
-                        background: dx.confidence >= 60 ? '#059669' : dx.confidence >= 40 ? '#F59E0B' : 'var(--text-muted)',
+                        background: dx.confidence >= 60 ? 'var(--color-success)' : dx.confidence >= 40 ? 'var(--color-warning)' : 'var(--text-muted)',
                       }} />
                     </div>
                     <span className="text-[10px] font-mono font-bold" style={{ color: 'var(--text-muted)' }}>
@@ -365,7 +365,7 @@ export default function SymptomChecker({
 
                   {/* Treatment */}
                   <div className="flex items-start gap-1.5 mt-2">
-                    <Pill className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: '#059669' }} />
+                    <Pill className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: 'var(--color-success)' }} />
                     <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                       {dx.suggestedTreatment}
                     </p>
@@ -402,7 +402,7 @@ export default function SymptomChecker({
               <div className="space-y-1.5">
                 {evaluation.vitalSignAlerts.map((alert, i) => (
                   <div key={i} className="flex items-start gap-1.5 text-xs p-2 rounded-lg"
-                    style={{ background: 'rgba(239,68,68,0.05)', color: '#EF4444' }}>
+                    style={{ background: 'rgba(239,68,68,0.05)', color: 'var(--color-danger)' }}>
                     <AlertTriangle className="w-3 h-3 mt-0.5 flex-shrink-0" />
                     <span>{alert}</span>
                   </div>
@@ -416,7 +416,7 @@ export default function SymptomChecker({
             background: 'rgba(5,150,105,0.05)',
             border: '1px solid rgba(5,150,105,0.15)',
           }}>
-            <p className="text-xs font-bold mb-1" style={{ color: '#059669' }}>
+            <p className="text-xs font-bold mb-1" style={{ color: 'var(--color-success)' }}>
               <ChevronRight className="w-3 h-3 inline" /> What should I do?
             </p>
             <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
@@ -457,7 +457,7 @@ export default function SymptomChecker({
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium"
-                        style={{ background: 'rgba(16,185,129,0.1)', color: '#10B981' }}
+                        style={{ background: 'rgba(16,185,129,0.1)', color: 'var(--color-success)' }}
                       >
                         Lancet
                       </a>

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import TopBar from '@/components/TopBar';
 import {
   Building2, BedDouble, Users, Stethoscope, WifiOff,
@@ -54,9 +55,9 @@ const STATUS_LABELS: Record<string, string> = {
 
 const STATUS_COLORS: Record<string, string> = {
   functional: 'var(--accent-primary)',
-  partially_functional: '#F59E0B',
-  non_functional: '#EF4444',
-  closed: '#94A3B8',
+  partially_functional: 'var(--color-warning)',
+  non_functional: 'var(--color-danger)',
+  closed: 'var(--text-muted)',
 };
 
 const METRIC_KEYS: PerformanceMetricKey[] = [
@@ -94,12 +95,22 @@ function normalizeMetricForColor(key: PerformanceMetricKey, value: number): numb
 }
 
 // ───────────────────────────── page ─────────────────────────────
-export default function HospitalsPage() {
+function HospitalsPageInner() {
   const { hospitals, loading } = useHospitals();
   const { globalSearch } = useApp();
+  const searchParams = useSearchParams();
   const [selectedHospital, setSelectedHospital] = useState<HospitalDoc | null>(null);
   const [search, setSearch] = useState('');
   const [filterState, setFilterState] = useState('all');
+
+  // Auto-select hospital from URL query param
+  useEffect(() => {
+    const facilityId = searchParams.get('facility');
+    if (facilityId && hospitals.length > 0 && !selectedHospital) {
+      const found = hospitals.find(h => h._id === facilityId);
+      if (found) setSelectedHospital(found);
+    }
+  }, [searchParams, hospitals, selectedHospital]);
   const [filterCounty, setFilterCounty] = useState('all');
   const [filterType, setFilterType] = useState('all');
   const [filterOwnership, setFilterOwnership] = useState('all');
@@ -245,7 +256,7 @@ export default function HospitalsPage() {
           <KpiCard label="Functional" value={`${kpis.pctFunctional}%`} icon={ShieldCheck} color={getPerformanceColor(kpis.pctFunctional)} />
           <KpiCard label="Reporting" value={`${kpis.avgReporting}%`} icon={Activity} color={getPerformanceColor(kpis.avgReporting)} />
           <KpiCard label="Readiness" value={`${kpis.avgReadiness}%`} icon={Stethoscope} color={getPerformanceColor(kpis.avgReadiness)} />
-          <KpiCard label="Gaps" value={kpis.coverageGaps} icon={Syringe} color={kpis.coverageGaps > 5 ? '#EF4444' : '#F59E0B'} />
+          <KpiCard label="Gaps" value={kpis.coverageGaps} icon={Syringe} color={kpis.coverageGaps > 5 ? 'var(--color-danger)' : 'var(--color-warning)'} />
           <KpiCard label="Staff/Bed" value={kpis.staffPerBed} icon={Users} color="var(--accent-primary)" />
         </div>
 
@@ -281,7 +292,7 @@ function FilterDropdown({ label, value, onChange, options }: {
         className="text-[11px] font-semibold cursor-pointer transition-colors"
         style={{
           background: isActive ? 'rgba(43,111,224,0.08)' : 'var(--bg-card)',
-          color: isActive ? '#0077D7' : 'var(--text-primary)',
+          color: isActive ? 'var(--accent-primary)' : 'var(--text-primary)',
           border: isActive ? '1px solid rgba(43,111,224,0.2)' : '1px solid var(--border-light)',
           borderRadius: 'var(--input-radius)',
           padding: '5px 28px 5px 10px',
@@ -402,11 +413,11 @@ function FacilityList({ hospitals, colorMetric, onSelect }: {
                 <td>
                   <span style={{
                     display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 500,
-                    color: h.syncStatus === 'online' ? '#10B981' : h.syncStatus === 'syncing' ? '#F59E0B' : 'var(--text-muted)',
+                    color: h.syncStatus === 'online' ? 'var(--color-success)' : h.syncStatus === 'syncing' ? 'var(--color-warning)' : 'var(--text-muted)',
                   }}>
                     <span style={{
                       width: 5, height: 5, borderRadius: '50%',
-                      background: h.syncStatus === 'online' ? '#10B981' : h.syncStatus === 'syncing' ? '#F59E0B' : '#94A3B8',
+                      background: h.syncStatus === 'online' ? 'var(--color-success)' : h.syncStatus === 'syncing' ? 'var(--color-warning)' : 'var(--text-muted)',
                     }} />
                     {h.syncStatus}
                   </span>
@@ -473,7 +484,7 @@ function FacilityProfile({ hospital, onClose }: {
       <div className="kpi-grid" style={{ marginBottom: 16 }}>
         <div className="kpi"><div className="kpi__icon" style={{ background: 'var(--accent-light)' }}><Users style={{ color: 'var(--accent-primary)' }} /></div><div className="kpi__body"><div className="kpi__value">{hospital.patientCount.toLocaleString()}</div><div className="kpi__label">Patients</div></div></div>
         <div className="kpi"><div className="kpi__icon" style={{ background: 'var(--accent-light)' }}><Activity style={{ color: 'var(--accent-primary)' }} /></div><div className="kpi__body"><div className="kpi__value">{hospital.todayVisits}</div><div className="kpi__label">Today</div></div></div>
-        <div className="kpi"><div className="kpi__icon" style={{ background: 'rgba(252,211,77,0.08)' }}><BedDouble style={{ color: '#FCD34D' }} /></div><div className="kpi__body"><div className="kpi__value">{hospital.totalBeds}</div><div className="kpi__label">Beds</div></div></div>
+        <div className="kpi"><div className="kpi__icon" style={{ background: 'rgba(252,211,77,0.08)' }}><BedDouble style={{ color: 'var(--color-warning)' }} /></div><div className="kpi__body"><div className="kpi__value">{hospital.totalBeds}</div><div className="kpi__label">Beds</div></div></div>
         <div className="kpi"><div className="kpi__icon" style={{ background: 'rgba(168,85,247,0.08)' }}><Stethoscope style={{ color: '#A78BFA' }} /></div><div className="kpi__body"><div className="kpi__value">{totalStaff}</div><div className="kpi__label">Staff</div></div></div>
       </div>
 
@@ -518,7 +529,7 @@ function FacilityProfile({ hospital, onClose }: {
             </ResponsiveContainer>
             <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
               <span style={{ fontSize: 10, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 2, borderRadius: 1, background: 'var(--accent-primary)' }} />OPD</span>
-              <span style={{ fontSize: 10, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 2, borderRadius: 1, background: '#10B981' }} />Reporting</span>
+              <span style={{ fontSize: 10, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 2, borderRadius: 1, background: 'var(--color-success)' }} />Reporting</span>
             </div>
           </div>
         )}
@@ -528,10 +539,10 @@ function FacilityProfile({ hospital, onClose }: {
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', marginBottom: 8 }}>Beds ({hospital.totalBeds})</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {[
-              { label: 'ICU', value: hospital.icuBeds, color: '#EF4444' },
+              { label: 'ICU', value: hospital.icuBeds, color: 'var(--color-danger)' },
               { label: 'Maternity', value: hospital.maternityBeds, color: '#EC4899' },
               { label: 'Pediatric', value: hospital.pediatricBeds, color: '#60A5FA' },
-              { label: 'General', value: Math.max(0, hospital.totalBeds - hospital.icuBeds - hospital.maternityBeds - hospital.pediatricBeds), color: '#94A3B8' },
+              { label: 'General', value: Math.max(0, hospital.totalBeds - hospital.icuBeds - hospital.maternityBeds - hospital.pediatricBeds), color: 'var(--text-muted)' },
             ].map(b => (
               <div key={b.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12 }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: 'var(--text-secondary)' }}>
@@ -554,8 +565,8 @@ function FacilityProfile({ hospital, onClose }: {
               { label: 'Doctors', value: hospital.doctors, color: 'var(--accent-primary)' },
               { label: 'Clinical Officers', value: hospital.clinicalOfficers, color: '#A78BFA' },
               { label: 'Nurses', value: hospital.nurses, color: '#EC4899' },
-              { label: 'Lab Tech', value: hospital.labTechnicians, color: '#FCD34D' },
-              { label: 'Pharmacists', value: hospital.pharmacists, color: '#10B981' },
+              { label: 'Lab Tech', value: hospital.labTechnicians, color: 'var(--color-warning)' },
+              { label: 'Pharmacists', value: hospital.pharmacists, color: 'var(--color-success)' },
             ].map(s => (
               <div key={s.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12 }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: 'var(--text-secondary)' }}>
@@ -584,7 +595,7 @@ function FacilityProfile({ hospital, onClose }: {
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}>
               <span style={{ fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>Power</span>
               <div style={{ flex: 1, height: 4, borderRadius: 2, background: 'var(--overlay-subtle)', overflow: 'hidden' }}>
-                <div style={{ width: `${(hospital.electricityHours / 24) * 100}%`, height: '100%', borderRadius: 2, background: hospital.electricityHours >= 12 ? '#10B981' : hospital.electricityHours >= 6 ? '#FCD34D' : '#EF4444' }} />
+                <div style={{ width: `${(hospital.electricityHours / 24) * 100}%`, height: '100%', borderRadius: 2, background: hospital.electricityHours >= 12 ? 'var(--color-success)' : hospital.electricityHours >= 6 ? 'var(--color-warning)' : 'var(--color-danger)' }} />
               </div>
               <span className="stat-value" style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)' }}>{hospital.electricityHours}h</span>
             </div>
@@ -600,7 +611,7 @@ function FacilityProfile({ hospital, onClose }: {
             {Object.entries(SERVICE_FLAG_ICONS).map(([key, { icon: FlagIcon, label }]) => {
               const available = (hospital.serviceFlags as Record<string, boolean>)?.[key];
               return (
-                <span key={key} className="badge" style={{ fontSize: 10, display: 'flex', alignItems: 'center', gap: 4, background: available ? 'rgba(0,119,215,0.08)' : 'rgba(100,116,139,0.06)', color: available ? '#0077D7' : '#94A3B8', opacity: available ? 1 : 0.5 }}>
+                <span key={key} className="badge" style={{ fontSize: 10, display: 'flex', alignItems: 'center', gap: 4, background: available ? 'rgba(0,119,215,0.08)' : 'rgba(100,116,139,0.06)', color: available ? 'var(--accent-primary)' : 'var(--text-muted)', opacity: available ? 1 : 0.5 }}>
                   <FlagIcon style={{ width: 11, height: 11 }} /> {label}
                 </span>
               );
@@ -612,7 +623,7 @@ function FacilityProfile({ hospital, onClose }: {
       {/* Footer: sync + GPS */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 10, color: 'var(--text-muted)', padding: '8px 0', borderTop: '1px solid var(--border-light)' }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <span style={{ width: 5, height: 5, borderRadius: '50%', background: hospital.syncStatus === 'online' ? '#10B981' : hospital.syncStatus === 'syncing' ? '#FCD34D' : '#94A3B8' }} />
+          <span style={{ width: 5, height: 5, borderRadius: '50%', background: hospital.syncStatus === 'online' ? 'var(--color-success)' : hospital.syncStatus === 'syncing' ? 'var(--color-warning)' : 'var(--text-muted)' }} />
           {hospital.syncStatus} &middot; <Clock style={{ width: 10, height: 10 }} /> {formatLastSync(hospital.lastSync)}
         </span>
         <span className="font-mono">{(hospital.lat ?? 0).toFixed(4)}°N, {(hospital.lng ?? 0).toFixed(4)}°E{hospital.county && ` | ${hospital.county}`}</span>
@@ -631,5 +642,13 @@ function InfraBadge({ icon: Icon, label, color, bg }: { icon: React.ElementType;
       <Icon className="w-2.5 h-2.5" />
       {label}
     </span>
+  );
+}
+
+export default function HospitalsPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: 24, color: 'var(--text-muted)', fontSize: 13 }}>Loading...</div>}>
+      <HospitalsPageInner />
+    </Suspense>
   );
 }

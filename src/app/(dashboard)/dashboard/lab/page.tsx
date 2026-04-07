@@ -68,22 +68,22 @@ function flagResult(testName: string, value: string): { flag: 'NORMAL' | 'ABNORM
 }
 
 const FLAG_COLORS = {
-  NORMAL: { bg: 'rgba(74,222,128,0.12)', color: '#4ADE80', border: 'rgba(74,222,128,0.25)' },
-  ABNORMAL: { bg: 'rgba(251,191,36,0.12)', color: '#FBBF24', border: 'rgba(251,191,36,0.25)' },
-  CRITICAL: { bg: 'rgba(239,68,68,0.12)', color: '#EF4444', border: 'rgba(239,68,68,0.25)' },
+  NORMAL: { bg: 'rgba(74,222,128,0.12)', color: 'var(--color-success)', border: 'rgba(74,222,128,0.25)' },
+  ABNORMAL: { bg: 'rgba(251,191,36,0.12)', color: 'var(--color-warning)', border: 'rgba(251,191,36,0.25)' },
+  CRITICAL: { bg: 'rgba(239,68,68,0.12)', color: 'var(--color-danger)', border: 'rgba(239,68,68,0.25)' },
 };
 
 // ===== Existing Constants =====
 const LAB_EVENT_TYPES = [
   { label: 'Specimen Received', color: '#06B6D4', icon: Droplets },
   { label: 'Centrifuge Started', color: '#A855F7', icon: Loader2 },
-  { label: 'Malaria RDT Completed', color: '#4ADE80', icon: Microscope },
+  { label: 'Malaria RDT Completed', color: 'var(--color-success)', icon: Microscope },
   { label: 'Critical Hemoglobin Flagged', color: '#F87171', icon: AlertTriangle },
   { label: 'CBC Analysis Running', color: '#60A5FA', icon: Activity },
-  { label: 'Urinalysis Complete', color: '#FBBF24', icon: Beaker },
+  { label: 'Urinalysis Complete', color: 'var(--color-warning)', icon: Beaker },
   { label: 'Blood Culture Incubated', color: '#EC4899', icon: Thermometer },
   { label: 'Result Validated', color: 'var(--accent-primary)', icon: CheckCircle2 },
-  { label: 'Specimen Rejected - Hemolyzed', color: '#EF4444', icon: AlertTriangle },
+  { label: 'Specimen Rejected - Hemolyzed', color: 'var(--color-danger)', icon: AlertTriangle },
   { label: 'Glucose Result Ready', color: '#38BDF8', icon: FlaskConical },
 ];
 
@@ -396,9 +396,9 @@ export default function LabDashboardPage() {
   };
 
   const getTATColor = (hrs: number) => {
-    if (hrs < 2) return '#4ADE80';
-    if (hrs < 4) return '#FBBF24';
-    return '#EF4444';
+    if (hrs < 2) return 'var(--color-success)';
+    if (hrs < 4) return 'var(--color-warning)';
+    return 'var(--color-danger)';
   };
 
   const getTATLabel = (hrs: number) => {
@@ -421,18 +421,18 @@ export default function LabDashboardPage() {
   const unackAlerts = criticalAlerts.filter(a => !a.acknowledged);
 
   const kpiStrip = [
-    { label: 'Pending Orders', value: kpis.pending, icon: Clock, color: '#FBBF24' },
+    { label: 'Pending Orders', value: kpis.pending, icon: Clock, color: 'var(--color-warning)' },
     { label: 'In Progress', value: kpis.inProgress, icon: Loader2, color: '#A855F7' },
-    { label: 'Completed Today', value: kpis.completedToday, icon: CheckCircle2, color: '#4ADE80' },
-    { label: 'Critical Results', value: kpis.critical, icon: AlertTriangle, color: '#EF4444' },
-    { label: 'Unack Critical', value: kpis.unacknowledgedCritical, icon: Bell, color: '#EF4444' },
+    { label: 'Completed Today', value: kpis.completedToday, icon: CheckCircle2, color: 'var(--color-success)' },
+    { label: 'Critical Results', value: kpis.critical, icon: AlertTriangle, color: 'var(--color-danger)' },
+    { label: 'Unack Critical', value: kpis.unacknowledgedCritical, icon: Bell, color: 'var(--color-danger)' },
     { label: 'Abnormal', value: kpis.abnormal, icon: AlertTriangle, color: '#FB923C' },
     { label: 'Avg Turnaround', value: `${kpis.avgTurnaround}h`, icon: Zap, color: '#38BDF8' },
     { label: 'Total Tests', value: kpis.total, icon: TestTubes, color: ACCENT },
   ];
 
   const quickActions = [
-    { label: 'Accept Order', icon: FileText, color: '#4ADE80', onClick: () => {} },
+    { label: 'Accept Order', icon: FileText, color: 'var(--color-success)', onClick: () => {} },
     { label: 'Enter Result', icon: Microscope, color: ACCENT, onClick: () => setShowResultModal(true) },
     { label: 'Batch Entry', icon: Table, color: '#A855F7', onClick: () => { setEntryMode('batch'); setShowResultModal(true); } },
     { label: 'Message', icon: MessageSquare, color: '#60A5FA', onClick: () => {} },
@@ -453,14 +453,14 @@ export default function LabDashboardPage() {
                 boxShadow: '0 0 12px rgba(239,68,68,0.15)',
               }}>
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(239,68,68,0.15)' }}>
-                  <AlertTriangle className="w-4 h-4" style={{ color: '#EF4444' }} />
+                  <AlertTriangle className="w-4 h-4" style={{ color: 'var(--color-danger)' }} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded" style={{ background: 'rgba(239,68,68,0.15)', color: '#EF4444' }}>CRITICAL RESULT</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded" style={{ background: 'rgba(239,68,68,0.15)', color: 'var(--color-danger)' }}>CRITICAL RESULT</span>
                   </div>
                   <p className="text-[12px] font-semibold" style={{ color: 'var(--text-primary)' }}>
-                    {alert.patientName} &mdash; {alert.testName}: <span style={{ color: '#EF4444' }}>{alert.value} {alert.unit}</span>
+                    {alert.patientName} &mdash; {alert.testName}: <span style={{ color: 'var(--color-danger)' }}>{alert.value} {alert.unit}</span>
                   </p>
                   <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
                     Ordered by {alert.orderedBy} &middot; {new Date(alert.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
@@ -469,7 +469,7 @@ export default function LabDashboardPage() {
                 <button
                   onClick={() => handleAcknowledgeAlert(alert.id)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-semibold transition-all flex-shrink-0"
-                  style={{ background: 'rgba(239,68,68,0.15)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.3)' }}
+                  style={{ background: 'rgba(239,68,68,0.15)', color: 'var(--color-danger)', border: '1px solid rgba(239,68,68,0.3)' }}
                 >
                   <BellOff className="w-3 h-3" />
                   Acknowledge
@@ -564,7 +564,7 @@ export default function LabDashboardPage() {
                   }}>
                     {order.status === 'in_progress'
                       ? <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#A855F7' }} />
-                      : <Clock className="w-4 h-4" style={{ color: '#FBBF24' }} />
+                      : <Clock className="w-4 h-4" style={{ color: 'var(--color-warning)' }} />
                     }
                   </div>
                   <div className="flex-1 min-w-0">
@@ -574,11 +574,11 @@ export default function LabDashboardPage() {
                   <div className="text-right flex-shrink-0">
                     <span className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{
                       background: order.status === 'in_progress' ? 'rgba(168,85,247,0.12)' : 'rgba(251,191,36,0.12)',
-                      color: order.status === 'in_progress' ? '#A855F7' : '#FBBF24',
+                      color: order.status === 'in_progress' ? '#A855F7' : 'var(--color-warning)',
                     }}>{order.status === 'in_progress' ? 'PROCESSING' : 'PENDING'}</span>
                     {order.critical && (
                       <div className="mt-1">
-                        <span className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(239,68,68,0.12)', color: '#EF4444' }}>CRITICAL</span>
+                        <span className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(239,68,68,0.12)', color: 'var(--color-danger)' }}>CRITICAL</span>
                       </div>
                     )}
                   </div>
@@ -638,7 +638,7 @@ export default function LabDashboardPage() {
             }}>
               <div className="px-3 py-2 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-light)' }}>
                 <div className="flex items-center gap-2">
-                  <Radio className="w-4 h-4" style={{ color: '#4ADE80' }} />
+                  <Radio className="w-4 h-4" style={{ color: 'var(--color-success)' }} />
                   <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Live Feed</span>
                 </div>
                 <span className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>{eventCounter} events</span>
@@ -700,7 +700,7 @@ export default function LabDashboardPage() {
         }}>
           <div className="flex items-center justify-between px-3 py-2 border-b" style={{ borderColor: 'var(--border-light)' }}>
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4" style={{ color: '#4ADE80' }} />
+              <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--color-success)' }} />
               <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Recent Completed Results</span>
             </div>
             <span className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>{recentCompleted.length} results</span>
@@ -715,17 +715,17 @@ export default function LabDashboardPage() {
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="text-[11px] font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{r.testName}</span>
                     {r.critical ? (
-                      <span className="text-[8px] font-bold px-1.5 py-0.5 rounded flex-shrink-0" style={{ background: 'rgba(239,68,68,0.12)', color: '#EF4444' }}>CRITICAL</span>
+                      <span className="text-[8px] font-bold px-1.5 py-0.5 rounded flex-shrink-0" style={{ background: 'rgba(239,68,68,0.12)', color: 'var(--color-danger)' }}>CRITICAL</span>
                     ) : r.abnormal ? (
                       <span className="text-[8px] font-bold px-1.5 py-0.5 rounded flex-shrink-0" style={{ background: 'rgba(251,146,60,0.12)', color: '#FB923C' }}>ABNORMAL</span>
                     ) : (
-                      <span className="text-[8px] font-bold px-1.5 py-0.5 rounded flex-shrink-0" style={{ background: 'rgba(74,222,128,0.12)', color: '#4ADE80' }}>NORMAL</span>
+                      <span className="text-[8px] font-bold px-1.5 py-0.5 rounded flex-shrink-0" style={{ background: 'rgba(74,222,128,0.12)', color: 'var(--color-success)' }}>NORMAL</span>
                     )}
                   </div>
                   <p className="text-[10px] mb-1" style={{ color: 'var(--text-muted)' }}>{r.patientName}</p>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-bold stat-value" style={{
-                      color: r.critical ? '#EF4444' : r.abnormal ? '#FB923C' : ACCENT,
+                      color: r.critical ? 'var(--color-danger)' : r.abnormal ? '#FB923C' : ACCENT,
                     }}>{r.result} {r.unit}</span>
                     <span className="text-[9px]" style={{ color: 'var(--text-muted)' }}>{r.referenceRange}</span>
                   </div>
@@ -752,15 +752,15 @@ export default function LabDashboardPage() {
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full" style={{ background: '#4ADE80' }} />
+                <div className="w-2 h-2 rounded-full" style={{ background: 'var(--color-success)' }} />
                 <span className="text-[9px]" style={{ color: 'var(--text-muted)' }}>&lt;2h</span>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full" style={{ background: '#FBBF24' }} />
+                <div className="w-2 h-2 rounded-full" style={{ background: 'var(--color-warning)' }} />
                 <span className="text-[9px]" style={{ color: 'var(--text-muted)' }}>2-4h</span>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full" style={{ background: '#EF4444' }} />
+                <div className="w-2 h-2 rounded-full" style={{ background: 'var(--color-danger)' }} />
                 <span className="text-[9px]" style={{ color: 'var(--text-muted)' }}>&gt;4h</span>
               </div>
             </div>
@@ -966,12 +966,12 @@ export default function LabDashboardPage() {
                             </p>
                           )}
                           {currentRefRange.criticalLow !== undefined && (
-                            <p className="text-[10px] mt-0.5" style={{ color: '#EF4444' }}>
+                            <p className="text-[10px] mt-0.5" style={{ color: 'var(--color-danger)' }}>
                               Critical: {currentRefRange.criticalLow !== undefined ? `<${currentRefRange.criticalLow}` : ''}{currentRefRange.criticalLow !== undefined && currentRefRange.criticalHigh !== undefined ? ' or ' : ''}{currentRefRange.criticalHigh !== undefined ? `>${currentRefRange.criticalHigh}` : ''}
                             </p>
                           )}
                           {currentRefRange.criticalLow === undefined && currentRefRange.criticalHigh !== undefined && (
-                            <p className="text-[10px] mt-0.5" style={{ color: '#EF4444' }}>
+                            <p className="text-[10px] mt-0.5" style={{ color: 'var(--color-danger)' }}>
                               Critical: &gt;{currentRefRange.criticalHigh}
                             </p>
                           )}

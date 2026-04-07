@@ -73,9 +73,9 @@ export default function ClinicalScribe({ onApply, onClose }: ClinicalScribeProps
             background: isRecording ? 'rgba(229,46,66,0.15)' : 'rgba(43,111,224,0.12)',
           }}>
             {isRecording ? (
-              <Mic className="w-4 h-4 animate-pulse" style={{ color: '#EF4444' }} />
+              <Mic className="w-4 h-4 animate-pulse" style={{ color: 'var(--color-danger)' }} />
             ) : (
-              <Sparkles className="w-4 h-4" style={{ color: '#2B6FE0' }} />
+              <Sparkles className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
             )}
           </div>
           <div>
@@ -91,9 +91,9 @@ export default function ClinicalScribe({ onApply, onClose }: ClinicalScribeProps
           {(isRecording || isPaused) && (
             <span className="text-xs font-mono font-bold px-2 py-1 rounded" style={{
               background: isRecording ? 'rgba(229,46,66,0.12)' : 'var(--overlay-subtle)',
-              color: isRecording ? '#EF4444' : 'var(--text-secondary)',
+              color: isRecording ? 'var(--color-danger)' : 'var(--text-secondary)',
             }}>
-              {isRecording && <span className="inline-block w-1.5 h-1.5 rounded-full mr-1.5 animate-pulse" style={{ background: '#EF4444' }} />}
+              {isRecording && <span className="inline-block w-1.5 h-1.5 rounded-full mr-1.5 animate-pulse" style={{ background: 'var(--color-danger)' }} />}
               {formatDuration(scribe.duration)}
             </span>
           )}
@@ -149,9 +149,9 @@ export default function ClinicalScribe({ onApply, onClose }: ClinicalScribeProps
         {scribe.status === 'processing' && (
           <div className="flex items-center gap-2 flex-1 justify-center py-1">
             <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="31.4 31.4" strokeLinecap="round" style={{ color: '#2B6FE0' }} />
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="31.4 31.4" strokeLinecap="round" style={{ color: 'var(--accent-primary)' }} />
             </svg>
-            <span className="text-xs font-medium" style={{ color: '#2B6FE0' }}>Extracting clinical data...</span>
+            <span className="text-xs font-medium" style={{ color: 'var(--accent-primary)' }}>Extracting clinical data...</span>
           </div>
         )}
 
@@ -203,8 +203,8 @@ export default function ClinicalScribe({ onApply, onClose }: ClinicalScribeProps
         <div className="mx-4 mt-3 p-2.5 rounded-lg flex items-start gap-2" style={{
           background: 'rgba(229,46,66,0.08)', border: '1px solid rgba(229,46,66,0.2)',
         }}>
-          <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: '#EF4444' }} />
-          <p className="text-xs" style={{ color: '#EF4444' }}>{scribe.error}</p>
+          <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: 'var(--color-danger)' }} />
+          <p className="text-xs" style={{ color: 'var(--color-danger)' }}>{scribe.error}</p>
         </div>
       )}
 
@@ -216,7 +216,7 @@ export default function ClinicalScribe({ onApply, onClose }: ClinicalScribeProps
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`flex-1 py-2.5 text-xs font-semibold uppercase tracking-wider transition-colors relative ${activeTab === tab ? 'tab-active' : ''}`}
-              style={{ color: activeTab === tab ? '#2B6FE0' : 'var(--text-muted)' }}
+              style={{ color: activeTab === tab ? 'var(--accent-primary)' : 'var(--text-muted)' }}
             >
               {tab === 'transcript' ? 'Transcript' : tab === 'fields' ? 'Extracted Fields' : 'SOAP Note'}
             </button>
@@ -328,14 +328,14 @@ export default function ClinicalScribe({ onApply, onClose }: ClinicalScribeProps
                 {scribe.extraction.diagnoses.map((dx, i) => (
                   <div key={i} className="flex items-center gap-2 p-2 rounded-lg" style={{ background: 'var(--overlay-subtle)', border: '1px solid var(--border-light)' }}>
                     {dx.icd10Hint && (
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded" style={{ background: 'rgba(245,158,11,0.12)', color: '#F59E0B' }}>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded" style={{ background: 'rgba(245,158,11,0.12)', color: 'var(--color-warning)' }}>
                         {dx.icd10Hint}
                       </span>
                     )}
                     <span className="text-xs font-medium flex-1" style={{ color: 'var(--text-primary)' }}>{dx.name}</span>
                     <span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{
                       background: dx.certainty === 'confirmed' ? 'rgba(43,111,224,0.12)' : 'rgba(252,211,77,0.12)',
-                      color: dx.certainty === 'confirmed' ? '#2B6FE0' : '#FBBF24',
+                      color: dx.certainty === 'confirmed' ? 'var(--accent-primary)' : 'var(--color-warning)',
                     }}>{dx.certainty}</span>
                   </div>
                 ))}
@@ -406,7 +406,7 @@ export default function ClinicalScribe({ onApply, onClose }: ClinicalScribeProps
               <ul className="space-y-1">
                 {scribe.extraction.treatmentPlan.map((p, i) => (
                   <li key={i} className="text-xs flex gap-1.5" style={{ color: 'var(--text-primary)' }}>
-                    <span style={{ color: '#2B6FE0' }}>•</span> {p}
+                    <span style={{ color: 'var(--accent-primary)' }}>•</span> {p}
                   </li>
                 ))}
               </ul>
@@ -427,8 +427,8 @@ export default function ClinicalScribe({ onApply, onClose }: ClinicalScribeProps
             {scribe.extraction.conflicts.length > 0 && (
               <div className="p-3 rounded-lg" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' }}>
                 <div className="flex items-center gap-2 mb-2">
-                  <AlertTriangle className="w-3.5 h-3.5" style={{ color: '#F59E0B' }} />
-                  <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#F59E0B' }}>Conflicts — Doctor Verify</span>
+                  <AlertTriangle className="w-3.5 h-3.5" style={{ color: 'var(--color-warning)' }} />
+                  <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-warning)' }}>Conflicts — Doctor Verify</span>
                 </div>
                 {scribe.extraction.conflicts.map((c, i) => (
                   <p key={i} className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>
@@ -488,8 +488,8 @@ export default function ClinicalScribe({ onApply, onClose }: ClinicalScribeProps
       {isDone && scribe.extraction && (
         <div className="px-4 py-3 border-t" style={{ borderColor: 'var(--border-light)', background: 'var(--overlay-subtle)' }}>
           <div className="flex items-center gap-2 mb-2">
-            <CheckCircle2 className="w-3.5 h-3.5" style={{ color: '#2B6FE0' }} />
-            <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#2B6FE0' }}>
+            <CheckCircle2 className="w-3.5 h-3.5" style={{ color: 'var(--accent-primary)' }} />
+            <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--accent-primary)' }}>
               {countExtracted(scribe.extraction)} fields auto-populated
             </span>
           </div>

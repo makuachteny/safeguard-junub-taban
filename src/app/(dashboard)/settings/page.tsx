@@ -290,12 +290,12 @@ export default function SettingsPage() {
               onClick={() => { setActiveTab(tab.key); setSearch(''); }}
               className="flex items-center gap-2 px-5 py-3 font-medium text-sm transition-colors"
               style={{
-                color: activeTab === tab.key ? '#0077D7' : 'var(--text-muted)',
+                color: activeTab === tab.key ? 'var(--accent-primary)' : 'var(--text-muted)',
                 borderBottom: activeTab === tab.key ? '2px solid #0077D7' : '2px solid transparent',
                 marginBottom: '-1px',
                 background: 'transparent', border: 'none', borderBottomStyle: 'solid',
                 borderBottomWidth: '2px',
-                borderBottomColor: activeTab === tab.key ? '#0077D7' : 'transparent',
+                borderBottomColor: activeTab === tab.key ? 'var(--accent-primary)' : 'transparent',
                 cursor: 'pointer',
               }}
             >
@@ -363,7 +363,7 @@ export default function SettingsPage() {
                         <td className="px-4 py-3">
                           <span className="text-xs font-semibold px-2 py-1 rounded-full" style={{
                             background: u.role === 'government' ? 'rgba(0,119,215,0.12)' : 'rgba(0,119,215,0.12)',
-                            color: u.role === 'government' ? '#0077D7' : 'var(--accent-primary)',
+                            color: u.role === 'government' ? 'var(--accent-primary)' : 'var(--accent-primary)',
                           }}>{roleLabel(u.role)}</span>
                         </td>
                         <td className="px-4 py-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
@@ -371,8 +371,8 @@ export default function SettingsPage() {
                         </td>
                         <td className="px-4 py-3">
                           <span className="flex items-center gap-1.5 text-xs font-semibold">
-                            <span className="w-2 h-2 rounded-full" style={{ background: u.isActive ? '#0077D7' : '#94A3B8' }} />
-                            <span style={{ color: u.isActive ? '#0077D7' : '#94A3B8' }}>{u.isActive ? 'Active' : 'Inactive'}</span>
+                            <span className="w-2 h-2 rounded-full" style={{ background: u.isActive ? 'var(--accent-primary)' : 'var(--text-muted)' }} />
+                            <span style={{ color: u.isActive ? 'var(--accent-primary)' : 'var(--text-muted)' }}>{u.isActive ? 'Active' : 'Inactive'}</span>
                           </span>
                         </td>
                         <td className="px-4 py-3 text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -390,7 +390,7 @@ export default function SettingsPage() {
                             </button>
                             <button onClick={() => handleToggleActive(u._id, u.isActive)} title={u.isActive ? 'Deactivate' : 'Activate'}
                               className="p-1.5 rounded-lg transition-colors" style={{
-                                color: u.isActive ? '#E52E42' : 'var(--accent-primary)',
+                                color: u.isActive ? 'var(--color-danger)' : 'var(--accent-primary)',
                               }}>
                               {u.isActive ? <UserX className="w-3.5 h-3.5" /> : <UserCheck className="w-3.5 h-3.5" />}
                             </button>
@@ -455,7 +455,7 @@ export default function SettingsPage() {
                         <td className="px-4 py-3">
                           <span className="text-xs font-semibold px-2 py-1 rounded-full" style={{
                             background: h.facilityType === 'national_referral' ? 'rgba(0,119,215,0.12)' : h.facilityType === 'state_hospital' ? 'rgba(0,119,215,0.12)' : 'rgba(0,119,215,0.12)',
-                            color: h.facilityType === 'national_referral' ? '#0077D7' : h.facilityType === 'state_hospital' ? '#0077D7' : 'var(--accent-primary)',
+                            color: h.facilityType === 'national_referral' ? 'var(--accent-primary)' : h.facilityType === 'state_hospital' ? 'var(--accent-primary)' : 'var(--accent-primary)',
                           }}>
                             {FACILITY_TYPES.find(f => f.value === h.facilityType)?.label || h.facilityType}
                           </span>
@@ -467,10 +467,10 @@ export default function SettingsPage() {
                         <td className="px-4 py-3">
                           <span className="flex items-center gap-1.5 text-xs font-semibold">
                             <span className="w-2 h-2 rounded-full" style={{
-                              background: h.syncStatus === 'online' ? '#0077D7' : h.syncStatus === 'syncing' ? '#FCD34D' : '#94A3B8',
+                              background: h.syncStatus === 'online' ? 'var(--accent-primary)' : h.syncStatus === 'syncing' ? 'var(--color-warning)' : 'var(--text-muted)',
                             }} />
                             <span style={{
-                              color: h.syncStatus === 'online' ? '#0077D7' : h.syncStatus === 'syncing' ? '#FCD34D' : '#94A3B8',
+                              color: h.syncStatus === 'online' ? 'var(--accent-primary)' : h.syncStatus === 'syncing' ? 'var(--color-warning)' : 'var(--text-muted)',
                             }}>{h.syncStatus === 'online' ? 'Online' : h.syncStatus === 'syncing' ? 'Syncing' : 'Offline'}</span>
                           </span>
                         </td>
@@ -764,7 +764,7 @@ export default function SettingsPage() {
                       className="px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer"
                       style={{
                         background: hospitalForm.services.includes(svc) ? 'rgba(0,119,215,0.15)' : 'var(--input-bg)',
-                        color: hospitalForm.services.includes(svc) ? '#0077D7' : 'var(--text-muted)',
+                        color: hospitalForm.services.includes(svc) ? 'var(--accent-primary)' : 'var(--text-muted)',
                         border: `1px solid ${hospitalForm.services.includes(svc) ? 'rgba(0,119,215,0.3)' : 'var(--border-light)'}`,
                       }}>
                       {hospitalForm.services.includes(svc) && <Check className="w-3 h-3 inline mr-1" />}

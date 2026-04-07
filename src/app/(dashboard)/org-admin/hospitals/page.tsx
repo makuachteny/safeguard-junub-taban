@@ -133,7 +133,7 @@ export default function OrgHospitalsPage() {
 
   const facilityColor = (ft: string) => {
     const map: Record<string, string> = {
-      national_referral: '#DC2626',
+      national_referral: 'var(--color-danger)',
       state_hospital: '#7C3AED',
       county_hospital: 'var(--accent-primary)',
       phcc: 'var(--accent-primary)',
@@ -165,7 +165,7 @@ export default function OrgHospitalsPage() {
           </div>
         )}
         {error && !showCreateModal && (
-          <div className="mb-4 p-3 rounded-lg text-sm font-medium" style={{ background: 'rgba(229,46,66,0.1)', color: '#E52E42', border: '1px solid rgba(229,46,66,0.2)' }}>
+          <div className="mb-4 p-3 rounded-lg text-sm font-medium" style={{ background: 'rgba(229,46,66,0.1)', color: 'var(--color-danger)', border: '1px solid rgba(229,46,66,0.2)' }}>
             {error}
           </div>
         )}
@@ -287,7 +287,7 @@ export default function OrgHospitalsPage() {
             </div>
 
             {error && (
-              <div className="mb-4 p-3 rounded-lg text-sm flex items-center gap-2" style={{ background: 'rgba(229,46,66,0.1)', color: '#E52E42', border: '1px solid rgba(229,46,66,0.2)' }}>
+              <div className="mb-4 p-3 rounded-lg text-sm flex items-center gap-2" style={{ background: 'rgba(229,46,66,0.1)', color: 'var(--color-danger)', border: '1px solid rgba(229,46,66,0.2)' }}>
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {error}
               </div>

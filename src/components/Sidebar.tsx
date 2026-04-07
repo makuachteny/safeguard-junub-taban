@@ -38,7 +38,6 @@ export default function Sidebar() {
   const branding = currentUser?.branding;
   const brandName = role === 'super_admin' ? 'TABAN' : (branding?.name || 'TABAN');
   const brandLogo = branding?.logoUrl;
-  const subtitle = roleConfig?.label || 'Digital Health Records';
 
   const handleNavClick = () => {
     setSidebarOpen(false);
@@ -130,11 +129,11 @@ export default function Sidebar() {
           )}
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <h1 className="font-extrabold text-[15px] leading-tight tracking-wide" style={{ color: 'var(--text-primary)' }}>
-                {brandName.length > 12 ? brandName.slice(0, 12) : brandName}
+              <h1 className="font-extrabold text-[15px] leading-tight tracking-wide truncate" style={{ color: 'var(--text-primary)' }}>
+                {brandName}
               </h1>
               <p className="text-[9px] uppercase tracking-[0.18em] font-semibold" style={{ color: 'var(--accent-primary)' }}>
-                {subtitle}
+                Digital Health Records
               </p>
             </div>
           )}
@@ -151,48 +150,34 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Role & facility badge */}
+      {/* User role & facility */}
       {currentUser && !collapsed && (
-        <div className="mx-4 mb-3 p-3 rounded-2xl" style={{
+        <div className="mx-4 mb-3 p-3 rounded-xl" style={{
           background: 'var(--overlay-subtle)',
           border: '1px solid var(--border-medium)',
         }}>
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0" style={{
-              background: 'var(--accent-light)',
-            }}>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent-light)' }}>
               {isAdminLevel
                 ? <Globe className="w-3.5 h-3.5" style={{ color: 'var(--accent-primary)' }} />
                 : <Building2 className="w-3.5 h-3.5" style={{ color: 'var(--accent-primary)' }} />
               }
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                  {isAdminLevel ? roleConfig?.label : 'Current Facility'}
-                </p>
-                <span className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{
-                  background: `${roleConfig?.color || 'var(--accent-primary)'}15`,
-                  color: roleConfig?.color || 'var(--accent-primary)',
-                }}>{roleConfig?.badgeLabel}</span>
-              </div>
               <p className="text-[12px] font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
+                {role === 'super_admin' ? 'Platform Administrator'
+                  : role === 'government' ? 'Government Admin'
+                  : role === 'org_admin' ? 'Organization Admin'
+                  : roleConfig?.label || 'Staff'}
+              </p>
+              <p className="text-[10px] truncate" style={{ color: 'var(--text-muted)' }}>
                 {role === 'super_admin' ? 'All Organizations'
-                  : role === 'government' ? 'Republic of South Sudan'
+                  : role === 'government' ? 'Ministry of Health'
                   : role === 'org_admin' ? (currentUser.organization?.name || 'My Organization')
                   : (currentUser.hospital?.name || currentUser.hospitalName || 'Unassigned')}
               </p>
-              {!isAdminLevel && currentUser.hospital?.state && (
-                <p className="text-[10px] truncate" style={{ color: 'var(--text-muted)' }}>{currentUser.hospital.state}</p>
-              )}
             </div>
           </div>
-          {!isAdminLevel && currentUser.organization && (
-            <div className="flex items-center gap-1.5 mt-2 pt-2" style={{ borderTop: '1px solid var(--border-medium)' }}>
-              <Building2 className="w-3 h-3 flex-shrink-0" style={{ color: 'var(--accent-primary)' }} />
-              <p className="text-[9px] font-medium truncate" style={{ color: 'var(--text-muted)' }}>{currentUser.organization.name}</p>
-            </div>
-          )}
         </div>
       )}
 

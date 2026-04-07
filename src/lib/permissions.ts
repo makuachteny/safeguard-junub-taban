@@ -307,9 +307,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, RoleConfig> = {
       { href: '/public-stats', label: 'Public Statistics', icon: Globe, section: 'GOVERNANCE' },
     ],
     color: '#2B6FE0',
-    gradientFrom: '#078930',
+    gradientFrom: '#0F47AF',
     gradientTo: '#2B6FE0',
-    badgeLabel: 'Super Admin',
+    badgeLabel: 'Government',
   },
 
   data_entry_clerk: {

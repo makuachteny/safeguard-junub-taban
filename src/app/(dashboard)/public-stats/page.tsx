@@ -22,7 +22,7 @@ export default function PublicStatsPage() {
   const totalBeds = hospitals.reduce((s, h) => s + h.totalBeds, 0);
   const totalStaff = hospitals.reduce((s, h) => s + h.doctors + h.nurses + h.clinicalOfficers, 0);
 
-  const scoreColor = (score: number) => score >= 70 ? '#0077D7' : score >= 50 ? '#FCD34D' : '#E52E42';
+  const scoreColor = (score: number) => score >= 70 ? 'var(--accent-primary)' : score >= 50 ? 'var(--color-warning)' : 'var(--color-danger)';
 
   return (
     <>
@@ -46,7 +46,7 @@ export default function PublicStatsPage() {
             {[
               { label: 'Health Facilities', value: hospitals.length, icon: Building2, color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)' },
               { label: 'Total Patients', value: totalPop.toLocaleString(), icon: Users, color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)' },
-              { label: 'Hospital Beds', value: totalBeds.toLocaleString(), icon: BedDouble, color: '#FCD34D', bg: 'rgba(252,211,77,0.12)' },
+              { label: 'Hospital Beds', value: totalBeds.toLocaleString(), icon: BedDouble, color: 'var(--color-warning)', bg: 'rgba(252,211,77,0.12)' },
               { label: 'Health Workers', value: totalStaff.toLocaleString(), icon: Stethoscope, color: '#38BDF8', bg: 'rgba(56,189,248,0.12)' },
               { label: 'DHIS2 Coverage', value: `${dqData?.dhis2Adoption ?? 0}%`, icon: Wifi, color: scoreColor(dqData?.dhis2Adoption ?? 0), bg: 'rgba(43,111,224,0.12)' },
             ].map(stat => (
@@ -87,7 +87,7 @@ export default function PublicStatsPage() {
               </div>
               <div className="flex justify-between text-xs">
                 <span style={{ color: 'var(--text-secondary)' }}>Female births</span>
-                <span className="font-bold" style={{ color: '#E52E42' }}>{birthStats.byGender.female}</span>
+                <span className="font-bold" style={{ color: 'var(--color-danger)' }}>{birthStats.byGender.female}</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span style={{ color: 'var(--text-secondary)' }}>Caesarean rate</span>
@@ -115,13 +115,13 @@ export default function PublicStatsPage() {
           {/* CRVS - Deaths */}
           <div className="card-elevated p-5">
             <div className="flex items-center gap-2 mb-4">
-              <Skull className="w-5 h-5" style={{ color: '#E52E42' }} />
+              <Skull className="w-5 h-5" style={{ color: 'var(--color-danger)' }} />
               <h2 className="font-semibold text-sm">Mortality Statistics (CRVS)</h2>
             </div>
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div className="p-3 rounded-lg" style={{ background: 'rgba(229,46,66,0.08)' }}>
                 <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Total Deaths</p>
-                <p className="text-xl font-bold" style={{ color: '#E52E42' }}>{deathStats.total}</p>
+                <p className="text-xl font-bold" style={{ color: 'var(--color-danger)' }}>{deathStats.total}</p>
               </div>
               <div className="p-3 rounded-lg" style={{ background: 'var(--accent-light)' }}>
                 <p className="text-xs" style={{ color: 'var(--text-muted)' }}>ICD-11 Coded</p>
@@ -131,15 +131,15 @@ export default function PublicStatsPage() {
             <div className="space-y-2">
               <div className="flex justify-between text-xs">
                 <span style={{ color: 'var(--text-secondary)' }}>Maternal deaths</span>
-                <span className="font-bold" style={{ color: '#E52E42' }}>{deathStats.maternalDeaths}</span>
+                <span className="font-bold" style={{ color: 'var(--color-danger)' }}>{deathStats.maternalDeaths}</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span style={{ color: 'var(--text-secondary)' }}>Under-5 deaths</span>
-                <span className="font-bold" style={{ color: '#FCD34D' }}>{deathStats.under5Deaths}</span>
+                <span className="font-bold" style={{ color: 'var(--color-warning)' }}>{deathStats.under5Deaths}</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span style={{ color: 'var(--text-secondary)' }}>Neonatal deaths</span>
-                <span className="font-bold" style={{ color: '#FCD34D' }}>{deathStats.neonatalDeaths}</span>
+                <span className="font-bold" style={{ color: 'var(--color-warning)' }}>{deathStats.neonatalDeaths}</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span style={{ color: 'var(--text-secondary)' }}>Death notification rate</span>
@@ -161,7 +161,7 @@ export default function PublicStatsPage() {
                   {deathStats.topCauses.slice(0, 5).map((c, i) => (
                     <div key={c.code} className="flex items-center gap-2">
                       <span className="text-[10px] font-bold w-4" style={{ color: 'var(--text-muted)' }}>{i + 1}</span>
-                      <span className="font-mono text-[10px] px-1 py-0.5 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: '#E52E42' }}>{c.code}</span>
+                      <span className="font-mono text-[10px] px-1 py-0.5 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: 'var(--color-danger)' }}>{c.code}</span>
                       <span className="text-[10px] flex-1 truncate">{c.cause}</span>
                       <span className="text-xs font-bold">{c.count}</span>
                     </div>
@@ -237,7 +237,7 @@ export default function PublicStatsPage() {
         {dqData && (
           <div className="card-elevated p-5">
             <div className="flex items-center gap-2 mb-4">
-              <Heart className="w-5 h-5" style={{ color: '#E52E42' }} />
+              <Heart className="w-5 h-5" style={{ color: 'var(--color-danger)' }} />
               <h2 className="font-semibold text-sm">Data Quality Indicators</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

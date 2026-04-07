@@ -27,7 +27,7 @@ export default function RoleGuard({ children }: { children: React.ReactNode }) {
             background: 'rgba(229,46,66,0.1)',
             border: '1px solid rgba(229,46,66,0.2)',
           }}>
-            <ShieldAlert className="w-8 h-8" style={{ color: '#EF4444' }} />
+            <ShieldAlert className="w-8 h-8" style={{ color: 'var(--color-danger)' }} />
           </div>
           <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
             Access Restricted

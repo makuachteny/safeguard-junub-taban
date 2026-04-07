@@ -36,15 +36,15 @@ export default function MCHAnalyticsPage() {
   const { summary, ancCascade, maternalMortality, birthOutcomes, neonatalData, immunizationGaps, highRiskPregnancies } = data;
 
   const gradeColors: Record<string, { bg: string; text: string }> = {
-    A: { bg: 'rgba(74,222,128,0.12)', text: '#4ADE80' },
+    A: { bg: 'rgba(74,222,128,0.12)', text: 'var(--color-success)' },
     B: { bg: 'rgba(56,189,248,0.12)', text: '#38BDF8' },
-    C: { bg: 'rgba(251,191,36,0.12)', text: '#FBBF24' },
+    C: { bg: 'rgba(251,191,36,0.12)', text: 'var(--color-warning)' },
     D: { bg: 'rgba(251,146,60,0.12)', text: '#FB923C' },
     F: { bg: 'rgba(248,113,113,0.12)', text: '#F87171' },
   };
 
   const grade = gradeColors[summary.overallGrade] || gradeColors.F;
-  const scoreColor = (v: number, target: number) => v >= target ? '#4ADE80' : v >= target * 0.6 ? '#FBBF24' : '#F87171';
+  const scoreColor = (v: number, target: number) => v >= target ? 'var(--color-success)' : v >= target * 0.6 ? 'var(--color-warning)' : '#F87171';
 
   const tabs: { key: TabView; label: string; icon: typeof HeartPulse }[] = [
     { key: 'overview', label: 'Overview', icon: Eye },
@@ -90,8 +90,8 @@ export default function MCHAnalyticsPage() {
           {[
             { label: 'Mothers Tracked', value: summary.totalMothersTracked, icon: Users, color: '#EC4899', bg: 'rgba(236,72,153,0.12)' },
             { label: 'ANC4+ Rate', value: `${summary.anc4PlusCoverage}%`, icon: HeartPulse, color: scoreColor(summary.anc4PlusCoverage, 50), bg: 'rgba(236,72,153,0.08)' },
-            { label: 'MMR /100k', value: summary.maternalMortalityRatio.toLocaleString(), icon: Heart, color: summary.maternalMortalityRatio > 500 ? '#F87171' : '#FBBF24', bg: summary.maternalMortalityRatio > 500 ? 'rgba(248,113,113,0.12)' : 'rgba(251,191,36,0.12)' },
-            { label: 'NMR /1000', value: summary.neonatalMortalityRate, icon: Baby, color: summary.neonatalMortalityRate > 30 ? '#F87171' : '#FBBF24', bg: summary.neonatalMortalityRate > 30 ? 'rgba(248,113,113,0.12)' : 'rgba(251,191,36,0.12)' },
+            { label: 'MMR /100k', value: summary.maternalMortalityRatio.toLocaleString(), icon: Heart, color: summary.maternalMortalityRatio > 500 ? '#F87171' : 'var(--color-warning)', bg: summary.maternalMortalityRatio > 500 ? 'rgba(248,113,113,0.12)' : 'rgba(251,191,36,0.12)' },
+            { label: 'NMR /1000', value: summary.neonatalMortalityRate, icon: Baby, color: summary.neonatalMortalityRate > 30 ? '#F87171' : 'var(--color-warning)', bg: summary.neonatalMortalityRate > 30 ? 'rgba(248,113,113,0.12)' : 'rgba(251,191,36,0.12)' },
             { label: 'Immunization', value: `${summary.immunizationCoverage}%`, icon: Syringe, color: scoreColor(summary.immunizationCoverage, 80), bg: 'rgba(236,72,153,0.08)' },
             { label: 'Facility Births', value: `${summary.facilityDeliveryRate}%`, icon: Activity, color: scoreColor(summary.facilityDeliveryRate, 50), bg: 'rgba(236,72,153,0.08)' },
             { label: 'High Risk', value: summary.highRiskCount, icon: AlertTriangle, color: '#F87171', bg: 'rgba(248,113,113,0.12)' },
@@ -150,7 +150,7 @@ export default function MCHAnalyticsPage() {
                       <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>{item.label}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{item.value} mothers</span>
-                        <span className="text-sm font-bold" style={{ color: item.rate >= item.target ? '#4ADE80' : item.color }}>{item.rate}%</span>
+                        <span className="text-sm font-bold" style={{ color: item.rate >= item.target ? 'var(--color-success)' : item.color }}>{item.rate}%</span>
                       </div>
                     </div>
                     <div className="relative h-4 rounded-full" style={{ background: 'var(--overlay-light)' }}>
@@ -194,7 +194,7 @@ export default function MCHAnalyticsPage() {
                   border: `1px solid ${maternalMortality.mmr > 500 ? 'rgba(248,113,113,0.15)' : 'rgba(251,191,36,0.15)'}`,
                 }}>
                   <p className="text-3xl font-bold stat-value" style={{
-                    color: maternalMortality.mmr > 500 ? '#F87171' : '#FBBF24',
+                    color: maternalMortality.mmr > 500 ? '#F87171' : 'var(--color-warning)',
                   }}>{maternalMortality.mmr.toLocaleString()}</p>
                   <p className="text-[10px] uppercase tracking-wider font-semibold mt-1" style={{ color: 'var(--text-muted)' }}>
                     MMR per 100,000 live births
@@ -208,7 +208,7 @@ export default function MCHAnalyticsPage() {
                     <p className="text-[9px]" style={{ color: 'var(--text-muted)' }}>Maternal Deaths</p>
                   </div>
                   <div className="p-2 rounded-lg text-center" style={{ background: 'var(--overlay-subtle)' }}>
-                    <p className="text-lg font-bold" style={{ color: '#4ADE80' }}>{maternalMortality.totalLiveBirths}</p>
+                    <p className="text-lg font-bold" style={{ color: 'var(--color-success)' }}>{maternalMortality.totalLiveBirths}</p>
                     <p className="text-[9px]" style={{ color: 'var(--text-muted)' }}>Live Births</p>
                   </div>
                 </div>
@@ -243,7 +243,7 @@ export default function MCHAnalyticsPage() {
                   { label: 'Infant (<1 year)', value: neonatalData.infantMortalityRate, deaths: neonatalData.totalInfantDeaths, target: 25, unit: '/1,000 LB' },
                   { label: 'Under-5', value: neonatalData.under5MortalityRate, deaths: neonatalData.totalUnder5Deaths, target: 25, unit: '/1,000 LB' },
                 ].map(item => {
-                  const color = item.value > item.target * 2 ? '#F87171' : item.value > item.target ? '#FBBF24' : '#4ADE80';
+                  const color = item.value > item.target * 2 ? '#F87171' : item.value > item.target ? 'var(--color-warning)' : 'var(--color-success)';
                   return (
                     <div key={item.label} className="p-3 rounded-md" style={{ background: `${color}08`, border: `1px solid ${color}15` }}>
                       <div className="flex items-center justify-between mb-1">
@@ -283,7 +283,7 @@ export default function MCHAnalyticsPage() {
               <div className="p-4">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {immunizationGaps.map(gap => {
-                    const color = gap.coverageRate >= 80 ? '#4ADE80' : gap.coverageRate >= 50 ? '#FBBF24' : '#F87171';
+                    const color = gap.coverageRate >= 80 ? 'var(--color-success)' : gap.coverageRate >= 50 ? 'var(--color-warning)' : '#F87171';
                     return (
                       <div key={gap.vaccine} className="p-3 rounded-md" style={{
                         background: 'var(--overlay-subtle)',
@@ -316,7 +316,7 @@ export default function MCHAnalyticsPage() {
             <div className="card-elevated">
               <div className="px-3 py-2 border-b" style={{ borderColor: 'var(--border-light)' }}>
                 <h3 className="font-semibold text-sm flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-                  <Baby className="w-4 h-4" style={{ color: '#4ADE80' }} />
+                  <Baby className="w-4 h-4" style={{ color: 'var(--color-success)' }} />
                   Birth Outcomes
                 </h3>
               </div>
@@ -324,9 +324,9 @@ export default function MCHAnalyticsPage() {
                 {[
                   { label: 'Total Births', value: birthOutcomes.totalBirths, color: 'var(--accent-primary)' },
                   { label: 'Facility Delivery', value: `${birthOutcomes.facilityDeliveryRate}%`, color: scoreColor(birthOutcomes.facilityDeliveryRate, 50) },
-                  { label: 'Caesarean Rate', value: `${birthOutcomes.caesareanRate}%`, color: birthOutcomes.caesareanRate > 5 && birthOutcomes.caesareanRate < 15 ? '#4ADE80' : '#FBBF24' },
-                  { label: 'Low Birth Weight', value: `${birthOutcomes.lowBirthWeightRate}%`, color: birthOutcomes.lowBirthWeightRate > 15 ? '#F87171' : '#FBBF24' },
-                  { label: 'Avg Birth Weight', value: `${birthOutcomes.averageBirthWeight}g`, color: birthOutcomes.averageBirthWeight >= 2500 ? '#4ADE80' : '#F87171' },
+                  { label: 'Caesarean Rate', value: `${birthOutcomes.caesareanRate}%`, color: birthOutcomes.caesareanRate > 5 && birthOutcomes.caesareanRate < 15 ? 'var(--color-success)' : 'var(--color-warning)' },
+                  { label: 'Low Birth Weight', value: `${birthOutcomes.lowBirthWeightRate}%`, color: birthOutcomes.lowBirthWeightRate > 15 ? '#F87171' : 'var(--color-warning)' },
+                  { label: 'Avg Birth Weight', value: `${birthOutcomes.averageBirthWeight}g`, color: birthOutcomes.averageBirthWeight >= 2500 ? 'var(--color-success)' : '#F87171' },
                 ].map(item => (
                   <div key={item.label} className="flex items-center justify-between p-2 rounded-lg" style={{ background: 'var(--overlay-subtle)' }}>
                     <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{item.label}</span>
@@ -405,7 +405,7 @@ export default function MCHAnalyticsPage() {
                           <td className="font-semibold">{d.anc4}</td>
                           <td>{d.anc8}</td>
                           <td>
-                            <span className="font-bold" style={{ color: anc4Rate >= 50 ? '#4ADE80' : anc4Rate >= 30 ? '#FBBF24' : '#F87171' }}>
+                            <span className="font-bold" style={{ color: anc4Rate >= 50 ? 'var(--color-success)' : anc4Rate >= 30 ? 'var(--color-warning)' : '#F87171' }}>
                               {anc4Rate}%
                             </span>
                           </td>
@@ -431,7 +431,7 @@ export default function MCHAnalyticsPage() {
                 { label: 'Total Births', value: birthOutcomes.totalBirths, color: 'var(--accent-primary)' },
                 { label: 'Facility Delivery', value: `${birthOutcomes.facilityDeliveryRate}%`, color: scoreColor(birthOutcomes.facilityDeliveryRate, 50) },
                 { label: 'Caesarean Rate', value: `${birthOutcomes.caesareanRate}%`, color: '#A855F7' },
-                { label: 'Low Birth Weight', value: `${birthOutcomes.lowBirthWeightRate}%`, sub: `${birthOutcomes.lowBirthWeight} babies`, color: birthOutcomes.lowBirthWeightRate > 15 ? '#F87171' : '#FBBF24' },
+                { label: 'Low Birth Weight', value: `${birthOutcomes.lowBirthWeightRate}%`, sub: `${birthOutcomes.lowBirthWeight} babies`, color: birthOutcomes.lowBirthWeightRate > 15 ? '#F87171' : 'var(--color-warning)' },
               ].map(item => (
                 <div key={item.label} className="card-elevated p-4">
                   <p className="text-xs uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>{item.label}</p>
@@ -451,7 +451,7 @@ export default function MCHAnalyticsPage() {
                 <div className="space-y-3">
                   {Object.entries(birthOutcomes.byDeliveryType).map(([type, count]) => {
                     const pct = birthOutcomes.totalBirths > 0 ? Math.round((count / birthOutcomes.totalBirths) * 100) : 0;
-                    const color = type === 'normal' ? '#4ADE80' : type === 'caesarean' ? '#A855F7' : '#38BDF8';
+                    const color = type === 'normal' ? 'var(--color-success)' : type === 'caesarean' ? '#A855F7' : '#38BDF8';
                     return (
                       <div key={type}>
                         <div className="flex justify-between text-xs mb-1">
@@ -478,7 +478,7 @@ export default function MCHAnalyticsPage() {
                     .sort(([, a], [, b]) => b - a)
                     .map(([attendant, count]) => {
                       const pct = birthOutcomes.totalBirths > 0 ? Math.round((count / birthOutcomes.totalBirths) * 100) : 0;
-                      const color = attendant === 'doctor' ? '#0077D7' : attendant === 'midwife' ? '#EC4899' : attendant === 'nurse' ? '#0077D7' : '#FB923C';
+                      const color = attendant === 'doctor' ? 'var(--accent-primary)' : attendant === 'midwife' ? '#EC4899' : attendant === 'nurse' ? 'var(--accent-primary)' : '#FB923C';
                       return (
                         <div key={attendant}>
                           <div className="flex justify-between text-xs mb-1">
@@ -675,7 +675,7 @@ export default function MCHAnalyticsPage() {
                             <div className="h-2 rounded-full" style={{ background: 'var(--overlay-light)' }}>
                               <div className="h-full rounded-full" style={{
                                 width: `${(c.count / maxCount) * 100}%`,
-                                background: i === 0 ? '#F87171' : i < 3 ? '#FB923C' : '#FBBF24',
+                                background: i === 0 ? '#F87171' : i < 3 ? '#FB923C' : 'var(--color-warning)',
                               }} />
                             </div>
                           </div>
@@ -716,7 +716,7 @@ export default function MCHAnalyticsPage() {
                           <td>{d.births}</td>
                           <td>
                             <span className="font-bold" style={{
-                              color: d.mmr > 500 ? '#F87171' : d.mmr > 200 ? '#FBBF24' : '#4ADE80',
+                              color: d.mmr > 500 ? '#F87171' : d.mmr > 200 ? 'var(--color-warning)' : 'var(--color-success)',
                             }}>{d.mmr.toLocaleString()}</span>
                           </td>
                           <td>{neo?.neonatal || 0}</td>
@@ -755,7 +755,7 @@ export default function MCHAnalyticsPage() {
                 </thead>
                 <tbody>
                   {immunizationGaps.map(gap => {
-                    const color = gap.coverageRate >= 80 ? '#4ADE80' : gap.coverageRate >= 50 ? '#FBBF24' : '#F87171';
+                    const color = gap.coverageRate >= 80 ? 'var(--color-success)' : gap.coverageRate >= 50 ? 'var(--color-warning)' : '#F87171';
                     return (
                       <tr key={gap.vaccine}>
                         <td className="font-medium text-sm">{gap.vaccine}</td>
@@ -815,7 +815,7 @@ export default function MCHAnalyticsPage() {
                         {immunizationGaps.map(g => {
                           const stateData = g.byState?.[state];
                           const rate = stateData?.rate || 0;
-                          const color = rate >= 80 ? '#4ADE80' : rate >= 50 ? '#FBBF24' : rate > 0 ? '#F87171' : 'var(--text-muted)';
+                          const color = rate >= 80 ? 'var(--color-success)' : rate >= 50 ? 'var(--color-warning)' : rate > 0 ? '#F87171' : 'var(--text-muted)';
                           return (
                             <td key={g.vaccine} className="text-center">
                               <span className="text-xs font-bold" style={{ color }}>{rate}%</span>
@@ -843,7 +843,7 @@ export default function MCHAnalyticsPage() {
               </div>
               <div className="card-elevated p-4">
                 <p className="text-xs uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>Moderate Risk</p>
-                <p className="text-2xl font-bold" style={{ color: '#FBBF24' }}>
+                <p className="text-2xl font-bold" style={{ color: 'var(--color-warning)' }}>
                   {highRiskPregnancies.filter(h => h.riskLevel === 'moderate').length}
                 </p>
               </div>
@@ -858,7 +858,7 @@ export default function MCHAnalyticsPage() {
             <div className="space-y-2">
               {highRiskPregnancies.map(mother => {
                 const isHigh = mother.riskLevel === 'high';
-                const color = isHigh ? '#F87171' : '#FBBF24';
+                const color = isHigh ? '#F87171' : 'var(--color-warning)';
                 const isExpanded = expandedMother === mother.motherId;
                 return (
                   <div key={mother.motherId} className="card-elevated overflow-hidden">
@@ -904,7 +904,7 @@ export default function MCHAnalyticsPage() {
                           <div className="p-2 rounded-lg" style={{ background: 'var(--overlay-subtle)' }}>
                             <p className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Hemoglobin</p>
                             <p className="text-sm font-bold mt-0.5" style={{
-                              color: mother.hemoglobin < 11 ? '#F87171' : '#4ADE80',
+                              color: mother.hemoglobin < 11 ? '#F87171' : 'var(--color-success)',
                             }}>{mother.hemoglobin} g/dL</p>
                           </div>
                           <div className="p-2 rounded-lg" style={{ background: 'var(--overlay-subtle)' }}>
@@ -914,7 +914,7 @@ export default function MCHAnalyticsPage() {
                           <div className="p-2 rounded-lg" style={{ background: 'var(--overlay-subtle)' }}>
                             <p className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Visit Count</p>
                             <p className="text-sm font-bold mt-0.5" style={{
-                              color: mother.visitCount >= 4 ? '#4ADE80' : '#FBBF24',
+                              color: mother.visitCount >= 4 ? 'var(--color-success)' : 'var(--color-warning)',
                             }}>{mother.visitCount}</p>
                           </div>
                         </div>

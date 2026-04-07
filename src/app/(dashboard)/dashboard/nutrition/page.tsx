@@ -55,10 +55,10 @@ export default function NutritionDashboard() {
   }, []);
 
   const getStatusColor = (status: string) => {
-    if (status === 'SAM') return '#DC2626';
-    if (status === 'MAM') return '#D97706';
-    if (status === 'At Risk' || status === 'Underweight') return '#F59E0B';
-    return '#059669';
+    if (status === 'SAM') return 'var(--color-danger)';
+    if (status === 'MAM') return 'var(--color-warning)';
+    if (status === 'At Risk' || status === 'Underweight') return 'var(--color-warning)';
+    return 'var(--color-success)';
   };
 
   if (!currentUser) return null;
@@ -72,13 +72,13 @@ export default function NutritionDashboard() {
         <div className="kpi-grid mb-4">
           {[
             { label: 'Screenings', value: stats.total, icon: Scale, color: ACCENT },
-            { label: 'SAM Cases', value: stats.sam, icon: AlertTriangle, color: '#DC2626' },
-            { label: 'MAM Cases', value: stats.mam, icon: TrendingDown, color: '#D97706' },
-            { label: 'At Risk', value: stats.atRisk, icon: Activity, color: '#F59E0B' },
-            { label: 'Normal', value: stats.normal, icon: CheckCircle2, color: '#059669' },
+            { label: 'SAM Cases', value: stats.sam, icon: AlertTriangle, color: 'var(--color-danger)' },
+            { label: 'MAM Cases', value: stats.mam, icon: TrendingDown, color: 'var(--color-warning)' },
+            { label: 'At Risk', value: stats.atRisk, icon: Activity, color: 'var(--color-warning)' },
+            { label: 'Normal', value: stats.normal, icon: CheckCircle2, color: 'var(--color-success)' },
             { label: 'Children <5', value: stats.children, icon: Baby, color: 'var(--accent-primary)' },
             { label: 'ANC Mothers', value: stats.anc, icon: HeartPulse, color: '#EC4899' },
-            { label: 'Supply Alerts', value: stats.criticalSupply, icon: Droplets, color: stats.criticalSupply > 0 ? '#DC2626' : '#059669' },
+            { label: 'Supply Alerts', value: stats.criticalSupply, icon: Droplets, color: stats.criticalSupply > 0 ? 'var(--color-danger)' : 'var(--color-success)' },
           ].map(k => (
             <div key={k.label} className="kpi">
               <div className="kpi__icon" style={{ background: `${k.color}15` }}><k.icon style={{ color: k.color }} /></div>
@@ -126,13 +126,13 @@ export default function NutritionDashboard() {
                       </td>
                       <td className="text-xs">{s.age} &middot; {s.sex}</td>
                       <td>
-                        <span className="text-xs font-bold" style={{ color: s.muac < MUAC_THRESHOLDS.severe ? '#DC2626' : s.muac < MUAC_THRESHOLDS.moderate ? '#D97706' : 'var(--text-primary)' }}>
+                        <span className="text-xs font-bold" style={{ color: s.muac < MUAC_THRESHOLDS.severe ? 'var(--color-danger)' : s.muac < MUAC_THRESHOLDS.moderate ? 'var(--color-warning)' : 'var(--text-primary)' }}>
                           {s.muac}
                         </span>
                       </td>
                       <td className="text-xs">{s.weight}</td>
                       <td className="text-xs">{s.height}</td>
-                      <td>{s.edema ? <span className="text-[10px] font-bold" style={{ color: '#DC2626' }}>Yes</span> : <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>No</span>}</td>
+                      <td>{s.edema ? <span className="text-[10px] font-bold" style={{ color: 'var(--color-danger)' }}>Yes</span> : <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>No</span>}</td>
                       <td>
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${getStatusColor(s.status)}15`, color: getStatusColor(s.status) }}>
                           {s.status}
@@ -159,10 +159,10 @@ export default function NutritionDashboard() {
               </div>
               <div className="p-4 space-y-3">
                 {[
-                  { label: 'Severe Acute Malnutrition (SAM)', count: stats.sam, color: '#DC2626', desc: 'MUAC < 11.5cm or edema' },
-                  { label: 'Moderate Acute Malnutrition (MAM)', count: stats.mam, color: '#D97706', desc: 'MUAC 11.5 - 12.5cm' },
-                  { label: 'At Risk / Underweight', count: stats.atRisk, color: '#F59E0B', desc: 'MUAC 12.5 - 13.5cm' },
-                  { label: 'Normal', count: stats.normal, color: '#059669', desc: 'MUAC > 13.5cm' },
+                  { label: 'Severe Acute Malnutrition (SAM)', count: stats.sam, color: 'var(--color-danger)', desc: 'MUAC < 11.5cm or edema' },
+                  { label: 'Moderate Acute Malnutrition (MAM)', count: stats.mam, color: 'var(--color-warning)', desc: 'MUAC 11.5 - 12.5cm' },
+                  { label: 'At Risk / Underweight', count: stats.atRisk, color: 'var(--color-warning)', desc: 'MUAC 12.5 - 13.5cm' },
+                  { label: 'Normal', count: stats.normal, color: 'var(--color-success)', desc: 'MUAC > 13.5cm' },
                 ].map(item => {
                   const pct = stats.total > 0 ? Math.round((item.count / stats.total) * 100) : 0;
                   return (
@@ -185,7 +185,7 @@ export default function NutritionDashboard() {
             <div className="glass-section">
               <div className="glass-section-header">
                 <div className="flex items-center gap-2">
-                  <Utensils className="w-4 h-4" style={{ color: '#059669' }} />
+                  <Utensils className="w-4 h-4" style={{ color: 'var(--color-success)' }} />
                   <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Nutrition Supplies</span>
                 </div>
               </div>
@@ -193,13 +193,13 @@ export default function NutritionDashboard() {
                 {SUPPLY_ITEMS.map(item => (
                   <div key={item.name} className="flex items-center justify-between py-2" style={{ borderBottom: '1px solid var(--border-light)' }}>
                     <div className="flex items-center gap-2">
-                      {item.status === 'critical' ? <AlertTriangle className="w-3 h-3" style={{ color: '#DC2626' }} /> :
-                       item.status === 'low' ? <TrendingDown className="w-3 h-3" style={{ color: '#D97706' }} /> :
-                       <CheckCircle2 className="w-3 h-3" style={{ color: '#059669' }} />}
+                      {item.status === 'critical' ? <AlertTriangle className="w-3 h-3" style={{ color: 'var(--color-danger)' }} /> :
+                       item.status === 'low' ? <TrendingDown className="w-3 h-3" style={{ color: 'var(--color-warning)' }} /> :
+                       <CheckCircle2 className="w-3 h-3" style={{ color: 'var(--color-success)' }} />}
                       <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{item.name}</span>
                     </div>
                     <span className="text-xs font-bold" style={{
-                      color: item.status === 'critical' ? '#DC2626' : item.status === 'low' ? '#D97706' : 'var(--text-primary)',
+                      color: item.status === 'critical' ? 'var(--color-danger)' : item.status === 'low' ? 'var(--color-warning)' : 'var(--text-primary)',
                     }}>{item.stock} {item.unit}</span>
                   </div>
                 ))}

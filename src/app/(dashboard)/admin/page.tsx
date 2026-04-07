@@ -168,19 +168,19 @@ export default function AdminDashboardPage() {
     .slice(0, 5);
 
   const quickLinks = [
-    { label: 'Organizations', icon: Building2, href: '/admin/organizations', color: '#DC2626' },
+    { label: 'Organizations', icon: Building2, href: '/admin/organizations', color: 'var(--color-danger)' },
     { label: 'All Users', icon: Users, href: '/admin/users', color: '#2563EB' },
     { label: 'System Config', icon: Settings, href: '/admin/system', color: '#7C3AED' },
-    { label: 'Billing', icon: CreditCard, href: '/admin/billing', color: '#D97706' },
-    { label: 'Analytics', icon: BarChart3, href: '/admin/analytics', color: '#059669' },
+    { label: 'Billing', icon: CreditCard, href: '/admin/billing', color: 'var(--color-warning)' },
+    { label: 'Analytics', icon: BarChart3, href: '/admin/analytics', color: 'var(--color-success)' },
   ];
 
   const healthColor = (status: string) => {
     switch (status) {
-      case 'healthy': case 'synced': return '#10B981';
-      case 'warning': return '#F59E0B';
-      case 'critical': case 'inactive': return '#EF4444';
-      default: return '#94A3B8';
+      case 'healthy': case 'synced': return 'var(--color-success)';
+      case 'warning': return 'var(--color-warning)';
+      case 'critical': case 'inactive': return 'var(--color-danger)';
+      default: return 'var(--text-muted)';
     }
   };
 
@@ -209,7 +209,7 @@ export default function AdminDashboardPage() {
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-1">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(220,38,38,0.1)' }}>
-              <Shield className="w-5 h-5" style={{ color: '#DC2626' }} />
+              <Shield className="w-5 h-5" style={{ color: 'var(--color-danger)' }} />
             </div>
             <div>
               <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Platform Administration</h1>
@@ -228,7 +228,7 @@ export default function AdminDashboardPage() {
               value: orgsLoading ? '...' : organizations.length.toString(),
               sub: `${activeOrgs.length} active`,
               icon: Building2,
-              accent: '#DC2626',
+              accent: 'var(--color-danger)',
             },
             {
               label: 'Total Users',
@@ -242,14 +242,14 @@ export default function AdminDashboardPage() {
               value: countsLoading ? '...' : totalPatients.toLocaleString(),
               sub: 'Across all orgs',
               icon: HeartPulse,
-              accent: '#059669',
+              accent: 'var(--color-success)',
             },
             {
               label: 'Active Subscriptions',
               value: orgsLoading ? '...' : activeSubscriptions.toString(),
               sub: `${trialOrgs} trial, ${suspendedOrgs} suspended`,
               icon: CreditCard,
-              accent: '#D97706',
+              accent: 'var(--color-warning)',
             },
           ].map((stat) => (
             <div key={stat.label} className="p-5 rounded-xl cursor-pointer" onClick={() => {
@@ -272,7 +272,7 @@ export default function AdminDashboardPage() {
         {/* SYSTEM HEALTH DASHBOARD */}
         <div className="rounded-2xl p-5 mb-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
           <div className="flex items-center gap-2 mb-4">
-            <Activity className="w-5 h-5" style={{ color: '#10B981' }} />
+            <Activity className="w-5 h-5" style={{ color: 'var(--color-success)' }} />
             <h2 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>System Health Dashboard</h2>
           </div>
 
@@ -291,7 +291,7 @@ export default function AdminDashboardPage() {
             <div className="p-4 rounded-xl" style={{ background: 'var(--overlay-subtle)', border: '1px solid var(--border-light)' }}>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Sync Status</span>
-                <RefreshCw className="w-4 h-4" style={{ color: '#10B981' }} />
+                <RefreshCw className="w-4 h-4" style={{ color: 'var(--color-success)' }} />
               </div>
               <p className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
                 {syncStatuses.filter(s => s.status === 'synced').length}/{syncStatuses.length}
@@ -317,9 +317,9 @@ export default function AdminDashboardPage() {
             <div className="p-4 rounded-xl" style={{ background: 'var(--overlay-subtle)', border: '1px solid var(--border-light)' }}>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Platform</span>
-                <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#10B981' }} />
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--color-success)' }} />
               </div>
-              <p className="text-lg font-bold" style={{ color: '#10B981' }}>Operational</p>
+              <p className="text-lg font-bold" style={{ color: 'var(--color-success)' }}>Operational</p>
               <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>All systems running</p>
             </div>
           </div>
@@ -362,10 +362,10 @@ export default function AdminDashboardPage() {
           <div className="lg:col-span-2 rounded-2xl overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
             <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border-light)' }}>
               <div className="flex items-center gap-2">
-                <Building2 className="w-4 h-4" style={{ color: '#DC2626' }} />
+                <Building2 className="w-4 h-4" style={{ color: 'var(--color-danger)' }} />
                 <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Recent Organizations</span>
               </div>
-              <button onClick={() => router.push('/admin/organizations')} className="text-xs font-medium flex items-center gap-1" style={{ color: '#DC2626' }}>
+              <button onClick={() => router.push('/admin/organizations')} className="text-xs font-medium flex items-center gap-1" style={{ color: 'var(--color-danger)' }}>
                 View all <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -389,7 +389,7 @@ export default function AdminDashboardPage() {
                       style={{ borderBottom: '1px solid var(--border-light)' }}>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white" style={{ background: org.primaryColor || '#DC2626' }}>
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white" style={{ background: org.primaryColor || 'var(--color-danger)' }}>
                           {org.name.charAt(0)}
                         </div>
                         <div>
@@ -407,17 +407,17 @@ export default function AdminDashboardPage() {
                     <td className="px-4 py-3">
                       <span className="flex items-center gap-1.5 text-xs font-semibold">
                         <span className="w-2 h-2 rounded-full" style={{
-                          background: org.subscriptionStatus === 'active' ? '#10B981' : org.subscriptionStatus === 'trial' ? '#F59E0B' : '#EF4444',
+                          background: org.subscriptionStatus === 'active' ? 'var(--color-success)' : org.subscriptionStatus === 'trial' ? 'var(--color-warning)' : 'var(--color-danger)',
                         }} />
                         <span style={{
-                          color: org.subscriptionStatus === 'active' ? '#10B981' : org.subscriptionStatus === 'trial' ? '#F59E0B' : '#EF4444',
+                          color: org.subscriptionStatus === 'active' ? 'var(--color-success)' : org.subscriptionStatus === 'trial' ? 'var(--color-warning)' : 'var(--color-danger)',
                         }}>{org.subscriptionStatus}</span>
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       <span className="text-xs px-2 py-1 rounded-full" style={{
                         background: org.orgType === 'public' ? 'rgba(5,150,105,0.1)' : 'rgba(220,38,38,0.1)',
-                        color: org.orgType === 'public' ? '#059669' : '#DC2626',
+                        color: org.orgType === 'public' ? 'var(--color-success)' : 'var(--color-danger)',
                       }}>{org.orgType}</span>
                     </td>
                     <td className="px-4 py-3 text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -482,9 +482,9 @@ export default function AdminDashboardPage() {
         <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
           <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border-light)' }}>
             <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4" style={{ color: '#DC2626' }} />
+              <Shield className="w-4 h-4" style={{ color: 'var(--color-danger)' }} />
               <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Audit Log</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(220,38,38,0.1)', color: '#DC2626' }}>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(220,38,38,0.1)', color: 'var(--color-danger)' }}>
                 {filteredAuditLogs.length} entries
               </span>
             </div>
@@ -540,7 +540,7 @@ export default function AdminDashboardPage() {
                     <td className="px-4 py-3">
                       <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{
                         background: log.success ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)',
-                        color: log.success ? '#10B981' : '#EF4444',
+                        color: log.success ? 'var(--color-success)' : 'var(--color-danger)',
                       }}>
                         {log.success ? 'Success' : 'Failed'}
                       </span>

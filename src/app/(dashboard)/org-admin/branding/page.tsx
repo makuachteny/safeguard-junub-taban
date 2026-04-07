@@ -21,7 +21,7 @@ export default function OrgBrandingPage() {
   const [orgName, setOrgName] = useState('');
   const [primaryColor, setPrimaryColor] = useState('#7C3AED');
   const [secondaryColor, setSecondaryColor] = useState('#0F47AF');
-  const [accentColor, setAccentColor] = useState('#0077D7');
+  const [accentColor, setAccentColor] = useState('var(--accent-primary)');
   const [logoUrl, setLogoUrl] = useState<string | undefined>(undefined);
 
   const brandColor = primaryColor || '#7C3AED';
@@ -37,7 +37,7 @@ export default function OrgBrandingPage() {
           setOrgName(o.name);
           setPrimaryColor(o.primaryColor || '#7C3AED');
           setSecondaryColor(o.secondaryColor || '#0F47AF');
-          setAccentColor(o.accentColor || '#0077D7');
+          setAccentColor(o.accentColor || 'var(--accent-primary)');
           setLogoUrl(o.logoUrl);
         }
       } catch (err) {
@@ -118,7 +118,7 @@ export default function OrgBrandingPage() {
     setOrgName(org.name);
     setPrimaryColor(org.primaryColor || '#7C3AED');
     setSecondaryColor(org.secondaryColor || '#0F47AF');
-    setAccentColor(org.accentColor || '#0077D7');
+    setAccentColor(org.accentColor || 'var(--accent-primary)');
     setLogoUrl(org.logoUrl);
   };
 
@@ -156,7 +156,7 @@ export default function OrgBrandingPage() {
           </div>
         )}
         {error && (
-          <div className="mb-4 p-3 rounded-lg text-sm font-medium" style={{ background: 'rgba(229,46,66,0.1)', color: '#E52E42', border: '1px solid rgba(229,46,66,0.2)' }}>
+          <div className="mb-4 p-3 rounded-lg text-sm font-medium" style={{ background: 'rgba(229,46,66,0.1)', color: 'var(--color-danger)', border: '1px solid rgba(229,46,66,0.2)' }}>
             {error}
           </div>
         )}
@@ -232,7 +232,7 @@ export default function OrgBrandingPage() {
                     <button
                       onClick={() => setLogoUrl(undefined)}
                       className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center"
-                      style={{ background: '#E52E42', color: '#fff' }}
+                      style={{ background: 'var(--color-danger)', color: '#fff' }}
                     >
                       <X className="w-3 h-3" />
                     </button>

@@ -99,9 +99,9 @@ export default function AdminBillingPage() {
         {/* KPI Cards */}
         <div className="kpi-grid mb-6">
           {[
-            { label: 'Active Subscriptions', value: totalActive, icon: CreditCard, color: '#059669', bg: '#05966915' },
-            { label: 'Trial Organizations', value: totalTrial, icon: TrendingUp, color: '#D97706', bg: '#D9770615' },
-            { label: 'Suspended', value: totalSuspended, icon: Building2, color: '#EF4444', bg: '#EF444415' },
+            { label: 'Active Subscriptions', value: totalActive, icon: CreditCard, color: 'var(--color-success)', bg: '#05966915' },
+            { label: 'Trial Organizations', value: totalTrial, icon: TrendingUp, color: 'var(--color-warning)', bg: '#D9770615' },
+            { label: 'Suspended', value: totalSuspended, icon: Building2, color: 'var(--color-danger)', bg: '#EF444415' },
             { label: 'Total Licensed Users', value: totalMaxUsers, icon: Users, color: '#2563EB', bg: '#2563EB15' },
           ].map(stat => (
             <div key={stat.label} className="kpi">
@@ -202,10 +202,10 @@ export default function AdminBillingPage() {
                         ) : (
                           <span className="flex items-center gap-1.5 text-xs font-semibold">
                             <span className="w-2 h-2 rounded-full" style={{
-                              background: org.subscriptionStatus === 'active' ? '#10B981' : org.subscriptionStatus === 'trial' ? '#F59E0B' : '#EF4444',
+                              background: org.subscriptionStatus === 'active' ? 'var(--color-success)' : org.subscriptionStatus === 'trial' ? 'var(--color-warning)' : 'var(--color-danger)',
                             }} />
                             <span style={{
-                              color: org.subscriptionStatus === 'active' ? '#10B981' : org.subscriptionStatus === 'trial' ? '#F59E0B' : '#EF4444',
+                              color: org.subscriptionStatus === 'active' ? 'var(--color-success)' : org.subscriptionStatus === 'trial' ? 'var(--color-warning)' : 'var(--color-danger)',
                             }}>{org.subscriptionStatus}</span>
                           </span>
                         )}
@@ -227,10 +227,10 @@ export default function AdminBillingPage() {
                       <td className="px-4 py-3">
                         {isEditing ? (
                           <div className="flex items-center gap-1">
-                            <button onClick={() => saveEdit(org._id)} disabled={saving} className="p-1.5 rounded-lg transition-colors" style={{ color: '#059669' }}>
+                            <button onClick={() => saveEdit(org._id)} disabled={saving} className="p-1.5 rounded-lg transition-colors" style={{ color: 'var(--color-success)' }}>
                               <Check className="w-4 h-4" />
                             </button>
-                            <button onClick={cancelEdit} className="p-1.5 rounded-lg transition-colors" style={{ color: '#EF4444' }}>
+                            <button onClick={cancelEdit} className="p-1.5 rounded-lg transition-colors" style={{ color: 'var(--color-danger)' }}>
                               <X className="w-4 h-4" />
                             </button>
                           </div>

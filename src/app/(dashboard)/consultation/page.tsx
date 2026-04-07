@@ -153,7 +153,7 @@ export default function ConsultationPage() {
               background: 'rgba(229,46,66,0.1)',
               border: '1px solid rgba(229,46,66,0.2)',
             }}>
-              <ShieldAlert className="w-8 h-8" style={{ color: '#EF4444' }} />
+              <ShieldAlert className="w-8 h-8" style={{ color: 'var(--color-danger)' }} />
             </div>
             <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
               Access Restricted
@@ -591,7 +591,7 @@ export default function ConsultationPage() {
               className="btn btn-sm flex items-center gap-2"
               style={{
                 background: scribeOpen ? 'rgba(229,46,66,0.12)' : 'rgba(43,111,224,0.10)',
-                color: scribeOpen ? '#EF4444' : 'var(--accent-primary)',
+                color: scribeOpen ? 'var(--color-danger)' : 'var(--accent-primary)',
                 border: `1px solid ${scribeOpen ? 'rgba(229,46,66,0.2)' : 'rgba(43,111,224,0.2)'}`,
               }}
             >
@@ -613,7 +613,7 @@ export default function ConsultationPage() {
               <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: 'var(--accent-light)', border: '1px solid var(--taban-green)' }}>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white"
-                    style={{ background: selectedPatientData.gender === 'Male' ? '#0077D7' : 'var(--accent-primary)' }}>
+                    style={{ background: selectedPatientData.gender === 'Male' ? 'var(--accent-primary)' : 'var(--accent-primary)' }}>
                     {(selectedPatientData.firstName || '?')[0]}{(selectedPatientData.surname || '?')[0]}
                   </div>
                   <div>
@@ -651,7 +651,7 @@ export default function ConsultationPage() {
                           style={{ borderBottom: '1px solid var(--border-light)' }}
                         >
                           <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                            style={{ background: p.gender === 'Male' ? '#0077D7' : 'var(--accent-primary)' }}>
+                            style={{ background: p.gender === 'Male' ? 'var(--accent-primary)' : 'var(--accent-primary)' }}>
                             {(p.firstName || '?')[0]}{(p.surname || '?')[0]}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -836,11 +836,11 @@ export default function ConsultationPage() {
                       {/* Severity Assessment */}
                       <div className="p-3 rounded-lg" style={{
                         background: aiEvaluation.severityAssessment.includes('HIGH') ? 'rgba(229,46,66,0.12)' : aiEvaluation.severityAssessment.includes('MODERATE') ? 'rgba(252,211,77,0.12)' : 'rgba(43,111,224,0.12)',
-                        border: `1px solid ${aiEvaluation.severityAssessment.includes('HIGH') ? 'var(--taban-red)' : aiEvaluation.severityAssessment.includes('MODERATE') ? '#FCD34D' : 'var(--taban-green)'}`,
+                        border: `1px solid ${aiEvaluation.severityAssessment.includes('HIGH') ? 'var(--taban-red)' : aiEvaluation.severityAssessment.includes('MODERATE') ? 'var(--color-warning)' : 'var(--taban-green)'}`,
                       }}>
                         <div className="flex items-center gap-2 mb-1">
-                          <ShieldAlert className="w-4 h-4" style={{ color: aiEvaluation.severityAssessment.includes('HIGH') ? 'var(--taban-red)' : aiEvaluation.severityAssessment.includes('MODERATE') ? '#FCD34D' : 'var(--taban-green)' }} />
-                          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: aiEvaluation.severityAssessment.includes('HIGH') ? '#F87171' : aiEvaluation.severityAssessment.includes('MODERATE') ? '#FCD34D' : 'var(--taban-green)' }}>
+                          <ShieldAlert className="w-4 h-4" style={{ color: aiEvaluation.severityAssessment.includes('HIGH') ? 'var(--taban-red)' : aiEvaluation.severityAssessment.includes('MODERATE') ? 'var(--color-warning)' : 'var(--taban-green)' }} />
+                          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: aiEvaluation.severityAssessment.includes('HIGH') ? '#F87171' : aiEvaluation.severityAssessment.includes('MODERATE') ? 'var(--color-warning)' : 'var(--taban-green)' }}>
                             Severity Assessment
                           </span>
                         </div>
@@ -851,13 +851,13 @@ export default function ConsultationPage() {
                       {aiEvaluation.vitalSignAlerts.length > 0 && (
                         <div>
                           <div className="flex items-center gap-2 mb-2">
-                            <Activity className="w-4 h-4" style={{ color: '#F59E0B' }} />
+                            <Activity className="w-4 h-4" style={{ color: 'var(--color-warning)' }} />
                             <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Vital Sign Alerts</span>
                           </div>
                           <div className="space-y-1.5">
                             {aiEvaluation.vitalSignAlerts.map((alert, i) => (
                               <div key={i} className="flex items-start gap-2 p-2.5 rounded-lg text-sm" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' }}>
-                                <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: '#F59E0B' }} />
+                                <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: 'var(--color-warning)' }} />
                                 <span style={{ color: 'var(--text-primary)' }}>{alert}</span>
                               </div>
                             ))}
@@ -893,10 +893,10 @@ export default function ConsultationPage() {
                                         <div className="w-16 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border-light)' }}>
                                           <div className="h-full rounded-full" style={{
                                             width: `${dx.confidence}%`,
-                                            background: dx.confidence >= 70 ? '#0077D7' : dx.confidence >= 40 ? '#F59E0B' : 'var(--text-muted)',
+                                            background: dx.confidence >= 70 ? 'var(--accent-primary)' : dx.confidence >= 40 ? 'var(--color-warning)' : 'var(--text-muted)',
                                           }} />
                                         </div>
-                                        <span className="text-xs font-bold" style={{ color: dx.confidence >= 70 ? '#0077D7' : dx.confidence >= 40 ? '#F59E0B' : 'var(--text-muted)' }}>
+                                        <span className="text-xs font-bold" style={{ color: dx.confidence >= 70 ? 'var(--accent-primary)' : dx.confidence >= 40 ? 'var(--color-warning)' : 'var(--text-muted)' }}>
                                           {dx.confidence}%
                                         </span>
                                       </div>
@@ -1101,7 +1101,7 @@ export default function ConsultationPage() {
                             style={{ borderBottom: '1px solid var(--border-light)' }}
                           >
                             <span className="text-sm font-medium">{m.name}</span>
-                            <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(252,211,77,0.10)', color: '#FCD34D' }}>{m.category}</span>
+                            <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(252,211,77,0.10)', color: 'var(--color-warning)' }}>{m.category}</span>
                           </button>
                         ))}
                       </div>
@@ -1178,7 +1178,7 @@ export default function ConsultationPage() {
                         className="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors"
                         style={{
                           background: labOrders[test] ? 'rgba(43,111,224,0.10)' : 'var(--overlay-subtle)',
-                          border: `1px solid ${labOrders[test] ? '#0077D7' : 'var(--border-light)'}`,
+                          border: `1px solid ${labOrders[test] ? 'var(--accent-primary)' : 'var(--border-light)'}`,
                         }}
                       >
                         <input
@@ -1189,8 +1189,8 @@ export default function ConsultationPage() {
                           style={{ accentColor: 'var(--accent-primary)' }}
                         />
                         <div className="flex items-center gap-2">
-                          <FlaskConical className="w-3.5 h-3.5" style={{ color: labOrders[test] ? '#0077D7' : 'var(--text-muted)' }} />
-                          <span className="text-sm font-medium" style={{ color: labOrders[test] ? '#0077D7' : 'var(--text-primary)' }}>{test}</span>
+                          <FlaskConical className="w-3.5 h-3.5" style={{ color: labOrders[test] ? 'var(--accent-primary)' : 'var(--text-muted)' }} />
+                          <span className="text-sm font-medium" style={{ color: labOrders[test] ? 'var(--accent-primary)' : 'var(--text-primary)' }}>{test}</span>
                         </div>
                       </label>
                     ))}
@@ -1342,7 +1342,7 @@ export default function ConsultationPage() {
                   <div className="card-elevated p-5">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold text-white"
-                        style={{ background: selectedPatientData.gender === 'Male' ? '#0077D7' : 'var(--accent-primary)' }}>
+                        style={{ background: selectedPatientData.gender === 'Male' ? 'var(--accent-primary)' : 'var(--accent-primary)' }}>
                         {(selectedPatientData.firstName || '?')[0]}{(selectedPatientData.surname || '?')[0]}
                       </div>
                       <div>
@@ -1401,7 +1401,7 @@ export default function ConsultationPage() {
                         {selectedPatientData.chronicConditions.map((c: string) => (
                           <span key={c} className="text-xs px-2 py-1 rounded-full font-medium" style={{
                             background: 'rgba(252,211,77,0.12)',
-                            color: '#FCD34D',
+                            color: 'var(--color-warning)',
                             border: '1px solid rgba(252,211,77,0.2)',
                           }}>{c}</span>
                         ))}

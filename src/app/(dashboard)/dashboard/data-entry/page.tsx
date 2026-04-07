@@ -245,8 +245,8 @@ export default function DataEntryDashboard() {
               </div>
               <div className="flex items-center gap-2">
                 {myHospital.syncStatus === 'online'
-                  ? <Wifi className="w-3.5 h-3.5" style={{ color: '#4ADE80' }} />
-                  : <WifiOff className="w-3.5 h-3.5" style={{ color: '#94A3B8' }} />
+                  ? <Wifi className="w-3.5 h-3.5" style={{ color: 'var(--color-success)' }} />
+                  : <WifiOff className="w-3.5 h-3.5" style={{ color: 'var(--text-muted)' }} />
                 }
                 <button onClick={() => setShowForm(true)}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold"
@@ -262,9 +262,9 @@ export default function DataEntryDashboard() {
         {/* KPI strip from latest report */}
         <div className="kpi-grid mb-4">
           {[
-            { label: 'Facility Score', value: facilityStats ? `${facilityStats.pct}%` : '--', icon: BarChart3, color: facilityStats && facilityStats.pct >= 80 ? '#059669' : '#D97706' },
-            { label: 'Bed Occupancy', value: latest ? `${bedOccupancy}%` : '--', icon: BedDouble, color: bedOccupancy > 90 ? '#DC2626' : bedOccupancy > 70 ? '#D97706' : '#059669' },
-            { label: 'Medicine Avail.', value: latest ? `${medAvailability}%` : '--', icon: Pill, color: medAvailability >= 80 ? '#059669' : medAvailability >= 50 ? '#D97706' : '#DC2626' },
+            { label: 'Facility Score', value: facilityStats ? `${facilityStats.pct}%` : '--', icon: BarChart3, color: facilityStats && facilityStats.pct >= 80 ? 'var(--color-success)' : 'var(--color-warning)' },
+            { label: 'Bed Occupancy', value: latest ? `${bedOccupancy}%` : '--', icon: BedDouble, color: bedOccupancy > 90 ? 'var(--color-danger)' : bedOccupancy > 70 ? 'var(--color-warning)' : 'var(--color-success)' },
+            { label: 'Medicine Avail.', value: latest ? `${medAvailability}%` : '--', icon: Pill, color: medAvailability >= 80 ? 'var(--color-success)' : medAvailability >= 50 ? 'var(--color-warning)' : 'var(--color-danger)' },
             { label: 'Reports Filed', value: savedReports.length, icon: FileText, color: ACCENT },
           ].map(k => (
             <div key={k.label} className="kpi">
@@ -286,12 +286,12 @@ export default function DataEntryDashboard() {
             {[
               { label: 'Daily Census', icon: ClipboardCheck, color: ACCENT, action: () => setShowForm(true) },
               { label: 'Facility Assessment', icon: Building2, color: '#7C3AED', action: () => router.push('/facility-assessments') },
-              { label: 'Data Quality', icon: Database, color: '#D97706', action: () => router.push('/data-quality') },
-              { label: 'Vital Statistics', icon: Heart, color: '#DC2626', action: () => router.push('/vital-statistics') },
-              { label: 'Immunizations', icon: Syringe, color: '#059669', action: () => router.push('/immunizations') },
+              { label: 'Data Quality', icon: Database, color: 'var(--color-warning)', action: () => router.push('/data-quality') },
+              { label: 'Vital Statistics', icon: Heart, color: 'var(--color-danger)', action: () => router.push('/vital-statistics') },
+              { label: 'Immunizations', icon: Syringe, color: 'var(--color-success)', action: () => router.push('/immunizations') },
               { label: 'Antenatal Care', icon: HeartPulse, color: '#EC4899', action: () => router.push('/anc') },
               { label: 'Births', icon: Baby, color: '#2563EB', action: () => router.push('/births') },
-              { label: 'Deaths', icon: Skull, color: '#DC2626', action: () => router.push('/deaths') },
+              { label: 'Deaths', icon: Skull, color: 'var(--color-danger)', action: () => router.push('/deaths') },
             ].map(a => (
               <button key={a.label} onClick={a.action}
                 className="flex flex-col items-center gap-2 p-3 rounded-lg transition-all active:scale-95"
@@ -321,13 +321,13 @@ export default function DataEntryDashboard() {
               <div className="p-4 space-y-2">
                 {[
                   { label: 'Inpatients', value: latest.inpatientsTotal, color: 'var(--accent-primary)' },
-                  { label: 'OPD Visits', value: latest.opdVisitsToday, color: '#059669' },
-                  { label: 'Emergency', value: latest.emergencyVisits, color: '#DC2626' },
+                  { label: 'OPD Visits', value: latest.opdVisitsToday, color: 'var(--color-success)' },
+                  { label: 'Emergency', value: latest.emergencyVisits, color: 'var(--color-danger)' },
                   { label: 'Maternity', value: latest.maternityAdmissions, color: '#EC4899' },
                   { label: 'Newborns', value: latest.newborns, color: '#2563EB' },
-                  { label: 'Discharges', value: latest.discharges, color: '#059669' },
-                  { label: 'Deaths', value: latest.deaths, color: '#DC2626' },
-                  { label: 'Referrals Out', value: latest.referralsOut, color: '#D97706' },
+                  { label: 'Discharges', value: latest.discharges, color: 'var(--color-success)' },
+                  { label: 'Deaths', value: latest.deaths, color: 'var(--color-danger)' },
+                  { label: 'Referrals Out', value: latest.referralsOut, color: 'var(--color-warning)' },
                 ].map(row => (
                   <div key={row.label} className="flex items-center justify-between py-1" style={{ borderBottom: '1px solid var(--border-light)' }}>
                     <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{row.label}</span>
@@ -348,7 +348,7 @@ export default function DataEntryDashboard() {
               <div className="p-4 space-y-3">
                 {[
                   { label: 'General Beds', occupied: latest.occupiedBeds, total: latest.totalBeds, color: 'var(--accent-primary)' },
-                  { label: 'ICU', occupied: latest.icuOccupied, total: latest.icuBeds, color: '#DC2626' },
+                  { label: 'ICU', occupied: latest.icuOccupied, total: latest.icuBeds, color: 'var(--color-danger)' },
                   { label: 'Maternity', occupied: latest.maternityOccupied, total: latest.maternityBeds, color: '#EC4899' },
                   { label: 'Pediatric', occupied: latest.pediatricOccupied, total: latest.pediatricBeds, color: '#2563EB' },
                 ].map(bed => {
@@ -357,7 +357,7 @@ export default function DataEntryDashboard() {
                     <div key={bed.label}>
                       <div className="flex justify-between mb-1">
                         <span className="text-[11px] font-semibold" style={{ color: 'var(--text-primary)' }}>{bed.label}</span>
-                        <span className="text-[11px] font-bold" style={{ color: pct > 90 ? '#DC2626' : 'var(--text-secondary)' }}>{bed.occupied}/{bed.total}</span>
+                        <span className="text-[11px] font-bold" style={{ color: pct > 90 ? 'var(--color-danger)' : 'var(--text-secondary)' }}>{bed.occupied}/{bed.total}</span>
                       </div>
                       <div className="w-full h-2 rounded-full" style={{ background: 'var(--overlay-medium)' }}>
                         <div className="h-full rounded-full" style={{ width: `${pct}%`, background: bed.color }} />
@@ -390,7 +390,7 @@ export default function DataEntryDashboard() {
             <div className="glass-section">
               <div className="glass-section-header">
                 <div className="flex items-center gap-2">
-                  <Thermometer className="w-4 h-4" style={{ color: '#D97706' }} />
+                  <Thermometer className="w-4 h-4" style={{ color: 'var(--color-warning)' }} />
                   <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Equipment & Supplies</span>
                 </div>
               </div>
@@ -408,18 +408,18 @@ export default function DataEntryDashboard() {
                       <eq.icon className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                       <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{eq.label}</span>
                     </div>
-                    <span className="text-sm font-bold" style={{ color: eq.value > 0 ? 'var(--text-primary)' : '#DC2626' }}>{eq.value}</span>
+                    <span className="text-sm font-bold" style={{ color: eq.value > 0 ? 'var(--text-primary)' : 'var(--color-danger)' }}>{eq.value}</span>
                   </div>
                 ))}
                 <div style={{ borderTop: '1px solid var(--border-medium)', paddingTop: 8, marginTop: 4 }}>
                   {[
-                    { label: 'Medicine Availability', pct: medAvailability, color: '#059669' },
+                    { label: 'Medicine Availability', pct: medAvailability, color: 'var(--color-success)' },
                     { label: 'Handwash Stations', pct: handwashRate, color: 'var(--accent-primary)' },
                   ].map(m => (
                     <div key={m.label} className="mb-2">
                       <div className="flex justify-between mb-1">
                         <span className="text-[11px] font-semibold" style={{ color: 'var(--text-primary)' }}>{m.label}</span>
-                        <span className="text-[11px] font-bold" style={{ color: m.pct >= 80 ? '#059669' : '#D97706' }}>{m.pct}%</span>
+                        <span className="text-[11px] font-bold" style={{ color: m.pct >= 80 ? 'var(--color-success)' : 'var(--color-warning)' }}>{m.pct}%</span>
                       </div>
                       <div className="w-full h-2 rounded-full" style={{ background: 'var(--overlay-medium)' }}>
                         <div className="h-full rounded-full" style={{ width: `${m.pct}%`, background: m.color }} />
@@ -434,7 +434,7 @@ export default function DataEntryDashboard() {
                       { label: 'Waste', ok: latest.wasteDisposalFunctional },
                     ].map(s => (
                       <div key={s.label} className="flex items-center gap-1">
-                        {s.ok ? <CheckCircle2 className="w-3 h-3" style={{ color: '#059669' }} /> : <AlertTriangle className="w-3 h-3" style={{ color: '#DC2626' }} />}
+                        {s.ok ? <CheckCircle2 className="w-3 h-3" style={{ color: 'var(--color-success)' }} /> : <AlertTriangle className="w-3 h-3" style={{ color: 'var(--color-danger)' }} />}
                         <span className="text-[9px] font-semibold" style={{ color: 'var(--text-muted)' }}>{s.label}</span>
                       </div>
                     ))}
@@ -460,7 +460,7 @@ export default function DataEntryDashboard() {
           <div className="glass-section mb-4">
             <div className="glass-section-header">
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4" style={{ color: '#059669' }} />
+                <Clock className="w-4 h-4" style={{ color: 'var(--color-success)' }} />
                 <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Previous Reports ({savedReports.length})</span>
               </div>
             </div>
@@ -508,7 +508,7 @@ export default function DataEntryDashboard() {
               <div className="p-4 space-y-5">
 
                 {/* 1. Patient Census */}
-                {sectionHeader(Users, 'Patient Census', '#0077D7')}
+                {sectionHeader(Users, 'Patient Census', 'var(--accent-primary)')}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {numField('Inpatients Total', 'inpatientsTotal', Users)}
                   {numField('Male', 'inpatientsMale')}
@@ -538,7 +538,7 @@ export default function DataEntryDashboard() {
                 </div>
 
                 {/* 3. Staff Present */}
-                {sectionHeader(Stethoscope, 'Staff Present Today', '#059669')}
+                {sectionHeader(Stethoscope, 'Staff Present Today', 'var(--color-success)')}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {numField('Doctors', 'doctorsPresent', Stethoscope)}
                   {numField('Nurses', 'nursesPresent', Users)}
@@ -549,7 +549,7 @@ export default function DataEntryDashboard() {
                 </div>
 
                 {/* 4. Equipment */}
-                {sectionHeader(Thermometer, 'Functional Equipment', '#D97706')}
+                {sectionHeader(Thermometer, 'Functional Equipment', 'var(--color-warning)')}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {numField('Thermometers', 'functionalThermometers', Thermometer)}
                   {numField('BP Monitors', 'functionalBPMonitors')}

@@ -26,7 +26,7 @@ const defaultOrganizations: Omit<OrganizationDoc, '_rev'>[] = [
   {
     _id: PUBLIC_ORG_ID,
     type: 'organization',
-    name: 'Republic of South Sudan - MoH',
+    name: 'Republic of South Sudan',
     slug: 'moh-ss',
     primaryColor: '#0077D7',
     secondaryColor: '#005FBC',

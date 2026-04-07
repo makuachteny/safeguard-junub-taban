@@ -186,17 +186,17 @@ export default function OrgUsersPage() {
 
   const roleColor = (role: string) => {
     const map: Record<string, string> = {
-      super_admin: '#DC2626',
+      super_admin: 'var(--color-danger)',
       org_admin: '#7C3AED',
       doctor: 'var(--accent-primary)',
       clinical_officer: '#8B5CF6',
       nurse: '#EC4899',
       lab_tech: '#06B6D4',
-      pharmacist: '#F59E0B',
+      pharmacist: 'var(--color-warning)',
       front_desk: '#14B8A6',
       government: 'var(--accent-primary)',
-      boma_health_worker: '#059669',
-      payam_supervisor: '#D97706',
+      boma_health_worker: 'var(--color-success)',
+      payam_supervisor: 'var(--color-warning)',
       data_entry_clerk: '#0891B2',
       medical_superintendent: '#1E40AF',
       hrio: '#0F766E',
@@ -247,7 +247,7 @@ export default function OrgUsersPage() {
           </div>
         )}
         {error && !showCreateModal && !showResetModal && (
-          <div className="mb-4 p-3 rounded-lg text-sm font-medium" style={{ background: 'rgba(229,46,66,0.1)', color: '#E52E42', border: '1px solid rgba(229,46,66,0.2)' }}>
+          <div className="mb-4 p-3 rounded-lg text-sm font-medium" style={{ background: 'rgba(229,46,66,0.1)', color: 'var(--color-danger)', border: '1px solid rgba(229,46,66,0.2)' }}>
             {error}
           </div>
         )}
@@ -369,7 +369,7 @@ export default function OrgUsersPage() {
                         className="text-xs font-medium px-2 py-0.5 rounded-full"
                         style={{
                           background: user.isActive ? 'rgba(43,111,224,0.1)' : 'rgba(229,46,66,0.1)',
-                          color: user.isActive ? '#0077D7' : '#E52E42',
+                          color: user.isActive ? 'var(--accent-primary)' : 'var(--color-danger)',
                         }}
                       >
                         {user.isActive ? 'Active' : 'Inactive'}
@@ -402,14 +402,14 @@ export default function OrgUsersPage() {
                             className="flex items-center gap-2 w-full px-3 py-2 text-sm text-left hover:opacity-80"
                             style={{ color: 'var(--text-primary)' }}
                           >
-                            <KeyRound className="w-3.5 h-3.5" style={{ color: '#F59E0B' }} />
+                            <KeyRound className="w-3.5 h-3.5" style={{ color: 'var(--color-warning)' }} />
                             Reset Password
                           </button>
                           {user.isActive && user._id !== currentUser?._id && (
                             <button
                               onClick={() => handleDeactivate(user._id)}
                               className="flex items-center gap-2 w-full px-3 py-2 text-sm text-left hover:opacity-80"
-                              style={{ color: '#E52E42' }}
+                              style={{ color: 'var(--color-danger)' }}
                             >
                               <UserX className="w-3.5 h-3.5" />
                               Deactivate
@@ -446,7 +446,7 @@ export default function OrgUsersPage() {
             </div>
 
             {error && (
-              <div className="mb-4 p-3 rounded-lg text-sm flex items-center gap-2" style={{ background: 'rgba(229,46,66,0.1)', color: '#E52E42', border: '1px solid rgba(229,46,66,0.2)' }}>
+              <div className="mb-4 p-3 rounded-lg text-sm flex items-center gap-2" style={{ background: 'rgba(229,46,66,0.1)', color: 'var(--color-danger)', border: '1px solid rgba(229,46,66,0.2)' }}>
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {error}
               </div>
@@ -585,7 +585,7 @@ export default function OrgUsersPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <KeyRound className="w-5 h-5" style={{ color: '#F59E0B' }} />
+                <KeyRound className="w-5 h-5" style={{ color: 'var(--color-warning)' }} />
                 <h2 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>Reset Password</h2>
               </div>
               <button onClick={() => setShowResetModal(null)} className="p-1">
@@ -594,7 +594,7 @@ export default function OrgUsersPage() {
             </div>
 
             {error && (
-              <div className="mb-3 p-2 rounded-lg text-xs" style={{ background: 'rgba(229,46,66,0.1)', color: '#E52E42' }}>
+              <div className="mb-3 p-2 rounded-lg text-xs" style={{ background: 'rgba(229,46,66,0.1)', color: 'var(--color-danger)' }}>
                 {error}
               </div>
             )}
@@ -637,7 +637,7 @@ export default function OrgUsersPage() {
                 onClick={handleResetPassword}
                 disabled={resetting}
                 className="px-3 py-1.5 rounded-lg text-sm font-medium text-white disabled:opacity-50"
-                style={{ background: '#F59E0B' }}
+                style={{ background: 'var(--color-warning)' }}
               >
                 {resetting ? 'Resetting...' : 'Reset Password'}
               </button>

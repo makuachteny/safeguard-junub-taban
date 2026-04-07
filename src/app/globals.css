@@ -126,15 +126,15 @@
   --status-syncing: #fbbf24;
   --status-error: #ef4444;
 
-  /* Semantic status colors */
-  --color-success: #3ECF8E;
-  --color-success-bg: rgba(62, 207, 142, 0.12);
-  --color-warning: #fbbf24;
-  --color-warning-bg: rgba(251, 191, 36, 0.12);
-  --color-danger: #ef4444;
-  --color-danger-bg: rgba(239, 68, 68, 0.10);
-  --color-info: #60a5fa;
-  --color-info-bg: rgba(96, 165, 250, 0.12);
+  /* Semantic status colors — accessible for colorblind users */
+  --color-success: #0d9488;
+  --color-success-bg: rgba(13, 148, 136, 0.10);
+  --color-warning: #d97706;
+  --color-warning-bg: rgba(217, 119, 6, 0.10);
+  --color-danger: #dc2626;
+  --color-danger-bg: rgba(220, 38, 38, 0.08);
+  --color-info: #0077D7;
+  --color-info-bg: rgba(0, 119, 215, 0.10);
 
   /* Chart colors */
   --color-chart-1: #3ECF8E;
@@ -229,16 +229,16 @@
   --map-tooltip-sub: #94a3b8;
   --map-dot-stroke: #1A2540;
 
-  --color-success: #3ECF8E;
-  --color-success-bg: rgba(62, 207, 142, 0.15);
+  --color-success: #2dd4bf;
+  --color-success-bg: rgba(45, 212, 191, 0.12);
   --color-warning: #fbbf24;
-  --color-warning-bg: rgba(251, 191, 36, 0.15);
+  --color-warning-bg: rgba(251, 191, 36, 0.12);
   --color-danger: #f87171;
-  --color-danger-bg: rgba(248, 113, 113, 0.12);
+  --color-danger-bg: rgba(248, 113, 113, 0.10);
   --color-info: #60a5fa;
-  --color-info-bg: rgba(96, 165, 250, 0.15);
+  --color-info-bg: rgba(96, 165, 250, 0.12);
 
-  --color-chart-1: #3ECF8E;
+  --color-chart-1: #2dd4bf;
   --color-chart-2: #60a5fa;
   --color-chart-3: #fbbf24;
   --color-chart-4: #f87171;

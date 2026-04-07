@@ -38,10 +38,10 @@ export default function LabPage() {
           {/* Stats */}
           <div className="kpi-grid mb-4">
             {[
-              { label: 'Pending Orders', value: pending, icon: Clock, color: '#FCD34D', bg: 'rgba(252,211,77,0.10)' },
+              { label: 'Pending Orders', value: pending, icon: Clock, color: 'var(--color-warning)', bg: 'rgba(252,211,77,0.10)' },
               { label: 'In Progress', value: inProgress, icon: FlaskConical, color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.10)' },
               { label: 'Completed Today', value: completed, icon: CheckCircle2, color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)' },
-              { label: 'Abnormal Results', value: abnormal, icon: AlertTriangle, color: '#E52E42', bg: 'rgba(229,46,66,0.10)' },
+              { label: 'Abnormal Results', value: abnormal, icon: AlertTriangle, color: 'var(--color-danger)', bg: 'rgba(229,46,66,0.10)' },
             ].map(s => (
               <div key={s.label} className="kpi cursor-pointer" onClick={() => {
               const filterMap: Record<string, string> = { 'Pending Orders': 'pending', 'In Progress': 'in_progress', 'Completed Today': 'completed', 'Abnormal Results': 'completed' };
@@ -75,7 +75,7 @@ export default function LabPage() {
                   <button key={f.id} onClick={() => setFilter(f.id)}
                     className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
                     style={{
-                      background: filter === f.id ? '#0077D7' : 'transparent',
+                      background: filter === f.id ? 'var(--accent-primary)' : 'transparent',
                       color: filter === f.id ? 'white' : 'var(--text-secondary)',
                       border: filter === f.id ? 'none' : '1px solid var(--border-light)',
                     }}>
@@ -122,7 +122,7 @@ export default function LabPage() {
                     <td>
                       {order.result ? (
                         <div>
-                          <p className="text-sm" style={{ color: order.abnormal ? '#EF4444' : 'inherit', fontWeight: order.abnormal ? 600 : 400 }}>{order.result}</p>
+                          <p className="text-sm" style={{ color: order.abnormal ? 'var(--color-danger)' : 'inherit', fontWeight: order.abnormal ? 600 : 400 }}>{order.result}</p>
                           {order.abnormal && <span className="badge badge-emergency text-[9px] mt-0.5">Abnormal</span>}
                         </div>
                       ) : (

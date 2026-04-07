@@ -98,8 +98,8 @@ export default function DHIS2ExportPage() {
   // Aggregate summary from real patient data
   const summaryData = [
     { label: 'OPD Visits', value: patients.length, icon: BarChart3, color: 'var(--accent-primary)' },
-    { label: 'Malaria Cases', value: diseaseAlerts.filter(a => a.disease?.toLowerCase().includes('malaria')).length || Math.floor(patients.length * 0.35), icon: AlertTriangle, color: '#E52E42' },
-    { label: 'Active Surveillance Alerts', value: diseaseAlerts.length, icon: AlertTriangle, color: '#F59E0B' },
+    { label: 'Malaria Cases', value: diseaseAlerts.filter(a => a.disease?.toLowerCase().includes('malaria')).length || Math.floor(patients.length * 0.35), icon: AlertTriangle, color: 'var(--color-danger)' },
+    { label: 'Active Surveillance Alerts', value: diseaseAlerts.length, icon: AlertTriangle, color: 'var(--color-warning)' },
     { label: 'ANC Visits', value: ancStats?.totalVisits || 0, icon: FileText, color: '#EC4899' },
     { label: 'Immunizations Given', value: immStats?.totalVaccinations || 0, icon: CheckCircle, color: '#10B944' },
     { label: 'Total Patients Registered', value: patients.length, icon: Database, color: '#8B5CF6' },
@@ -151,7 +151,7 @@ export default function DHIS2ExportPage() {
           {[
             { label: 'Connection', value: 'Active', icon: Wifi, color: '#10B944', sub: 'hmis.southsudan.health' },
             { label: 'Data Elements', value: `${syncedCount}/${DHIS2_DATA_ELEMENTS.length}`, icon: Database, color: 'var(--accent-primary)', sub: 'Synced' },
-            { label: 'Reports Due', value: String(DHIS2_REPORTS.filter(r => r.status !== 'submitted').length), icon: FileText, color: '#F59E0B', sub: 'Pending completion' },
+            { label: 'Reports Due', value: String(DHIS2_REPORTS.filter(r => r.status !== 'submitted').length), icon: FileText, color: 'var(--color-warning)', sub: 'Pending completion' },
             { label: 'Last Sync', value: '08:00 Today', icon: Clock, color: '#0D9488', sub: 'Feb 22, 2026' },
           ].map((stat) => (
             <div key={stat.label} className="card-elevated p-4">
@@ -173,7 +173,7 @@ export default function DHIS2ExportPage() {
               onClick={() => setActiveTab(tab.id)}
               className="flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors"
               style={{
-                color: activeTab === tab.id ? '#0077D7' : 'var(--text-muted)',
+                color: activeTab === tab.id ? 'var(--accent-primary)' : 'var(--text-muted)',
                 borderBottom: activeTab === tab.id ? '2px solid #0077D7' : '2px solid transparent',
               }}
             >
@@ -254,7 +254,7 @@ export default function DHIS2ExportPage() {
                       className="h-full rounded-full transition-all duration-500"
                       style={{
                         width: `${report.completeness}%`,
-                        background: report.completeness === 100 ? '#10B944' : report.completeness > 50 ? '#0077D7' : '#F59E0B',
+                        background: report.completeness === 100 ? '#10B944' : report.completeness > 50 ? 'var(--accent-primary)' : 'var(--color-warning)',
                       }}
                     />
                   </div>
@@ -434,11 +434,11 @@ export default function DHIS2ExportPage() {
                 }}
               >
                 <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{
-                  background: log.status === 'success' ? '#10B944' : log.status === 'error' ? '#E52E42' : 'var(--accent-primary)',
+                  background: log.status === 'success' ? '#10B944' : log.status === 'error' ? 'var(--color-danger)' : 'var(--accent-primary)',
                 }} />
                 <span className="text-xs font-mono flex-shrink-0" style={{ color: 'var(--text-muted)', minWidth: '110px' }}>{log.time}</span>
                 <span className="text-sm" style={{
-                  color: log.status === 'error' ? '#E52E42' : 'var(--text-secondary)',
+                  color: log.status === 'error' ? 'var(--color-danger)' : 'var(--text-secondary)',
                 }}>{log.message}</span>
               </div>
             ))}

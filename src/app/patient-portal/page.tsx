@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import type { PatientDoc, AppointmentDoc, LabResultDoc, MedicalRecordDoc } from '@/lib/db-types';
 
-type Tab = 'overview' | 'appointments' | 'records' | 'lab' | 'prescriptions' | 'immunizations' | 'messages';
+type Tab = 'overview' | 'appointments' | 'records' | 'lab' | 'prescriptions' | 'immunizations' | 'messages' | 'chat';
 
 /* ═════════════════════════════════════════
    PATIENT LOGIN SCREEN
@@ -267,20 +267,24 @@ function PatientDashboard({ patient, onLogout }: { patient: PatientDoc; onLogout
     return appointments.filter(a => a.appointmentDate >= today && a.status !== 'cancelled' && a.status !== 'no_show');
   }, [appointments]);
 
-  const tabs: { key: Tab; label: string; icon: typeof User; count?: number }[] = [
+  const [chatDepartment, setChatDepartment] = useState('General / OPD');
+
+  const mainTabs: { key: Tab; label: string; icon: typeof User; count?: number }[] = [
     { key: 'overview', label: 'Overview', icon: Activity },
-    { key: 'appointments', label: 'Appointments', icon: Calendar, count: upcomingApts.length },
-    { key: 'records', label: 'Records', icon: FileText, count: records.length },
+    { key: 'records', label: 'Medical Records', icon: FileText, count: records.length },
     { key: 'lab', label: 'Lab Results', icon: FlaskConical, count: labResults.filter(l => l.status === 'pending').length },
     { key: 'immunizations', label: 'Immunizations', icon: Syringe },
-    { key: 'messages', label: 'Messages', icon: MessageSquare },
   ];
+  const actionTabs: { key: Tab; label: string; icon: typeof User; count?: number }[] = [
+    { key: 'appointments', label: 'Appointments', icon: Calendar, count: upcomingApts.length },
+    { key: 'chat', label: 'Messages', icon: MessageSquare },
+  ];
+  const tabs = [...mainTabs, ...actionTabs];
 
   const [chatMessages, setChatMessages] = useState<{ text: string; from: 'patient' | 'system'; time: string }[]>([
     { text: `Welcome ${patient.firstName}! How can we help you today?`, from: 'system', time: '09:00' },
   ]);
   const [chatInput, setChatInput] = useState('');
-  const [chatOpen, setChatOpen] = useState(false);
 
   const handleSendChat = () => {
     if (!chatInput.trim()) return;
@@ -323,38 +327,48 @@ function PatientDashboard({ patient, onLogout }: { patient: PatientDoc; onLogout
             <Building2 size={13} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
             <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{patient.registrationHospital}</span>
           </div>
-          <div style={{ display: 'flex', gap: 6 }}>
-            <button onClick={() => setShowBooking(true)} style={{
-              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
-              padding: '9px 0', fontSize: 12, fontWeight: 700, borderRadius: 8,
-              background: 'var(--accent-primary)', color: '#fff', border: 'none', cursor: 'pointer',
-            }}><Plus size={13} /> Book</button>
-            <button onClick={() => setChatOpen(!chatOpen)} style={{
-              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
-              padding: '9px 0', fontSize: 12, fontWeight: 700, borderRadius: 8,
-              background: chatOpen ? 'var(--accent-primary)' : 'var(--overlay-subtle)',
-              color: chatOpen ? '#fff' : 'var(--text-secondary)',
-              border: chatOpen ? 'none' : '1px solid var(--border-medium)', cursor: 'pointer',
-            }}><MessageSquare size={13} /> Chat</button>
-          </div>
         </div>
 
         <nav style={{ flex: 1, padding: '10px 8px', overflowY: 'auto' }}>
-          {tabs.map(tab => (
-            <button key={tab.key} onClick={() => { setActiveTab(tab.key); setChatOpen(false); }} style={{
+          {/* Health records section */}
+          <p style={{ fontSize: 9, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '8px 14px 4px', opacity: 0.7 }}>Health Records</p>
+          {mainTabs.map(tab => (
+            <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
               display: 'flex', alignItems: 'center', gap: 10, width: '100%',
-              padding: '11px 14px', borderRadius: 8, border: 'none', cursor: 'pointer',
-              background: activeTab === tab.key && !chatOpen ? 'var(--accent-primary)' : 'transparent',
-              color: activeTab === tab.key && !chatOpen ? '#fff' : 'var(--text-secondary)',
-              fontSize: 13, fontWeight: 600, textAlign: 'left', marginBottom: 2,
+              padding: '10px 14px', borderRadius: 8, border: 'none', cursor: 'pointer',
+              background: activeTab === tab.key ? 'var(--accent-primary)' : 'transparent',
+              color: activeTab === tab.key ? '#fff' : 'var(--text-secondary)',
+              fontSize: 13, fontWeight: 600, textAlign: 'left', marginBottom: 1,
               transition: 'all 0.15s ease',
             }}>
-              <tab.icon size={16} />
+              <tab.icon size={15} />
               <span style={{ flex: 1 }}>{tab.label}</span>
               {tab.count ? <span style={{
                 fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 6,
-                background: activeTab === tab.key && !chatOpen ? 'rgba(255,255,255,0.25)' : 'var(--accent-light)',
-                color: activeTab === tab.key && !chatOpen ? '#fff' : 'var(--accent-primary)',
+                background: activeTab === tab.key ? 'rgba(255,255,255,0.25)' : 'var(--accent-light)',
+                color: activeTab === tab.key ? '#fff' : 'var(--accent-primary)',
+              }}>{tab.count}</span> : null}
+            </button>
+          ))}
+
+          {/* Communication section */}
+          <div style={{ height: 1, background: 'var(--border-medium)', margin: '10px 14px' }} />
+          <p style={{ fontSize: 9, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '4px 14px 4px', opacity: 0.7 }}>Communication</p>
+          {actionTabs.map(tab => (
+            <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
+              display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+              padding: '10px 14px', borderRadius: 8, border: 'none', cursor: 'pointer',
+              background: activeTab === tab.key ? 'var(--accent-primary)' : 'transparent',
+              color: activeTab === tab.key ? '#fff' : 'var(--text-secondary)',
+              fontSize: 13, fontWeight: 600, textAlign: 'left', marginBottom: 1,
+              transition: 'all 0.15s ease',
+            }}>
+              <tab.icon size={15} />
+              <span style={{ flex: 1 }}>{tab.label}</span>
+              {tab.count ? <span style={{
+                fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 6,
+                background: activeTab === tab.key ? 'rgba(255,255,255,0.25)' : 'var(--accent-light)',
+                color: activeTab === tab.key ? '#fff' : 'var(--accent-primary)',
               }}>{tab.count}</span> : null}
             </button>
           ))}
@@ -384,12 +398,12 @@ function PatientDashboard({ patient, onLogout }: { patient: PatientDoc; onLogout
                 <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>{patient.firstName} {patient.surname}</p>
                 <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>{patient.hospitalNumber}</p>
               </div>
-              <button onClick={() => setChatOpen(!chatOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent-primary)', padding: 6 }}><MessageSquare size={18} /></button>
+              <button onClick={() => setActiveTab('chat')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent-primary)', padding: 6 }}><MessageSquare size={18} /></button>
               <button onClick={onLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 6 }}><LogOut size={18} /></button>
             </div>
             <div style={{ display: 'flex', gap: 4, overflowX: 'auto', paddingBottom: 4 }} className="no-scrollbar">
               {tabs.map(tab => (
-                <button key={tab.key} onClick={() => { setActiveTab(tab.key); setChatOpen(false); }} style={{
+                <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
                   display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px',
                   borderRadius: 8, border: activeTab === tab.key ? 'none' : '1px solid var(--border-medium)', cursor: 'pointer',
                   background: activeTab === tab.key ? 'var(--accent-primary)' : 'var(--bg-card-solid)',
@@ -403,51 +417,70 @@ function PatientDashboard({ patient, onLogout }: { patient: PatientDoc; onLogout
           </div>
 
           {/* ── Chat Panel ── */}
-          {chatOpen && (
-            <div style={{ marginBottom: 20 }}>
-              <div className="card-elevated" style={{ borderRadius: 12, overflow: 'hidden' }}>
-                <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--border-medium)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Building2 size={16} style={{ color: 'var(--accent-primary)' }} />
-                    <div>
-                      <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>Hospital Chat</p>
-                      <p style={{ fontSize: 10, color: 'var(--text-muted)' }}>{patient.registrationHospital}</p>
-                    </div>
-                  </div>
-                  <button onClick={() => setChatOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 4 }}><X size={16} /></button>
-                </div>
-                <div style={{ height: 300, overflowY: 'auto', padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {chatMessages.map((msg, i) => (
-                    <div key={i} style={{ display: 'flex', justifyContent: msg.from === 'patient' ? 'flex-end' : 'flex-start' }}>
-                      <div style={{
-                        maxWidth: '75%', padding: '10px 14px', borderRadius: 12,
-                        background: msg.from === 'patient' ? 'var(--accent-primary)' : 'var(--overlay-subtle)',
-                        color: msg.from === 'patient' ? '#fff' : 'var(--text-primary)',
-                        fontSize: 13, lineHeight: 1.5,
-                        borderBottomRightRadius: msg.from === 'patient' ? 4 : 12,
-                        borderBottomLeftRadius: msg.from === 'system' ? 4 : 12,
-                      }}>
-                        <p>{msg.text}</p>
-                        <p style={{ fontSize: 9, marginTop: 4, opacity: 0.6, textAlign: 'right' }}>{msg.time}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ padding: '10px 14px', borderTop: '1px solid var(--border-medium)', display: 'flex', gap: 8 }}>
-                  <input
-                    type="text" value={chatInput} onChange={e => setChatInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleSendChat()}
-                    placeholder="Type a message to your hospital..."
-                    style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-medium)', background: 'var(--bg-card-solid)', color: 'var(--text-primary)', fontSize: 13, outline: 'none' }}
-                  />
-                  <button onClick={handleSendChat} style={{
-                    padding: '10px 14px', borderRadius: 8, border: 'none', cursor: 'pointer',
-                    background: 'var(--accent-primary)', color: '#fff', display: 'flex', alignItems: 'center',
-                  }}><Send size={16} /></button>
+      {/* ═══ Chat / Messages ═══ */}
+      {activeTab === 'chat' && (
+        <div>
+          {/* Hospital & department selector */}
+          <div className="card-elevated" style={{ padding: 16, marginBottom: 16, borderRadius: 10 }}>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: 180 }}>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 4 }}>Hospital</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 8, background: 'var(--overlay-subtle)', border: '1px solid var(--border-medium)' }}>
+                  <Building2 size={14} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{patient.registrationHospital}</span>
                 </div>
               </div>
+              <div style={{ flex: 1, minWidth: 150 }}>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 4 }}>Department</label>
+                <select value={chatDepartment} onChange={e => setChatDepartment(e.target.value)}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border-medium)', background: 'var(--bg-card-solid)', color: 'var(--text-primary)', fontSize: 13, fontWeight: 600 }}>
+                  {['General / OPD', 'Internal Medicine', 'Obstetrics', 'Pediatrics', 'Surgery', 'Laboratory', 'Pharmacy', 'Dental', 'Emergency'].map(d => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
             </div>
-          )}
+          </div>
+
+          {/* Chat area */}
+          <div className="card-elevated" style={{ borderRadius: 10, overflow: 'hidden' }}>
+            <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-medium)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <MessageSquare size={15} style={{ color: 'var(--accent-primary)' }} />
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{chatDepartment}</span>
+              <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>&middot; {patient.registrationHospital}</span>
+            </div>
+            <div style={{ height: 380, overflowY: 'auto', padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {chatMessages.map((msg, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: msg.from === 'patient' ? 'flex-end' : 'flex-start' }}>
+                  <div style={{
+                    maxWidth: '75%', padding: '10px 14px', borderRadius: 12,
+                    background: msg.from === 'patient' ? 'var(--accent-primary)' : 'var(--overlay-subtle)',
+                    color: msg.from === 'patient' ? '#fff' : 'var(--text-primary)',
+                    fontSize: 13, lineHeight: 1.5,
+                    borderBottomRightRadius: msg.from === 'patient' ? 4 : 12,
+                    borderBottomLeftRadius: msg.from === 'system' ? 4 : 12,
+                  }}>
+                    <p>{msg.text}</p>
+                    <p style={{ fontSize: 9, marginTop: 4, opacity: 0.6, textAlign: 'right' }}>{msg.time}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ padding: '10px 14px', borderTop: '1px solid var(--border-medium)', display: 'flex', gap: 8 }}>
+              <input
+                type="text" value={chatInput} onChange={e => setChatInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSendChat()}
+                placeholder={`Message ${chatDepartment}...`}
+                style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-medium)', background: 'var(--bg-card-solid)', color: 'var(--text-primary)', fontSize: 13, outline: 'none' }}
+              />
+              <button onClick={handleSendChat} style={{
+                padding: '10px 14px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                background: 'var(--accent-primary)', color: '#fff', display: 'flex', alignItems: 'center',
+              }}><Send size={16} /></button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ═══ Overview ═══ */}
       {activeTab === 'overview' && (
@@ -532,7 +565,7 @@ function PatientDashboard({ patient, onLogout }: { patient: PatientDoc; onLogout
                       <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{apt.reason || apt.appointmentType}</div>
                       <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Dr. {apt.providerName} &middot; {apt.department}</div>
                     </div>
-                    <Badge text={apt.status.replace('_', ' ')} color={isPast ? 'var(--text-muted)' : apt.status === 'confirmed' ? '#10B981' : 'var(--accent-primary)'} />
+                    <Badge text={apt.status.replace('_', ' ')} color={isPast ? 'var(--text-muted)' : apt.status === 'confirmed' ? 'var(--color-success)' : 'var(--accent-primary)'} />
                   </div>
                 );
               })}
@@ -611,13 +644,13 @@ function PatientDashboard({ patient, onLogout }: { patient: PatientDoc; onLogout
                     background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
                   }}>
                     <div style={{ minWidth: 70, fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{(lab.orderedAt || lab.createdAt).slice(0, 10)}</div>
-                    <FlaskConical size={14} style={{ color: lab.status === 'pending' ? '#D97706' : lab.abnormal ? '#EF4444' : '#10B981', flexShrink: 0 }} />
+                    <FlaskConical size={14} style={{ color: lab.status === 'pending' ? 'var(--color-warning)' : lab.abnormal ? 'var(--color-danger)' : 'var(--color-success)', flexShrink: 0 }} />
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{lab.testName}</div>
                       <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{lab.specimen} &middot; {lab.orderedBy}</div>
                     </div>
                     <Badge text={lab.status === 'completed' ? (lab.abnormal ? 'Abnormal' : 'Normal') : lab.status}
-                      color={lab.status === 'pending' ? '#D97706' : lab.abnormal ? '#EF4444' : '#10B981'} />
+                      color={lab.status === 'pending' ? 'var(--color-warning)' : lab.abnormal ? 'var(--color-danger)' : 'var(--color-success)'} />
                     <ChevronRight size={14} style={{ color: 'var(--text-muted)', transform: expandedId === lab._id ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }} />
                   </button>
                   {expandedId === lab._id && lab.status === 'completed' && (
@@ -625,7 +658,7 @@ function PatientDashboard({ patient, onLogout }: { patient: PatientDoc; onLogout
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderRadius: 'var(--card-radius)', background: lab.abnormal ? 'rgba(239,68,68,0.04)' : 'rgba(16,185,129,0.04)' }}>
                         <div>
                           <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Result</div>
-                          <div className="stat-value" style={{ fontSize: 15, fontWeight: 700, color: lab.abnormal ? '#EF4444' : 'var(--text-primary)' }}>{lab.result}</div>
+                          <div className="stat-value" style={{ fontSize: 15, fontWeight: 700, color: lab.abnormal ? 'var(--color-danger)' : 'var(--text-primary)' }}>{lab.result}</div>
                         </div>
                         {lab.referenceRange && (
                           <div style={{ textAlign: 'right' }}>
@@ -636,8 +669,8 @@ function PatientDashboard({ patient, onLogout }: { patient: PatientDoc; onLogout
                       </div>
                       {lab.critical && (
                         <div style={{ marginTop: 8, padding: '6px 10px', borderRadius: 'var(--card-radius)', background: 'rgba(239,68,68,0.06)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <AlertTriangle size={12} style={{ color: '#EF4444' }} />
-                          <span style={{ fontSize: 11, fontWeight: 600, color: '#EF4444' }}>Critical result — contact your provider immediately</span>
+                          <AlertTriangle size={12} style={{ color: 'var(--color-danger)' }} />
+                          <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-danger)' }}>Critical result — contact your provider immediately</span>
                         </div>
                       )}
                     </div>
@@ -654,14 +687,6 @@ function PatientDashboard({ patient, onLogout }: { patient: PatientDoc; onLogout
         <div>
           <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 14 }}>Immunization Record</h2>
           <Empty icon={Syringe} text="Immunization data is loaded from the facility system. Visit your nearest health center to view or update your vaccination record." />
-        </div>
-      )}
-
-      {/* ═══ Messages ═══ */}
-      {activeTab === 'messages' && (
-        <div>
-          <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 14 }}>Messages</h2>
-          <Empty icon={MessageSquare} text="No messages from your healthcare providers yet. Messages will appear here when your doctor or facility sends you updates." />
         </div>
       )}
 
@@ -715,7 +740,7 @@ function PatientDashboard({ patient, onLogout }: { patient: PatientDoc; onLogout
 function SH({ icon: Icon, title }: { icon: typeof User; title: string }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-      <Icon size={14} style={{ color: '#0077D7' }} />
+      <Icon size={14} style={{ color: 'var(--accent-primary)' }} />
       <span style={{ fontFamily: "'DM Sans', 'Inter', sans-serif", fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{title}</span>
     </div>
   );

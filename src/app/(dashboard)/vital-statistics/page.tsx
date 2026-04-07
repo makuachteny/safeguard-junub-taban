@@ -30,8 +30,8 @@ export default function VitalStatisticsPage() {
             { label: 'Total Births', value: birthStats.total, icon: Baby, color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)' },
             { label: 'This Month', value: birthStats.thisMonth, icon: Activity, color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)' },
             { label: 'Male Births', value: birthStats.byGender.male, icon: Baby, color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)' },
-            { label: 'Female Births', value: birthStats.byGender.female, icon: Baby, color: '#E52E42', bg: 'rgba(229,46,66,0.12)' },
-            { label: 'Caesarean Rate', value: `${birthStats.total ? Math.round(birthStats.byDeliveryType.caesarean / birthStats.total * 100) : 0}%`, icon: Activity, color: '#FCD34D', bg: 'rgba(252,211,77,0.12)' },
+            { label: 'Female Births', value: birthStats.byGender.female, icon: Baby, color: 'var(--color-danger)', bg: 'rgba(229,46,66,0.12)' },
+            { label: 'Caesarean Rate', value: `${birthStats.total ? Math.round(birthStats.byDeliveryType.caesarean / birthStats.total * 100) : 0}%`, icon: Activity, color: 'var(--color-warning)', bg: 'rgba(252,211,77,0.12)' },
           ].map(stat => (
             <div key={stat.label} className="kpi">
               <div className="kpi__icon" style={{ background: stat.bg }}>
@@ -64,13 +64,13 @@ export default function VitalStatisticsPage() {
         )}
 
         {/* Death Statistics */}
-        <h2 className="font-semibold text-sm flex items-center gap-2 mb-3 mt-6"><Skull className="w-4 h-4" style={{ color: '#E52E42' }} /> Mortality Statistics</h2>
+        <h2 className="font-semibold text-sm flex items-center gap-2 mb-3 mt-6"><Skull className="w-4 h-4" style={{ color: 'var(--color-danger)' }} /> Mortality Statistics</h2>
         <div className="kpi-grid mb-6">
           {[
-            { label: 'Total Deaths', value: deathStats.total, icon: Skull, color: '#E52E42', bg: 'rgba(229,46,66,0.12)' },
-            { label: 'Maternal Deaths', value: deathStats.maternalDeaths, icon: Skull, color: '#E52E42', bg: 'rgba(229,46,66,0.12)' },
-            { label: 'Under-5 Deaths', value: deathStats.under5Deaths, icon: AlertTriangle, color: '#FCD34D', bg: 'rgba(252,211,77,0.12)' },
-            { label: 'Neonatal Deaths', value: deathStats.neonatalDeaths, icon: AlertTriangle, color: '#FCD34D', bg: 'rgba(252,211,77,0.12)' },
+            { label: 'Total Deaths', value: deathStats.total, icon: Skull, color: 'var(--color-danger)', bg: 'rgba(229,46,66,0.12)' },
+            { label: 'Maternal Deaths', value: deathStats.maternalDeaths, icon: Skull, color: 'var(--color-danger)', bg: 'rgba(229,46,66,0.12)' },
+            { label: 'Under-5 Deaths', value: deathStats.under5Deaths, icon: AlertTriangle, color: 'var(--color-warning)', bg: 'rgba(252,211,77,0.12)' },
+            { label: 'Neonatal Deaths', value: deathStats.neonatalDeaths, icon: AlertTriangle, color: 'var(--color-warning)', bg: 'rgba(252,211,77,0.12)' },
             { label: 'ICD-11 Coded', value: `${deathStats.total ? Math.round(deathStats.withICD11Code / deathStats.total * 100) : 0}%`, icon: Activity, color: 'var(--accent-primary)', bg: 'rgba(43,111,224,0.12)' },
           ].map(stat => (
             <div key={stat.label} className="kpi">
@@ -88,15 +88,15 @@ export default function VitalStatisticsPage() {
         {/* CRVS Indicators */}
         <div className="grid grid-cols-2 gap-3 mb-6">
           <div className="card-elevated p-4">
-            <h3 className="font-semibold text-sm mb-3 flex items-center gap-2"><AlertTriangle className="w-4 h-4" style={{ color: '#E52E42' }} /> CRVS Registration Gaps</h3>
+            <h3 className="font-semibold text-sm mb-3 flex items-center gap-2"><AlertTriangle className="w-4 h-4" style={{ color: 'var(--color-danger)' }} /> CRVS Registration Gaps</h3>
             <div className="space-y-3">
               <div>
                 <div className="flex justify-between text-xs mb-1"><span style={{ color: 'var(--text-secondary)' }}>Death Notification Rate</span><span className="font-bold">{deathStats.total ? Math.round(deathStats.notified / deathStats.total * 100) : 0}%</span></div>
-                <div className="w-full h-2 rounded-full" style={{ background: 'var(--overlay-light)' }}><div className="h-full rounded-full" style={{ width: `${deathStats.total ? (deathStats.notified / deathStats.total) * 100 : 0}%`, background: '#FCD34D' }} /></div>
+                <div className="w-full h-2 rounded-full" style={{ background: 'var(--overlay-light)' }}><div className="h-full rounded-full" style={{ width: `${deathStats.total ? (deathStats.notified / deathStats.total) * 100 : 0}%`, background: 'var(--color-warning)' }} /></div>
               </div>
               <div>
                 <div className="flex justify-between text-xs mb-1"><span style={{ color: 'var(--text-secondary)' }}>Death Registration Rate</span><span className="font-bold">{deathStats.total ? Math.round(deathStats.registered / deathStats.total * 100) : 0}%</span></div>
-                <div className="w-full h-2 rounded-full" style={{ background: 'var(--overlay-light)' }}><div className="h-full rounded-full" style={{ width: `${deathStats.total ? (deathStats.registered / deathStats.total) * 100 : 0}%`, background: '#E52E42' }} /></div>
+                <div className="w-full h-2 rounded-full" style={{ background: 'var(--overlay-light)' }}><div className="h-full rounded-full" style={{ width: `${deathStats.total ? (deathStats.registered / deathStats.total) * 100 : 0}%`, background: 'var(--color-danger)' }} /></div>
               </div>
               <div>
                 <div className="flex justify-between text-xs mb-1"><span style={{ color: 'var(--text-secondary)' }}>ICD-11 Coding Rate</span><span className="font-bold">{deathStats.total ? Math.round(deathStats.withICD11Code / deathStats.total * 100) : 0}%</span></div>
@@ -111,7 +111,7 @@ export default function VitalStatisticsPage() {
               {deathStats.topCauses.slice(0, 5).map((c, i) => (
                 <div key={c.code} className="flex items-center gap-2">
                   <span className="text-xs font-bold w-5" style={{ color: 'var(--text-muted)' }}>{i + 1}</span>
-                  <span className="font-mono text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: '#E52E42' }}>{c.code}</span>
+                  <span className="font-mono text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(229,46,66,0.12)', color: 'var(--color-danger)' }}>{c.code}</span>
                   <span className="text-xs flex-1 truncate">{c.cause}</span>
                   <span className="text-sm font-bold">{c.count}</span>
                 </div>

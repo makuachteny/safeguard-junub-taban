@@ -209,7 +209,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                             {isAIExpanded && (
                               <div className="mt-2 p-3 rounded-lg space-y-2" style={{ background: 'rgba(139,92,246,0.05)', border: '1px solid rgba(139,92,246,0.15)' }}>
                                 <div className="flex items-center gap-2">
-                                  <ShieldAlert className="w-3.5 h-3.5" style={{ color: ai.severityAssessment.includes('HIGH') ? 'var(--taban-red)' : ai.severityAssessment.includes('MODERATE') ? '#FCD34D' : 'var(--taban-green)' }} />
+                                  <ShieldAlert className="w-3.5 h-3.5" style={{ color: ai.severityAssessment.includes('HIGH') ? 'var(--taban-red)' : ai.severityAssessment.includes('MODERATE') ? 'var(--color-warning)' : 'var(--taban-green)' }} />
                                   <span className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>{ai.severityAssessment}</span>
                                 </div>
                                 {ai.suggestedDiagnoses.slice(0, 3).map(dx => (
@@ -220,7 +220,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                                   </div>
                                 ))}
                                 {ai.vitalSignAlerts.length > 0 && (
-                                  <div className="text-xs" style={{ color: '#F59E0B' }}>
+                                  <div className="text-xs" style={{ color: 'var(--color-warning)' }}>
                                     <AlertTriangle className="w-3 h-3 inline mr-1" />
                                     {ai.vitalSignAlerts.length} vital sign alert(s)
                                   </div>
@@ -277,7 +277,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                   <div className="space-y-1.5">
                     {(patient.chronicConditions || ['None']).map(c => (
                       <div key={c} className="px-3 py-2 rounded-lg text-sm"
-                        style={{ background: c === 'None' ? 'var(--overlay-subtle)' : 'rgba(252,211,77,0.14)', color: c === 'None' ? 'var(--text-secondary)' : '#FCD34D' }}>
+                        style={{ background: c === 'None' ? 'var(--overlay-subtle)' : 'rgba(252,211,77,0.14)', color: c === 'None' ? 'var(--text-secondary)' : 'var(--color-warning)' }}>
                         {c}
                       </div>
                     ))}
@@ -358,7 +358,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                           {isAIExpanded && (
                             <div className="mt-2 p-3 rounded-lg space-y-2" style={{ background: 'rgba(139,92,246,0.05)', border: '1px solid rgba(139,92,246,0.15)' }}>
                               <div className="flex items-center gap-2">
-                                <ShieldAlert className="w-3.5 h-3.5" style={{ color: ai.severityAssessment.includes('HIGH') ? 'var(--taban-red)' : ai.severityAssessment.includes('MODERATE') ? '#FCD34D' : 'var(--taban-green)' }} />
+                                <ShieldAlert className="w-3.5 h-3.5" style={{ color: ai.severityAssessment.includes('HIGH') ? 'var(--taban-red)' : ai.severityAssessment.includes('MODERATE') ? 'var(--color-warning)' : 'var(--taban-green)' }} />
                                 <span className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>{ai.severityAssessment}</span>
                               </div>
                               {ai.suggestedDiagnoses.slice(0, 3).map(dx => (
@@ -411,7 +411,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                     <tr key={i}>
                       <td className="font-mono text-xs">{lab.date}</td>
                       <td className="font-medium text-sm">{lab.testName}</td>
-                      <td className={lab.abnormal ? 'font-semibold' : ''} style={{ color: lab.abnormal ? (lab.critical ? '#EF4444' : '#F59E0B') : 'inherit' }}>
+                      <td className={lab.abnormal ? 'font-semibold' : ''} style={{ color: lab.abnormal ? (lab.critical ? 'var(--color-danger)' : 'var(--color-warning)') : 'inherit' }}>
                         {lab.result}
                       </td>
                       <td className="text-xs" style={{ color: 'var(--text-muted)' }}>{lab.unit}</td>
@@ -492,11 +492,11 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                     return (
                       <tr key={rec._id}>
                         <td className="font-mono text-xs">{rec.visitDate}</td>
-                        <td style={{ color: v.temperature > 37.5 ? '#EF4444' : 'inherit', fontWeight: v.temperature > 37.5 ? 600 : 400 }}>{v.temperature}</td>
-                        <td style={{ color: v.systolic > 140 ? '#EF4444' : 'inherit', fontWeight: v.systolic > 140 ? 600 : 400 }}>{v.systolic}/{v.diastolic}</td>
-                        <td style={{ color: v.pulse > 100 ? '#EF4444' : 'inherit' }}>{v.pulse}</td>
+                        <td style={{ color: v.temperature > 37.5 ? 'var(--color-danger)' : 'inherit', fontWeight: v.temperature > 37.5 ? 600 : 400 }}>{v.temperature}</td>
+                        <td style={{ color: v.systolic > 140 ? 'var(--color-danger)' : 'inherit', fontWeight: v.systolic > 140 ? 600 : 400 }}>{v.systolic}/{v.diastolic}</td>
+                        <td style={{ color: v.pulse > 100 ? 'var(--color-danger)' : 'inherit' }}>{v.pulse}</td>
                         <td>{v.respiratoryRate}</td>
-                        <td style={{ color: v.oxygenSaturation < 95 ? '#EF4444' : 'inherit' }}>{v.oxygenSaturation}%</td>
+                        <td style={{ color: v.oxygenSaturation < 95 ? 'var(--color-danger)' : 'inherit' }}>{v.oxygenSaturation}%</td>
                         <td>{v.weight}</td>
                         <td>{v.bmi}</td>
                         <td className="text-xs" style={{ color: 'var(--text-muted)' }}>{(rec.hospitalName || '').replace(' Hospital', '').replace(' Teaching', '')}</td>

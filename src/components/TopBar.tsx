@@ -116,7 +116,7 @@ export default function TopBar({ hideSearch }: { title?: string; hideSearch?: bo
           <Bell className="w-4 h-4" style={{ color: 'var(--text-secondary)' }} />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{
             background: 'var(--accent-primary)',
-            boxShadow: '0 0 6px rgba(43, 111, 224, 0.5)',
+            boxShadow: '0 0 6px var(--accent-light)',
           }} />
         </button>
 

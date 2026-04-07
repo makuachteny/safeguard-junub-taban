@@ -71,7 +71,7 @@ function CircularGauge({ value, label, color, size = 100, strokeWidth = 8 }: {
 
 // Data Quality Badge
 function DataQualityBadge({ score }: { score: number }) {
-  const color = score > 90 ? '#10B981' : score >= 70 ? '#F59E0B' : '#EF4444';
+  const color = score > 90 ? 'var(--color-success)' : score >= 70 ? 'var(--color-warning)' : 'var(--color-danger)';
   const bg = score > 90 ? 'rgba(16,185,129,0.12)' : score >= 70 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)';
   return (
     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: bg, color }}>
@@ -80,7 +80,7 @@ function DataQualityBadge({ score }: { score: number }) {
   );
 }
 
-const FACILITY_COLORS = ['#3ECF8E', '#60A5FA', '#A855F7', '#FCD34D', '#94A3B8'];
+const FACILITY_COLORS = ['var(--color-success)', '#60A5FA', '#A855F7', 'var(--color-warning)', 'var(--text-muted)'];
 
 // Calculate data quality score for a hospital
 function calcDataQuality(h: HospitalDoc): number {
@@ -317,10 +317,10 @@ export default function GovernmentDashboardPage() {
 
   const syncDotColor = (status: string) => {
     switch (status) {
-      case 'online': return '#4ADE80';
-      case 'offline': return '#94A3B8';
-      case 'syncing': return '#FCD34D';
-      default: return '#94A3B8';
+      case 'online': return 'var(--color-success)';
+      case 'offline': return 'var(--text-muted)';
+      case 'syncing': return 'var(--color-warning)';
+      default: return 'var(--text-muted)';
     }
   };
 
@@ -352,12 +352,12 @@ export default function GovernmentDashboardPage() {
           {[
             { label: 'Hospitals', value: totalHospitals.toString(), icon: Building2, color: 'var(--accent-primary)', bg: 'rgba(0,119,215,0.10)', href: '/hospitals' },
             { label: 'Patients', value: totalPatients.toLocaleString(), icon: Users, color: 'var(--accent-primary)', bg: 'rgba(0,119,215,0.10)', href: '/hospitals' },
-            { label: 'Beds', value: totalBeds.toLocaleString(), icon: BedDouble, color: '#FCD34D', bg: 'rgba(252,211,77,0.10)', href: '/hospitals' },
+            { label: 'Beds', value: totalBeds.toLocaleString(), icon: BedDouble, color: 'var(--color-warning)', bg: 'rgba(252,211,77,0.10)', href: '/hospitals' },
             { label: 'Staff', value: totalStaff.toLocaleString(), icon: Stethoscope, color: '#38BDF8', bg: 'rgba(56,189,248,0.10)', href: '/hospitals' },
             { label: 'Online', value: onlineHospitals.toString(), icon: Wifi, color: 'var(--accent-primary)', bg: 'rgba(0,119,215,0.10)', href: '/hospitals' },
-            { label: 'Offline', value: offlineHospitals.toString(), icon: WifiOff, color: '#94A3B8', bg: 'rgba(100,116,139,0.10)', href: '/hospitals' },
-            { label: 'Alerts', value: activeAlerts.toString(), icon: AlertTriangle, color: '#E52E42', bg: 'rgba(229,46,66,0.08)', href: '/surveillance' },
-            { label: 'Referrals', value: pendingReferrals.toString(), icon: ArrowRightLeft, color: '#FCD34D', bg: 'rgba(252,211,77,0.10)' },
+            { label: 'Offline', value: offlineHospitals.toString(), icon: WifiOff, color: 'var(--text-muted)', bg: 'rgba(100,116,139,0.10)', href: '/hospitals' },
+            { label: 'Alerts', value: activeAlerts.toString(), icon: AlertTriangle, color: 'var(--color-danger)', bg: 'rgba(229,46,66,0.08)', href: '/surveillance' },
+            { label: 'Referrals', value: pendingReferrals.toString(), icon: ArrowRightLeft, color: 'var(--color-warning)', bg: 'rgba(252,211,77,0.10)' },
           ].map(stat => (
             <div key={stat.label} className="kpi" onClick={() => stat.href && router.push(stat.href)}>
               <div className="kpi__icon" style={{ background: stat.bg }}>
@@ -378,7 +378,7 @@ export default function GovernmentDashboardPage() {
           <div className="lg:col-span-2 glass-section flex flex-col">
             <div className="glass-section-header">
               <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Weekly Disease Trends</span>
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: 'rgba(229,46,66,0.1)', color: '#E52E42' }}>Surveillance</span>
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: 'rgba(229,46,66,0.1)', color: 'var(--color-danger)' }}>Surveillance</span>
             </div>
             <div className="p-3 flex-1 min-h-0">
               <ResponsiveContainer width="100%" height="100%">
@@ -520,7 +520,7 @@ export default function GovernmentDashboardPage() {
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-md flex items-center justify-center" style={{ background: 'rgba(5,150,105,0.1)' }}>
-                <Download className="w-5 h-5" style={{ color: '#059669' }} />
+                <Download className="w-5 h-5" style={{ color: 'var(--color-success)' }} />
               </div>
               <div>
                 <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Export to DHIS2</h3>
@@ -543,7 +543,7 @@ export default function GovernmentDashboardPage() {
               <button
                 onClick={handleDhis2Export}
                 className="flex items-center gap-2 px-4 py-2 rounded-md text-xs font-semibold text-white transition-all hover:opacity-90"
-                style={{ background: '#059669' }}
+                style={{ background: 'var(--color-success)' }}
               >
                 <Download className="w-3.5 h-3.5" />
                 Export .json
@@ -624,7 +624,7 @@ export default function GovernmentDashboardPage() {
                       </tr>
                       {/* Expanded Hospital Rows */}
                       {isExpanded && stateHospitals.map(h => (
-                        <tr key={h._id} className="cursor-pointer" onClick={() => router.push('/hospitals')}>
+                        <tr key={h._id} className="cursor-pointer" onClick={() => router.push(`/hospitals?facility=${h._id}`)}>
                           <td>
                             <div className="flex items-center gap-2 pl-6">
                               <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent-light)' }}>
@@ -754,7 +754,7 @@ export default function GovernmentDashboardPage() {
                             <td key={i}>
                               <span
                                 className="font-semibold text-sm"
-                                style={{ color: v === best && comparisonFacilities.length > 1 ? '#10B981' : 'var(--text-primary)' }}
+                                style={{ color: v === best && comparisonFacilities.length > 1 ? 'var(--color-success)' : 'var(--text-primary)' }}
                               >
                                 {v.toLocaleString()}
                               </span>
@@ -780,7 +780,7 @@ export default function GovernmentDashboardPage() {
           <div className="glass-section">
             <div className="glass-section-header">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4" style={{ color: '#E52E42' }} />
+                <AlertTriangle className="w-4 h-4" style={{ color: 'var(--color-danger)' }} />
                 <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Disease Alerts</span>
               </div>
               <button onClick={() => router.push('/surveillance')} className="text-[10px] font-medium" style={{ color: 'var(--accent-primary)' }}>View All</button>
@@ -796,7 +796,7 @@ export default function GovernmentDashboardPage() {
                     <span className="text-[11px] font-semibold" style={{ color: 'var(--text-primary)' }}>{alert.disease}</span>
                     <span className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{
                       background: alert.alertLevel === 'emergency' ? 'rgba(229,46,66,0.15)' : alert.alertLevel === 'warning' ? 'rgba(252,211,77,0.15)' : 'rgba(56,189,248,0.15)',
-                      color: alert.alertLevel === 'emergency' ? '#E52E42' : alert.alertLevel === 'warning' ? '#FBBF24' : '#38BDF8',
+                      color: alert.alertLevel === 'emergency' ? 'var(--color-danger)' : alert.alertLevel === 'warning' ? 'var(--color-warning)' : '#38BDF8',
                     }}>{alert.alertLevel.toUpperCase()}</span>
                   </div>
                   <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
@@ -804,14 +804,14 @@ export default function GovernmentDashboardPage() {
                   </p>
                   <div className="flex items-center gap-1 mt-0.5">
                     {alert.trend === 'increasing' ? (
-                      <TrendingUp className="w-2.5 h-2.5" style={{ color: '#EF4444' }} />
+                      <TrendingUp className="w-2.5 h-2.5" style={{ color: 'var(--color-danger)' }} />
                     ) : alert.trend === 'decreasing' ? (
-                      <TrendingDown className="w-2.5 h-2.5" style={{ color: '#4ADE80' }} />
+                      <TrendingDown className="w-2.5 h-2.5" style={{ color: 'var(--color-success)' }} />
                     ) : (
-                      <Minus className="w-2.5 h-2.5" style={{ color: '#FBBF24' }} />
+                      <Minus className="w-2.5 h-2.5" style={{ color: 'var(--color-warning)' }} />
                     )}
                     <span className="text-[9px]" style={{
-                      color: alert.trend === 'increasing' ? '#EF4444' : alert.trend === 'decreasing' ? '#4ADE80' : '#FBBF24'
+                      color: alert.trend === 'increasing' ? 'var(--color-danger)' : alert.trend === 'decreasing' ? 'var(--color-success)' : 'var(--color-warning)'
                     }}>{alert.trend}</span>
                   </div>
                 </div>
@@ -823,7 +823,7 @@ export default function GovernmentDashboardPage() {
           <div className="glass-section">
             <div className="glass-section-header">
               <div className="flex items-center gap-2">
-                <ArrowRightLeft className="w-4 h-4" style={{ color: '#FCD34D' }} />
+                <ArrowRightLeft className="w-4 h-4" style={{ color: 'var(--color-warning)' }} />
                 <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Recent Referrals</span>
               </div>
               <button onClick={() => router.push('/referrals')} className="text-[10px] font-medium" style={{ color: 'var(--accent-primary)' }}>View All</button>
@@ -835,7 +835,7 @@ export default function GovernmentDashboardPage() {
                     <span className="text-[11px] font-semibold" style={{ color: 'var(--text-primary)' }}>{ref.patientName}</span>
                     <span className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{
                       background: ref.urgency === 'emergency' ? 'rgba(229,46,66,0.12)' : ref.urgency === 'urgent' ? 'rgba(252,211,77,0.12)' : 'rgba(0,119,215,0.12)',
-                      color: ref.urgency === 'emergency' ? '#E52E42' : ref.urgency === 'urgent' ? '#FBBF24' : 'var(--accent-primary)',
+                      color: ref.urgency === 'emergency' ? 'var(--color-danger)' : ref.urgency === 'urgent' ? 'var(--color-warning)' : 'var(--accent-primary)',
                     }}>{ref.urgency}</span>
                   </div>
                   <p className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>{ref.fromHospital} → {ref.toHospital}</p>

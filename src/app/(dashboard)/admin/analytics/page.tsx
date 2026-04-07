@@ -48,14 +48,14 @@ export default function AdminAnalyticsPage() {
             name: org.name.length > 18 ? org.name.slice(0, 16) + '...' : org.name,
             patients: stats.patientCount,
             users: stats.userCount,
-            color: org.primaryColor || '#3ECF8E',
+            color: org.primaryColor || 'var(--color-success)',
           });
         } catch {
           dataPoints.push({
             name: org.name.length > 18 ? org.name.slice(0, 16) + '...' : org.name,
             patients: 0,
             users: 0,
-            color: org.primaryColor || '#3ECF8E',
+            color: org.primaryColor || 'var(--color-success)',
           });
         }
       }
@@ -76,10 +76,10 @@ export default function AdminAnalyticsPage() {
 
   // Status distribution for pie chart
   const statusDistribution = [
-    { name: 'Active', value: organizations.filter(o => o.subscriptionStatus === 'active').length, color: '#10B981' },
-    { name: 'Trial', value: organizations.filter(o => o.subscriptionStatus === 'trial').length, color: '#F59E0B' },
-    { name: 'Suspended', value: organizations.filter(o => o.subscriptionStatus === 'suspended').length, color: '#EF4444' },
-    { name: 'Cancelled', value: organizations.filter(o => o.subscriptionStatus === 'cancelled').length, color: '#94A3B8' },
+    { name: 'Active', value: organizations.filter(o => o.subscriptionStatus === 'active').length, color: 'var(--color-success)' },
+    { name: 'Trial', value: organizations.filter(o => o.subscriptionStatus === 'trial').length, color: 'var(--color-warning)' },
+    { name: 'Suspended', value: organizations.filter(o => o.subscriptionStatus === 'suspended').length, color: 'var(--color-danger)' },
+    { name: 'Cancelled', value: organizations.filter(o => o.subscriptionStatus === 'cancelled').length, color: 'var(--text-muted)' },
   ].filter(d => d.value > 0);
 
   // Simulated growth data (last 6 months)
@@ -115,10 +115,10 @@ export default function AdminAnalyticsPage() {
         {/* Summary Cards */}
         <div className="kpi-grid mb-6">
           {[
-            { label: 'Total Organizations', value: organizations.length, icon: Building2, color: '#DC2626', bg: '#DC262615' },
+            { label: 'Total Organizations', value: organizations.length, icon: Building2, color: 'var(--color-danger)', bg: '#DC262615' },
             { label: 'Total Users', value: totalUsersAll, icon: Users, color: '#2563EB', bg: '#2563EB15' },
-            { label: 'Total Patients', value: totalPatientsAll, icon: HeartPulse, color: '#059669', bg: '#05966915' },
-            { label: 'Avg Patients/Org', value: organizations.length > 0 ? Math.round(totalPatientsAll / organizations.length) : 0, icon: TrendingUp, color: '#D97706', bg: '#D9770615' },
+            { label: 'Total Patients', value: totalPatientsAll, icon: HeartPulse, color: 'var(--color-success)', bg: '#05966915' },
+            { label: 'Avg Patients/Org', value: organizations.length > 0 ? Math.round(totalPatientsAll / organizations.length) : 0, icon: TrendingUp, color: 'var(--color-warning)', bg: '#D9770615' },
           ].map(stat => (
             <div key={stat.label} className="kpi">
               <div className="kpi__icon" style={{ background: stat.bg }}>
@@ -198,7 +198,7 @@ export default function AdminAnalyticsPage() {
             {/* Status Distribution */}
             <div className="rounded-2xl p-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
               <div className="flex items-center gap-2 mb-3">
-                <PieChartIcon className="w-4 h-4" style={{ color: '#059669' }} />
+                <PieChartIcon className="w-4 h-4" style={{ color: 'var(--color-success)' }} />
                 <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Status</span>
               </div>
               {statusDistribution.length === 0 ? (
@@ -235,7 +235,7 @@ export default function AdminAnalyticsPage() {
           {/* Growth Over Time */}
           <div className="rounded-2xl p-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
             <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="w-4 h-4" style={{ color: '#059669' }} />
+              <TrendingUp className="w-4 h-4" style={{ color: 'var(--color-success)' }} />
               <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Growth Trend (Simulated)</span>
             </div>
             <ResponsiveContainer width="100%" height={260}>
@@ -255,7 +255,7 @@ export default function AdminAnalyticsPage() {
           {/* Users per Org Bar Chart */}
           <div className="rounded-2xl p-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
             <div className="flex items-center gap-2 mb-4">
-              <Users className="w-4 h-4" style={{ color: '#D97706' }} />
+              <Users className="w-4 h-4" style={{ color: 'var(--color-warning)' }} />
               <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Users per Organization</span>
             </div>
             {dataLoading || orgsLoading ? (
@@ -307,7 +307,7 @@ export default function AdminAnalyticsPage() {
                         <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{org.name}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-sm font-bold" style={{ color: '#059669' }}>{data?.patients ?? '...'}</td>
+                    <td className="px-4 py-3 text-sm font-bold" style={{ color: 'var(--color-success)' }}>{data?.patients ?? '...'}</td>
                     <td className="px-4 py-3 text-sm font-bold" style={{ color: '#2563EB' }}>{data?.users ?? '...'}</td>
                     <td className="px-4 py-3">
                       <span className="text-xs font-semibold px-2 py-1 rounded-full" style={{
@@ -318,10 +318,10 @@ export default function AdminAnalyticsPage() {
                     <td className="px-4 py-3">
                       <span className="flex items-center gap-1.5 text-xs font-semibold">
                         <span className="w-2 h-2 rounded-full" style={{
-                          background: org.subscriptionStatus === 'active' ? '#10B981' : org.subscriptionStatus === 'trial' ? '#F59E0B' : '#EF4444',
+                          background: org.subscriptionStatus === 'active' ? 'var(--color-success)' : org.subscriptionStatus === 'trial' ? 'var(--color-warning)' : 'var(--color-danger)',
                         }} />
                         <span style={{
-                          color: org.subscriptionStatus === 'active' ? '#10B981' : org.subscriptionStatus === 'trial' ? '#F59E0B' : '#EF4444',
+                          color: org.subscriptionStatus === 'active' ? 'var(--color-success)' : org.subscriptionStatus === 'trial' ? 'var(--color-warning)' : 'var(--color-danger)',
                         }}>{org.subscriptionStatus}</span>
                       </span>
                     </td>

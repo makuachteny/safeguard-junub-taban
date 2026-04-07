@@ -90,9 +90,9 @@ export default function PharmacyPage() {
           {/* Stats */}
           <div className="kpi-grid mb-4">
             {[
-              { label: 'Pending Prescriptions', value: pendingRx, icon: Pill, color: '#FCD34D', bg: 'rgba(252,211,77,0.10)' },
+              { label: 'Pending Prescriptions', value: pendingRx, icon: Pill, color: 'var(--color-warning)', bg: 'rgba(252,211,77,0.10)' },
               { label: 'Dispensed Today', value: dispensedRx, icon: CheckCircle2, color: 'var(--accent-primary)', bg: 'rgba(0,119,215,0.12)' },
-              { label: 'Low Stock Items', value: lowStock, icon: TrendingDown, color: '#E52E42', bg: 'rgba(229,46,66,0.10)' },
+              { label: 'Low Stock Items', value: lowStock, icon: TrendingDown, color: 'var(--color-danger)', bg: 'rgba(229,46,66,0.10)' },
               { label: 'Expired Items', value: expiredItems, icon: AlertTriangle, color: '#F87171', bg: 'rgba(229,46,66,0.12)' },
             ].map(s => (
               <div key={s.label} className="kpi cursor-pointer" onClick={() => {
@@ -114,12 +114,12 @@ export default function PharmacyPage() {
           <div className="flex gap-0 border-b mb-4" style={{ borderColor: 'var(--border-light)' }}>
             <button onClick={() => setActiveTab('queue')}
               className={`px-4 py-3 text-sm font-medium ${activeTab === 'queue' ? 'tab-active' : ''}`}
-              style={{ color: activeTab === 'queue' ? '#0077D7' : 'var(--text-muted)' }}>
+              style={{ color: activeTab === 'queue' ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
               Prescription Queue ({pendingRx})
             </button>
             <button onClick={() => setActiveTab('inventory')}
               className={`px-4 py-3 text-sm font-medium ${activeTab === 'inventory' ? 'tab-active' : ''}`}
-              style={{ color: activeTab === 'inventory' ? '#0077D7' : 'var(--text-muted)' }}>
+              style={{ color: activeTab === 'inventory' ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
               Inventory ({inventory.length})
             </button>
           </div>
@@ -212,7 +212,7 @@ export default function PharmacyPage() {
                         <td><span className="text-xs px-2 py-0.5 rounded" style={{ background: 'var(--overlay-medium)', color: 'var(--text-secondary)' }}>{item.category}</span></td>
                         <td>
                           <div className="flex items-center gap-2">
-                            <span className="font-semibold text-sm" style={{ color: item.status === 'critical' ? '#EF4444' : item.status === 'low' ? '#F59E0B' : 'inherit' }}>
+                            <span className="font-semibold text-sm" style={{ color: item.status === 'critical' ? 'var(--color-danger)' : item.status === 'low' ? 'var(--color-warning)' : 'inherit' }}>
                               {item.stockLevel}
                             </span>
                             <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{item.unit}</span>
@@ -221,7 +221,7 @@ export default function PharmacyPage() {
                           <div className="w-20 h-1.5 rounded-full mt-1" style={{ background: 'var(--overlay-medium)' }}>
                             <div className="h-full rounded-full" style={{
                               width: `${Math.min(100, (item.stockLevel / (item.reorderLevel * 3)) * 100)}%`,
-                              background: item.status === 'critical' ? '#EF4444' : item.status === 'low' ? '#FCD34D' : '#4ADE80',
+                              background: item.status === 'critical' ? 'var(--color-danger)' : item.status === 'low' ? 'var(--color-warning)' : 'var(--color-success)',
                             }} />
                           </div>
                         </td>
@@ -237,7 +237,7 @@ export default function PharmacyPage() {
                           </span>
                         </td>
                         <td className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>{item.batchNumber}</td>
-                        <td className="text-xs" style={{ color: item.status === 'expired' ? '#EF4444' : 'var(--text-muted)' }}>
+                        <td className="text-xs" style={{ color: item.status === 'expired' ? 'var(--color-danger)' : 'var(--text-muted)' }}>
                           {item.expiryDate}
                         </td>
                         <td className="text-center font-semibold text-sm">{item.dispensedToday}</td>

@@ -127,10 +127,10 @@ export default function MyFacilityPage() {
   }
 
   const statusColors: Record<string, { bg: string; color: string; label: string }> = {
-    functional: { bg: 'rgba(74,222,128,0.12)', color: '#4ADE80', label: 'Functional' },
-    partially_functional: { bg: 'rgba(252,211,77,0.12)', color: '#FCD34D', label: 'Partially Functional' },
-    non_functional: { bg: 'rgba(229,46,66,0.12)', color: '#E52E42', label: 'Non-Functional' },
-    closed: { bg: 'rgba(148,163,184,0.12)', color: '#94A3B8', label: 'Closed' },
+    functional: { bg: 'rgba(74,222,128,0.12)', color: 'var(--color-success)', label: 'Functional' },
+    partially_functional: { bg: 'rgba(252,211,77,0.12)', color: 'var(--color-warning)', label: 'Partially Functional' },
+    non_functional: { bg: 'rgba(229,46,66,0.12)', color: 'var(--color-danger)', label: 'Non-Functional' },
+    closed: { bg: 'rgba(148,163,184,0.12)', color: 'var(--text-muted)', label: 'Closed' },
   };
 
   const sectionClass = 'card-elevated p-5 space-y-4';
@@ -205,12 +205,12 @@ export default function MyFacilityPage() {
             </div>
             <div className="flex items-center gap-2">
               {error && (
-                <span className="text-xs font-medium flex items-center gap-1" style={{ color: '#E52E42' }}>
+                <span className="text-xs font-medium flex items-center gap-1" style={{ color: 'var(--color-danger)' }}>
                   <AlertTriangle className="w-3.5 h-3.5" /> {error}
                 </span>
               )}
               {saved && (
-                <span className="text-xs font-medium flex items-center gap-1" style={{ color: '#4ADE80' }}>
+                <span className="text-xs font-medium flex items-center gap-1" style={{ color: 'var(--color-success)' }}>
                   <CheckCircle className="w-3.5 h-3.5" /> Saved successfully
                 </span>
               )}
@@ -219,7 +219,7 @@ export default function MyFacilityPage() {
                 disabled={saving}
                 className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold text-white transition-all"
                 style={{
-                  background: saving ? '#94A3B8' : 'linear-gradient(135deg, #0077D7, #005FBC)',
+                  background: saving ? 'var(--text-muted)' : 'linear-gradient(135deg, #0077D7, #005FBC)',
                   boxShadow: '0 2px 8px rgba(0,119,215,0.3)',
                 }}
               >
@@ -268,7 +268,7 @@ export default function MyFacilityPage() {
 
           {/* Bed Capacity */}
           <div className={sectionClass}>
-            {sectionTitle(<BedDouble className="w-4 h-4" style={{ color: '#FCD34D' }} />, 'Bed Capacity')}
+            {sectionTitle(<BedDouble className="w-4 h-4" style={{ color: 'var(--color-warning)' }} />, 'Bed Capacity')}
             <div className="grid grid-cols-2 gap-3">
               {numberInput('Total Beds', totalBeds, setTotalBeds)}
               {numberInput('ICU Beds', icuBeds, setIcuBeds)}
@@ -291,7 +291,7 @@ export default function MyFacilityPage() {
 
           {/* Infrastructure */}
           <div className={sectionClass}>
-            {sectionTitle(<Zap className="w-4 h-4" style={{ color: '#F59E0B' }} />, 'Infrastructure')}
+            {sectionTitle(<Zap className="w-4 h-4" style={{ color: 'var(--color-warning)' }} />, 'Infrastructure')}
             <div className="space-y-1">
               {toggle('Has Electricity', hasElectricity, setHasElectricity)}
               {hasElectricity && (
@@ -333,7 +333,7 @@ export default function MyFacilityPage() {
           {/* Services */}
           <div className="lg:col-span-2">
             <div className={sectionClass}>
-              {sectionTitle(<CheckCircle className="w-4 h-4" style={{ color: '#3ECF8E' }} />, 'Services Offered')}
+              {sectionTitle(<CheckCircle className="w-4 h-4" style={{ color: 'var(--color-success)' }} />, 'Services Offered')}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-1">
                 {toggle('EPI (Immunization)', serviceFlags.epi, () => toggleService('epi'))}
                 {toggle('Antenatal Care', serviceFlags.anc, () => toggleService('anc'))}
