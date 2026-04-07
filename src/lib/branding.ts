@@ -10,9 +10,9 @@ export interface OrgBranding {
 
 export const DEFAULT_BRANDING: OrgBranding = {
   name: 'TABAN',
-  primaryColor: '#2B6FE0',
-  secondaryColor: '#1e293b',
-  accentColor: '#2B6FE0',
+  primaryColor: '#0077D7',
+  secondaryColor: '#005FBC',
+  accentColor: '#0077D7',
 };
 
 export function getOrgBranding(org?: OrganizationDoc | null): OrgBranding {
@@ -31,5 +31,11 @@ export function brandingToCSSVars(branding: OrgBranding): Record<string, string>
     '--org-primary': branding.primaryColor,
     '--org-secondary': branding.secondaryColor,
     '--org-accent': branding.accentColor,
+    // Override the accent system with org branding
+    '--accent-primary': branding.primaryColor,
+    '--accent-hover': branding.secondaryColor,
+    '--accent-light': `${branding.primaryColor}12`,
+    '--accent-border': `${branding.primaryColor}30`,
+    '--nav-active-bg': branding.primaryColor,
   };
 }

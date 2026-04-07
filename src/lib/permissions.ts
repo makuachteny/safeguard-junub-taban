@@ -428,14 +428,14 @@ export const ROLE_PERMISSIONS: Record<UserRole, RoleConfig> = {
 
   nutritionist: {
     label: 'Nutritionist',
-    defaultDashboard: '/dashboard',
+    defaultDashboard: '/dashboard/nutrition',
     allowedRoutes: [
-      '/dashboard', '/patients', '/messages', '/anc',
+      '/dashboard/nutrition', '/patients', '/messages', '/anc',
       '/immunizations', '/mch-analytics', '/settings', '/my-facility',
     ],
     navItems: [
-      { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, section: 'CLINICAL' },
-      { href: '/patients', label: 'Patients', icon: Users, section: 'CLINICAL' },
+      { href: '/dashboard/nutrition', label: 'Nutrition Dashboard', icon: LayoutDashboard, section: 'NUTRITION' },
+      { href: '/patients', label: 'Patients', icon: Users, section: 'NUTRITION' },
       { href: '/anc', label: 'Antenatal Care', icon: HeartPulse, section: 'PROGRAMS' },
       { href: '/immunizations', label: 'Immunizations', icon: Syringe, section: 'PROGRAMS' },
       { href: '/mch-analytics', label: 'MCH Analytics', icon: HeartPulse, section: 'PROGRAMS' },
@@ -450,12 +450,12 @@ export const ROLE_PERMISSIONS: Record<UserRole, RoleConfig> = {
 
   radiologist: {
     label: 'Radiologist',
-    defaultDashboard: '/dashboard',
+    defaultDashboard: '/dashboard/radiology',
     allowedRoutes: [
-      '/dashboard', '/patients', '/lab', '/messages', '/settings', '/my-facility',
+      '/dashboard/radiology', '/patients', '/lab', '/messages', '/settings', '/my-facility',
     ],
     navItems: [
-      { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, section: 'IMAGING' },
+      { href: '/dashboard/radiology', label: 'Imaging Dashboard', icon: LayoutDashboard, section: 'IMAGING' },
       { href: '/patients', label: 'Patients', icon: Users, section: 'IMAGING' },
       { href: '/lab', label: 'Lab & Imaging', icon: Scan, section: 'IMAGING' },
       { href: '/messages', label: 'Messages', icon: MessageSquare, section: 'MORE' },

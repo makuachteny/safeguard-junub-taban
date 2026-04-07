@@ -148,7 +148,7 @@ export default function LandingPage() {
 
           <div className="tb-header__actions">
             <Link href="/patient-portal" className="tb-btn tb-btn--ghost">Patient Portal</Link>
-            <Link href="/login" className="tb-btn tb-btn--ghost">Sign In</Link>
+            <Link href="/login" className="tb-btn tb-btn--ghost">Staff Sign In</Link>
             <button className="tb-btn tb-btn--primary" onClick={() => setShowDemoModal(true)}>
               Get a Demo <ArrowRight size={15} />
             </button>
@@ -164,7 +164,7 @@ export default function LandingPage() {
             {["Features", "Solutions", "Pricing", "About"].map(s => (
               <button key={s} className="tb-mobile-nav__link" onClick={() => { scrollTo(s.toLowerCase()); setMobileNav(false); }}>{s}</button>
             ))}
-            <Link href="/login" className="tb-btn tb-btn--ghost" style={{ width: "100%", textAlign: "center" }}>Sign In</Link>
+            <Link href="/login" className="tb-btn tb-btn--ghost" style={{ width: "100%", textAlign: "center" }}>Staff Sign In</Link>
             <button className="tb-btn tb-btn--primary" style={{ width: "100%" }} onClick={() => { setShowDemoModal(true); setMobileNav(false); }}>Get a Demo</button>
           </div>
         )}
@@ -598,7 +598,7 @@ export default function LandingPage() {
                   Request Your Demo <ArrowRight size={16} />
                 </button>
                 <Link href="/login" className="tb-btn tb-btn--cta-outline">
-                  Sign In to Platform
+                  Staff Sign In
                 </Link>
               </div>
             </SectionIn>
@@ -631,7 +631,7 @@ export default function LandingPage() {
               <button onClick={() => scrollTo("about")}>About</button>
               <button onClick={() => scrollTo("faq")}>FAQ</button>
               <Link href="/public-stats">Public Statistics</Link>
-              <Link href="/login">Sign In</Link>
+              <Link href="/login">Staff Sign In</Link>
             </div>
             <div className="tb-footer__col">
               <h4>Contact</h4>

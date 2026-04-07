@@ -1,0 +1,248 @@
+'use client';
+
+import { useState, useMemo } from 'react';
+import TopBar from '@/components/TopBar';
+import { useApp } from '@/lib/context';
+import { usePatients } from '@/lib/hooks/usePatients';
+import { useLabResults } from '@/lib/hooks/useLabResults';
+import {
+  Scan, Upload, CheckCircle2, Clock, AlertTriangle,
+  FileText, BarChart3, TrendingUp, Eye,
+  Image, Activity,
+} from 'lucide-react';
+
+const ACCENT = '#7C3AED';
+
+const MODALITIES = ['X-Ray', 'Ultrasound', 'CT Scan', 'MRI', 'Fluoroscopy', 'Mammography'];
+
+const SAMPLE_STUDIES = [
+  { id: 'img-001', patientName: 'Deng Mabior Garang', modality: 'X-Ray', bodyPart: 'Chest PA', status: 'pending', priority: 'urgent', orderedBy: 'Dr. James Wani', date: '2026-02-09', notes: 'Suspected pneumonia, persistent cough 3 weeks' },
+  { id: 'img-002', patientName: 'Nyabol Gatdet Koang', modality: 'Ultrasound', bodyPart: 'Obstetric', status: 'completed', priority: 'routine', orderedBy: 'Dr. Achol Mayen', date: '2026-02-09', notes: 'ANC scan, 28 weeks gestation', findings: 'Single viable fetus, cephalic presentation, AFI normal, EFW 1.2kg' },
+  { id: 'img-003', patientName: 'Achol Mayen Deng', modality: 'X-Ray', bodyPart: 'Left Femur', status: 'completed', priority: 'emergency', orderedBy: 'Dr. Wani', date: '2026-02-08', notes: 'Trauma, fall from height', findings: 'Transverse fracture mid-shaft left femur, displacement present, no dislocation' },
+  { id: 'img-004', patientName: 'Gatluak Ruot Nyuon', modality: 'Ultrasound', bodyPart: 'Abdomen', status: 'pending', priority: 'routine', orderedBy: 'CO Deng Mabior', date: '2026-02-09', notes: 'Abdominal pain, rule out hepatosplenomegaly' },
+  { id: 'img-005', patientName: 'Rose Tombura Gbudue', modality: 'X-Ray', bodyPart: 'Chest PA/Lateral', status: 'in_progress', priority: 'urgent', orderedBy: 'Dr. Taban Ladu', date: '2026-02-09', notes: 'TB screening, weight loss, night sweats' },
+  { id: 'img-006', patientName: 'Kuol Akot Ajith', modality: 'Ultrasound', bodyPart: 'Renal', status: 'completed', priority: 'routine', orderedBy: 'Dr. Achol Mayen', date: '2026-02-08', notes: 'Elevated creatinine', findings: 'Bilateral mild hydronephrosis, cortical thinning right kidney' },
+  { id: 'img-007', patientName: 'Majok Chol Wol', modality: 'X-Ray', bodyPart: 'Right Hand', status: 'pending', priority: 'routine', orderedBy: 'CO Stella', date: '2026-02-09', notes: 'Injury, swelling right hand' },
+  { id: 'img-008', patientName: 'Ayen Dut Malual', modality: 'Ultrasound', bodyPart: 'Thyroid', status: 'completed', priority: 'routine', orderedBy: 'Dr. Wani', date: '2026-02-07', notes: 'Palpable thyroid nodule', findings: 'Solitary 1.8cm hypoechoic nodule right lobe, no calcifications, TIRADS 3' },
+];
+
+export default function RadiologyDashboard() {
+  const { currentUser } = useApp();
+  const { patients } = usePatients();
+  const { results: labResults } = useLabResults();
+  const [selectedStudy, setSelectedStudy] = useState<string | null>(null);
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [findings, setFindings] = useState('');
+
+  const studies = SAMPLE_STUDIES;
+  const filtered = filterStatus === 'all' ? studies : studies.filter(s => s.status === filterStatus);
+
+  const stats = useMemo(() => ({
+    total: studies.length,
+    pending: studies.filter(s => s.status === 'pending').length,
+    inProgress: studies.filter(s => s.status === 'in_progress').length,
+    completed: studies.filter(s => s.status === 'completed').length,
+    urgent: studies.filter(s => s.priority === 'urgent' || s.priority === 'emergency').length,
+    xray: studies.filter(s => s.modality === 'X-Ray').length,
+    ultrasound: studies.filter(s => s.modality === 'Ultrasound').length,
+    avgTAT: '45 min',
+  }), [studies]);
+
+  if (!currentUser) return null;
+
+  return (
+    <>
+      <TopBar title="Radiology Dashboard" />
+      <main className="page-container page-enter">
+
+        {/* KPI strip */}
+        <div className="kpi-grid mb-4">
+          {[
+            { label: 'Total Studies', value: stats.total, icon: Scan, color: ACCENT },
+            { label: 'Pending', value: stats.pending, icon: Clock, color: '#D97706' },
+            { label: 'In Progress', value: stats.inProgress, icon: Activity, color: '#0077D7' },
+            { label: 'Completed', value: stats.completed, icon: CheckCircle2, color: '#059669' },
+            { label: 'Urgent/Emergency', value: stats.urgent, icon: AlertTriangle, color: '#DC2626' },
+            { label: 'X-Rays', value: stats.xray, icon: Image, color: '#0891B2' },
+            { label: 'Ultrasounds', value: stats.ultrasound, icon: Eye, color: '#EC4899' },
+            { label: 'Avg. TAT', value: stats.avgTAT, icon: TrendingUp, color: '#059669' },
+          ].map(k => (
+            <div key={k.label} className="kpi">
+              <div className="kpi__icon" style={{ background: `${k.color}15` }}><k.icon style={{ color: k.color }} /></div>
+              <div className="kpi__body">
+                <div className="kpi__value">{k.value}</div>
+                <div className="kpi__label">{k.label}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+
+          {/* Study worklist */}
+          <div className="lg:col-span-2 glass-section">
+            <div className="glass-section-header">
+              <div className="flex items-center gap-2">
+                <Scan className="w-4 h-4" style={{ color: ACCENT }} />
+                <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Imaging Worklist</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {['all', 'pending', 'in_progress', 'completed'].map(s => (
+                  <button key={s} onClick={() => setFilterStatus(s)} style={{
+                    padding: '4px 10px', borderRadius: 6, fontSize: 10, fontWeight: 700,
+                    background: filterStatus === s ? ACCENT : 'var(--overlay-subtle)',
+                    color: filterStatus === s ? '#fff' : 'var(--text-muted)',
+                    border: filterStatus === s ? 'none' : '1px solid var(--border-medium)',
+                    cursor: 'pointer', textTransform: 'capitalize',
+                  }}>{s === 'all' ? 'All' : s.replace('_', ' ')}</button>
+                ))}
+              </div>
+            </div>
+            <div style={{ maxHeight: 500, overflowY: 'auto' }}>
+              {filtered.map(study => (
+                <div key={study.id} onClick={() => setSelectedStudy(selectedStudy === study.id ? null : study.id)}
+                  className="cursor-pointer transition-colors" style={{
+                    padding: '12px 16px', borderBottom: '1px solid var(--border-light)',
+                    background: selectedStudy === study.id ? 'var(--accent-light)' : 'transparent',
+                  }}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{
+                      background: study.status === 'completed' ? '#05966915' : study.priority === 'emergency' ? '#DC262615' : study.priority === 'urgent' ? '#D9770615' : `${ACCENT}15`,
+                    }}>
+                      {study.status === 'completed' ? <CheckCircle2 className="w-4 h-4" style={{ color: '#059669' }} /> :
+                       study.priority === 'emergency' ? <AlertTriangle className="w-4 h-4" style={{ color: '#DC2626' }} /> :
+                       <Scan className="w-4 h-4" style={{ color: study.priority === 'urgent' ? '#D97706' : ACCENT }} />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{study.patientName}</span>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{
+                          background: study.priority === 'emergency' ? '#DC262615' : study.priority === 'urgent' ? '#D9770615' : 'var(--overlay-subtle)',
+                          color: study.priority === 'emergency' ? '#DC2626' : study.priority === 'urgent' ? '#D97706' : 'var(--text-muted)',
+                        }}>{study.priority.toUpperCase()}</span>
+                      </div>
+                      <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                        {study.modality} &middot; {study.bodyPart} &middot; {study.date}
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-1 rounded-full" style={{
+                      background: study.status === 'completed' ? '#05966915' : study.status === 'in_progress' ? '#0077D715' : '#D9770615',
+                      color: study.status === 'completed' ? '#059669' : study.status === 'in_progress' ? '#0077D7' : '#D97706',
+                    }}>{study.status.replace('_', ' ')}</span>
+                  </div>
+
+                  {selectedStudy === study.id && (
+                    <div style={{ marginTop: 12, padding: '12px', borderRadius: 8, background: 'var(--overlay-subtle)', border: '1px solid var(--border-medium)' }}>
+                      <div className="grid grid-cols-2 gap-3 mb-3">
+                        <div><span className="text-[9px] font-bold uppercase" style={{ color: 'var(--text-muted)' }}>Ordered By</span><p className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{study.orderedBy}</p></div>
+                        <div><span className="text-[9px] font-bold uppercase" style={{ color: 'var(--text-muted)' }}>Modality</span><p className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{study.modality}</p></div>
+                      </div>
+                      <div className="mb-3"><span className="text-[9px] font-bold uppercase" style={{ color: 'var(--text-muted)' }}>Clinical Notes</span><p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{study.notes}</p></div>
+
+                      {study.findings && (
+                        <div className="mb-3 p-3 rounded-lg" style={{ background: '#05966908', border: '1px solid #05966920' }}>
+                          <span className="text-[9px] font-bold uppercase" style={{ color: '#059669' }}>Findings</span>
+                          <p className="text-xs mt-1" style={{ color: 'var(--text-primary)' }}>{study.findings}</p>
+                        </div>
+                      )}
+
+                      {study.status !== 'completed' && (
+                        <div>
+                          <label className="text-[10px] font-bold uppercase block mb-1" style={{ color: 'var(--text-muted)' }}>Enter Findings</label>
+                          <textarea rows={3} value={findings} onChange={e => setFindings(e.target.value)}
+                            placeholder="Describe imaging findings..."
+                            className="w-full p-3 rounded-lg text-xs" style={{ background: 'var(--bg-card-solid)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)', resize: 'vertical' }}
+                          />
+                          <div className="flex gap-2 mt-2">
+                            <button className="flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-semibold" style={{ background: ACCENT, color: '#fff', border: 'none', cursor: 'pointer' }}>
+                              <CheckCircle2 className="w-3 h-3" /> Submit Report
+                            </button>
+                            <button className="flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-semibold" style={{ background: 'var(--overlay-subtle)', color: 'var(--text-secondary)', border: '1px solid var(--border-medium)', cursor: 'pointer' }}>
+                              <Upload className="w-3 h-3" /> Attach Image
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right column - stats */}
+          <div className="flex flex-col gap-3">
+
+            {/* Modality breakdown */}
+            <div className="glass-section">
+              <div className="glass-section-header">
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4" style={{ color: ACCENT }} />
+                  <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>By Modality</span>
+                </div>
+              </div>
+              <div className="p-4 space-y-3">
+                {MODALITIES.map(mod => {
+                  const count = studies.filter(s => s.modality === mod).length;
+                  const pct = studies.length > 0 ? Math.round((count / studies.length) * 100) : 0;
+                  return (
+                    <div key={mod}>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-[11px] font-semibold" style={{ color: 'var(--text-primary)' }}>{mod}</span>
+                        <span className="text-[11px] font-bold" style={{ color: count > 0 ? ACCENT : 'var(--text-muted)' }}>{count}</span>
+                      </div>
+                      <div className="w-full h-2 rounded-full" style={{ background: 'var(--overlay-medium)' }}>
+                        <div className="h-full rounded-full" style={{ width: `${pct}%`, background: ACCENT }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Body parts studied */}
+            <div className="glass-section">
+              <div className="glass-section-header">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-4 h-4" style={{ color: '#0077D7' }} />
+                  <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Body Regions</span>
+                </div>
+              </div>
+              <div className="p-4 space-y-1">
+                {[...new Set(studies.map(s => s.bodyPart))].map(part => (
+                  <div key={part} className="flex items-center justify-between py-1.5" style={{ borderBottom: '1px solid var(--border-light)' }}>
+                    <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{part}</span>
+                    <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{studies.filter(s => s.bodyPart === part).length}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Quick stats */}
+            <div className="glass-section">
+              <div className="glass-section-header">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" style={{ color: '#059669' }} />
+                  <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Performance</span>
+                </div>
+              </div>
+              <div className="p-4 grid grid-cols-2 gap-3">
+                {[
+                  { label: 'Completion Rate', value: `${studies.length > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}%` },
+                  { label: 'Avg. TAT', value: stats.avgTAT },
+                  { label: 'Total Patients', value: patients.length },
+                  { label: 'Lab Cross-refs', value: labResults.length },
+                ].map(s => (
+                  <div key={s.label} className="p-2.5 rounded-md text-center" style={{ background: 'var(--overlay-subtle)' }}>
+                    <div className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{s.value}</div>
+                    <div className="text-[9px] font-semibold" style={{ color: 'var(--text-muted)' }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </>
+  );
+}

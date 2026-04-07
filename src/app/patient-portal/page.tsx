@@ -6,7 +6,7 @@ import {
   HeartPulse, Shield,
   ChevronRight, AlertTriangle,
   MessageSquare, ArrowRight, Activity,
-  Plus, X, LogOut,
+  Plus, X, LogOut, Send, Building2,
 } from 'lucide-react';
 import type { PatientDoc, AppointmentDoc, LabResultDoc, MedicalRecordDoc } from '@/lib/db-types';
 
@@ -86,19 +86,19 @@ function PatientLogin({ onLogin }: { onLogin: (patient: PatientDoc) => void }) {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, background: 'var(--bg-primary)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 20px', background: 'var(--bg-primary)' }}>
       <style dangerouslySetInnerHTML={{ __html: patientPortalCSS }} />
-      <div style={{ width: '100%', maxWidth: 440, textAlign: 'center' }}>
+      <div style={{ width: '100%', maxWidth: 520, textAlign: 'center' }}>
         {/* Logo */}
-        <div style={{ marginBottom: 36 }}>
+        <div style={{ marginBottom: 40 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/assets/taban-icon.svg" alt="Taban" style={{ width: 48, height: 48, borderRadius: 12, margin: '0 auto 14px' }} />
+          <img src="/assets/taban-icon.svg" alt="Taban" style={{ width: 64, height: 64, borderRadius: 16, margin: '0 auto 18px' }} />
           <h1 className="pp-title">Patient Portal</h1>
-          <p className="pp-subtitle">Access your health records, appointments, and lab results</p>
+          <p className="pp-subtitle">Access your health records, appointments, and lab results securely</p>
         </div>
 
         {/* Login card */}
-        <div className="pp-card" style={{ padding: 32, textAlign: 'left' }}>
+        <div className="pp-card" style={{ padding: '36px 32px', textAlign: 'left' }}>
           {/* Mode toggle */}
           <div className="pp-toggle">
             <button onClick={() => { setMode('login'); setError(''); }} className={`pp-toggle__btn ${mode === 'login' ? 'pp-toggle__btn--active' : ''}`}>Hospital ID</button>
@@ -276,51 +276,178 @@ function PatientDashboard({ patient, onLogout }: { patient: PatientDoc; onLogout
     { key: 'messages', label: 'Messages', icon: MessageSquare },
   ];
 
-  return (
-    <div className="page-enter">
-      <style dangerouslySetInnerHTML={{ __html: patientPortalCSS }} />
-      {/* Header bar */}
-      <div className="card-elevated" style={{ padding: '16px 22px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
-        <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'var(--accent-light)', border: '1px solid var(--accent-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          {patient.photoUrl
-            // eslint-disable-next-line @next/next/no-img-element
-            ? <img src={patient.photoUrl} alt="" style={{ width: 42, height: 42, borderRadius: '50%', objectFit: 'cover' }} />
-            : <User size={20} style={{ color: 'var(--accent-primary)' }} />
-          }
-        </div>
-        <div style={{ flex: 1, minWidth: 150 }}>
-          <h1 style={{ fontFamily: "'Space Grotesk', 'DM Sans', sans-serif", fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>Welcome, {patient.firstName}</h1>
-          <p style={{ fontFamily: "'Inter', 'DM Sans', sans-serif", fontSize: 12, color: 'var(--text-muted)' }}>{patient.hospitalNumber} &middot; {patient.registrationHospital}</p>
-        </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => setShowBooking(true)} className="pp-btn-primary" style={{ padding: '8px 16px', fontSize: 13, gap: 4, borderRadius: 4 }}><Plus size={13} /> Book Appointment</button>
-          <button onClick={onLogout} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '8px 16px', fontSize: 13, fontWeight: 600, fontFamily: "'Inter', sans-serif", background: 'var(--bg-card-solid)', border: '1px solid var(--border-medium)', borderRadius: 4, cursor: 'pointer', color: 'var(--text-secondary)' }}><LogOut size={13} /> Sign Out</button>
-        </div>
-      </div>
+  const [chatMessages, setChatMessages] = useState<{ text: string; from: 'patient' | 'system'; time: string }[]>([
+    { text: `Welcome ${patient.firstName}! How can we help you today?`, from: 'system', time: '09:00' },
+  ]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatOpen, setChatOpen] = useState(false);
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }} className="no-scrollbar">
-        {tabs.map(tab => (
-          <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
-            display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px',
-            borderRadius: 4, border: activeTab === tab.key ? '1px solid var(--accent-primary)' : '1px solid var(--border-medium)', cursor: 'pointer',
-            background: activeTab === tab.key ? 'var(--accent-primary)' : 'var(--bg-card-solid)',
-            color: activeTab === tab.key ? '#fff' : 'var(--text-secondary)',
-            fontFamily: "'DM Sans', 'Inter', sans-serif",
-            fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap',
-            boxShadow: activeTab === tab.key ? '0 2px 8px rgba(0,119,215,0.25)' : 'var(--card-shadow)',
-            transition: 'all 0.2s ease',
-          }}>
-            <tab.icon size={13} />
-            <span className="hidden sm:inline">{tab.label}</span>
-            {tab.count ? <span style={{
-              fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 4,
-              background: activeTab === tab.key ? 'rgba(255,255,255,0.25)' : 'var(--accent-light)',
-              color: activeTab === tab.key ? '#fff' : 'var(--accent-primary)',
-            }}>{tab.count}</span> : null}
-          </button>
-        ))}
-      </div>
+  const handleSendChat = () => {
+    if (!chatInput.trim()) return;
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    setChatMessages(prev => [...prev, { text: chatInput, from: 'patient', time }]);
+    setChatInput('');
+    setTimeout(() => {
+      setChatMessages(prev => [...prev, {
+        text: 'Thank you for your message. A healthcare provider at your facility will respond shortly.',
+        from: 'system',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      }]);
+    }, 1500);
+  };
+
+  return (
+    <div style={{ display: 'flex', minHeight: 'calc(100vh - 52px)' }}>
+      <style dangerouslySetInnerHTML={{ __html: patientPortalCSS }} />
+
+      {/* ── Sidebar ── */}
+      <aside className="hidden md:flex" style={{
+        width: 260, flexShrink: 0, flexDirection: 'column',
+        background: 'var(--bg-card-solid)', borderRight: '1px solid var(--border-medium)',
+      }}>
+        <div style={{ padding: '20px 16px 14px', borderBottom: '1px solid var(--border-medium)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+            <div style={{ width: 46, height: 46, borderRadius: '50%', background: 'var(--accent-light)', border: '2px solid var(--accent-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              {patient.photoUrl
+                // eslint-disable-next-line @next/next/no-img-element
+                ? <img src={patient.photoUrl} alt="" style={{ width: 46, height: 46, borderRadius: '50%', objectFit: 'cover' }} />
+                : <User size={22} style={{ color: 'var(--accent-primary)' }} />
+              }
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.3 }}>{patient.firstName} {patient.surname}</p>
+              <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>{patient.hospitalNumber}</p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 10px', borderRadius: 8, background: 'var(--overlay-subtle)', border: '1px solid var(--border-medium)', marginBottom: 10 }}>
+            <Building2 size={13} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
+            <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{patient.registrationHospital}</span>
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button onClick={() => setShowBooking(true)} style={{
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+              padding: '9px 0', fontSize: 12, fontWeight: 700, borderRadius: 8,
+              background: 'var(--accent-primary)', color: '#fff', border: 'none', cursor: 'pointer',
+            }}><Plus size={13} /> Book</button>
+            <button onClick={() => setChatOpen(!chatOpen)} style={{
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+              padding: '9px 0', fontSize: 12, fontWeight: 700, borderRadius: 8,
+              background: chatOpen ? 'var(--accent-primary)' : 'var(--overlay-subtle)',
+              color: chatOpen ? '#fff' : 'var(--text-secondary)',
+              border: chatOpen ? 'none' : '1px solid var(--border-medium)', cursor: 'pointer',
+            }}><MessageSquare size={13} /> Chat</button>
+          </div>
+        </div>
+
+        <nav style={{ flex: 1, padding: '10px 8px', overflowY: 'auto' }}>
+          {tabs.map(tab => (
+            <button key={tab.key} onClick={() => { setActiveTab(tab.key); setChatOpen(false); }} style={{
+              display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+              padding: '11px 14px', borderRadius: 8, border: 'none', cursor: 'pointer',
+              background: activeTab === tab.key && !chatOpen ? 'var(--accent-primary)' : 'transparent',
+              color: activeTab === tab.key && !chatOpen ? '#fff' : 'var(--text-secondary)',
+              fontSize: 13, fontWeight: 600, textAlign: 'left', marginBottom: 2,
+              transition: 'all 0.15s ease',
+            }}>
+              <tab.icon size={16} />
+              <span style={{ flex: 1 }}>{tab.label}</span>
+              {tab.count ? <span style={{
+                fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 6,
+                background: activeTab === tab.key && !chatOpen ? 'rgba(255,255,255,0.25)' : 'var(--accent-light)',
+                color: activeTab === tab.key && !chatOpen ? '#fff' : 'var(--accent-primary)',
+              }}>{tab.count}</span> : null}
+            </button>
+          ))}
+        </nav>
+
+        <div style={{ padding: '10px 8px', borderTop: '1px solid var(--border-medium)' }}>
+          <button onClick={onLogout} style={{
+            display: 'flex', alignItems: 'center', gap: 8, width: '100%',
+            padding: '10px 14px', borderRadius: 8, border: 'none', cursor: 'pointer',
+            background: 'transparent', color: 'var(--text-muted)',
+            fontSize: 13, fontWeight: 600, textAlign: 'left',
+          }}><LogOut size={15} /> Sign Out</button>
+        </div>
+      </aside>
+
+      {/* ── Main content ── */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', maxHeight: 'calc(100vh - 52px)', overflow: 'hidden' }}>
+        <div style={{ flex: 1, padding: '20px 24px', overflowY: 'auto' }}>
+
+          {/* Mobile header */}
+          <div className="md:hidden" style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--accent-light)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <User size={18} style={{ color: 'var(--accent-primary)' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>{patient.firstName} {patient.surname}</p>
+                <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>{patient.hospitalNumber}</p>
+              </div>
+              <button onClick={() => setChatOpen(!chatOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent-primary)', padding: 6 }}><MessageSquare size={18} /></button>
+              <button onClick={onLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 6 }}><LogOut size={18} /></button>
+            </div>
+            <div style={{ display: 'flex', gap: 4, overflowX: 'auto', paddingBottom: 4 }} className="no-scrollbar">
+              {tabs.map(tab => (
+                <button key={tab.key} onClick={() => { setActiveTab(tab.key); setChatOpen(false); }} style={{
+                  display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px',
+                  borderRadius: 8, border: activeTab === tab.key ? 'none' : '1px solid var(--border-medium)', cursor: 'pointer',
+                  background: activeTab === tab.key ? 'var(--accent-primary)' : 'var(--bg-card-solid)',
+                  color: activeTab === tab.key ? '#fff' : 'var(--text-secondary)',
+                  fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap',
+                }}>
+                  <tab.icon size={13} /> {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Chat Panel ── */}
+          {chatOpen && (
+            <div style={{ marginBottom: 20 }}>
+              <div className="card-elevated" style={{ borderRadius: 12, overflow: 'hidden' }}>
+                <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--border-medium)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Building2 size={16} style={{ color: 'var(--accent-primary)' }} />
+                    <div>
+                      <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>Hospital Chat</p>
+                      <p style={{ fontSize: 10, color: 'var(--text-muted)' }}>{patient.registrationHospital}</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setChatOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 4 }}><X size={16} /></button>
+                </div>
+                <div style={{ height: 300, overflowY: 'auto', padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {chatMessages.map((msg, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: msg.from === 'patient' ? 'flex-end' : 'flex-start' }}>
+                      <div style={{
+                        maxWidth: '75%', padding: '10px 14px', borderRadius: 12,
+                        background: msg.from === 'patient' ? 'var(--accent-primary)' : 'var(--overlay-subtle)',
+                        color: msg.from === 'patient' ? '#fff' : 'var(--text-primary)',
+                        fontSize: 13, lineHeight: 1.5,
+                        borderBottomRightRadius: msg.from === 'patient' ? 4 : 12,
+                        borderBottomLeftRadius: msg.from === 'system' ? 4 : 12,
+                      }}>
+                        <p>{msg.text}</p>
+                        <p style={{ fontSize: 9, marginTop: 4, opacity: 0.6, textAlign: 'right' }}>{msg.time}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ padding: '10px 14px', borderTop: '1px solid var(--border-medium)', display: 'flex', gap: 8 }}>
+                  <input
+                    type="text" value={chatInput} onChange={e => setChatInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSendChat()}
+                    placeholder="Type a message to your hospital..."
+                    style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-medium)', background: 'var(--bg-card-solid)', color: 'var(--text-primary)', fontSize: 13, outline: 'none' }}
+                  />
+                  <button onClick={handleSendChat} style={{
+                    padding: '10px 14px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                    background: 'var(--accent-primary)', color: '#fff', display: 'flex', alignItems: 'center',
+                  }}><Send size={16} /></button>
+                </div>
+              </div>
+            </div>
+          )}
 
       {/* ═══ Overview ═══ */}
       {activeTab === 'overview' && (
@@ -555,6 +682,10 @@ function PatientDashboard({ patient, onLogout }: { patient: PatientDoc; onLogout
             </div>
             <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 14 }}>Submit a request and the facility will confirm within 24 hours.</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ padding: '10px 12px', borderRadius: 8, background: 'var(--accent-light)', border: '1px solid var(--accent-border)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Building2 size={14} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
+                <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>Booking at: {patient.registrationHospital}</span>
+              </div>
               <div><label>Preferred Date</label><input type="date" defaultValue={new Date().toISOString().slice(0, 10)} /></div>
               <div><label>Preferred Time</label>
                 <select><option>Morning (8:00-12:00)</option><option>Afternoon (12:00-16:00)</option><option>Any time</option></select>
@@ -574,6 +705,8 @@ function PatientDashboard({ patient, onLogout }: { patient: PatientDoc; onLogout
           </div>
         </div>
       )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -628,69 +761,74 @@ function Empty({ icon: Icon, text, action, onAction }: { icon: typeof User; text
 const patientPortalCSS = `
 .pp-title {
   font-family: 'Space Grotesk', 'DM Sans', Helvetica, sans-serif;
-  font-size: 26px; font-weight: 700; color: var(--text-primary);
-  letter-spacing: -0.01em; margin-bottom: 6px;
+  font-size: 32px; font-weight: 700; color: var(--text-primary);
+  letter-spacing: -0.02em; margin-bottom: 8px; line-height: 1.2;
 }
 .pp-subtitle {
   font-family: 'Inter', 'DM Sans', Helvetica, sans-serif;
-  font-size: 15px; color: var(--text-secondary); line-height: 1.5;
+  font-size: 16px; color: var(--text-secondary); line-height: 1.6;
+  max-width: 380px; margin: 0 auto;
 }
 .pp-card {
   background: var(--bg-card-solid); border: 1px solid var(--border-medium);
-  border-radius: 6px; box-shadow: var(--card-shadow);
+  border-radius: 12px; box-shadow: var(--card-shadow-lg);
 }
 .pp-toggle {
-  display: flex; margin-bottom: 22px; border-radius: 4px;
+  display: flex; margin-bottom: 28px; border-radius: 8px;
   overflow: hidden; border: 1px solid var(--border-medium);
+  background: var(--bg-secondary);
 }
 .pp-toggle__btn {
-  flex: 1; padding: 10px 0; font-family: 'DM Sans', 'Inter', sans-serif;
-  font-size: 13px; font-weight: 700; border: none; cursor: pointer;
-  background: var(--bg-secondary); color: var(--text-secondary); transition: all 0.2s ease;
+  flex: 1; padding: 14px 0; font-family: 'DM Sans', 'Inter', sans-serif;
+  font-size: 14px; font-weight: 700; border: none; cursor: pointer;
+  background: transparent; color: var(--text-secondary); transition: all 0.2s ease;
+  border-radius: 7px; margin: 2px;
 }
 .pp-toggle__btn--active {
   background: var(--accent-primary); color: #fff;
+  box-shadow: 0 2px 8px rgba(0,119,215,0.25);
 }
-.pp-field { margin-bottom: 16px; }
+.pp-field { margin-bottom: 20px; }
 .pp-label {
   display: block; font-family: 'DM Sans', 'Inter', sans-serif;
-  font-size: 13px; font-weight: 700; color: var(--text-primary);
-  margin-bottom: 6px; letter-spacing: 0;
+  font-size: 14px; font-weight: 600; color: var(--text-primary);
+  margin-bottom: 8px; letter-spacing: 0;
   text-transform: none;
 }
 .pp-input {
-  width: 100%; padding: 12px 14px; border-radius: 4px;
+  width: 100%; padding: 14px 16px; border-radius: 8px;
   border: 1px solid var(--border-medium); font-family: 'Inter', 'DM Sans', sans-serif;
-  font-size: 15px; color: var(--text-primary); background: var(--bg-card-solid);
-  transition: border-color 0.2s; outline: none;
+  font-size: 16px; color: var(--text-primary); background: var(--bg-card-solid);
+  transition: border-color 0.2s, box-shadow 0.2s; outline: none;
 }
-.pp-input:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(0,119,215,0.1); }
+.pp-input:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 4px var(--accent-light); }
 .pp-input::placeholder { color: var(--text-muted); }
 .pp-btn-primary {
   display: inline-flex; align-items: center; justify-content: center;
-  gap: 8px; padding: 13px 24px; border-radius: 4px;
-  font-family: 'Inter', 'DM Sans', sans-serif; font-size: 15px;
-  font-weight: 700; cursor: pointer; border: 2px solid var(--accent-primary);
+  gap: 10px; padding: 16px 28px; border-radius: 8px;
+  font-family: 'Inter', 'DM Sans', sans-serif; font-size: 16px;
+  font-weight: 700; cursor: pointer; border: none;
   background: var(--accent-primary); color: #fff; transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0,119,215,0.2);
 }
-.pp-btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.pp-btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,119,215,0.3); }
 .pp-error {
-  padding: 10px 12px; border-radius: 4px; background: rgba(218,18,48,0.08);
-  border: 1px solid rgba(218,18,48,0.2); margin-bottom: 14px;
-  display: flex; gap: 8px; align-items: flex-start;
-  font-size: 12px; color: #DA1230;
+  padding: 14px 16px; border-radius: 8px; background: rgba(218,18,48,0.06);
+  border: 1px solid rgba(218,18,48,0.15); margin-bottom: 18px;
+  display: flex; gap: 10px; align-items: flex-start;
+  font-size: 14px; color: #DA1230; line-height: 1.5;
 }
 .pp-notice {
-  margin-top: 18px; padding: 12px 14px; border-radius: 4px;
+  margin-top: 24px; padding: 16px 18px; border-radius: 10px;
   background: var(--accent-light); border: 1px solid var(--accent-border);
-  display: flex; gap: 8px; align-items: flex-start;
-  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+  display: flex; gap: 10px; align-items: flex-start;
+  font-size: 13px; color: var(--text-secondary); line-height: 1.6;
 }
 .pp-demo-btn {
-  display: flex; flex-direction: column; gap: 2px; padding: 10px 14px;
+  display: flex; flex-direction: column; gap: 3px; padding: 14px 16px;
   background: var(--bg-card-solid); border: 1px solid var(--border-medium);
-  border-radius: 4px; cursor: pointer; text-align: left; width: 100%;
+  border-radius: 8px; cursor: pointer; text-align: left; width: 100%;
   transition: all 0.15s ease;
 }
-.pp-demo-btn:hover { border-color: var(--accent-primary); background: var(--accent-light); }
+.pp-demo-btn:hover { border-color: var(--accent-primary); background: var(--accent-light); transform: translateY(-1px); }
 `;

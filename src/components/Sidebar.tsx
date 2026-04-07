@@ -133,7 +133,7 @@ export default function Sidebar() {
               <h1 className="font-extrabold text-[15px] leading-tight tracking-wide" style={{ color: 'var(--text-primary)' }}>
                 {brandName.length > 12 ? brandName.slice(0, 12) : brandName}
               </h1>
-              <p className="text-[9px] uppercase tracking-[0.18em] font-semibold" style={{ color: roleConfig?.color || '#0077D7' }}>
+              <p className="text-[9px] uppercase tracking-[0.18em] font-semibold" style={{ color: 'var(--accent-primary)' }}>
                 {subtitle}
               </p>
             </div>
@@ -159,11 +159,11 @@ export default function Sidebar() {
         }}>
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0" style={{
-              background: `${roleConfig?.color || '#0077D7'}18`,
+              background: 'var(--accent-light)',
             }}>
               {isAdminLevel
-                ? <Globe className="w-3.5 h-3.5" style={{ color: roleConfig?.color || 'var(--text-muted)' }} />
-                : <Building2 className="w-3.5 h-3.5" style={{ color: roleConfig?.color || 'var(--text-muted)' }} />
+                ? <Globe className="w-3.5 h-3.5" style={{ color: 'var(--accent-primary)' }} />
+                : <Building2 className="w-3.5 h-3.5" style={{ color: 'var(--accent-primary)' }} />
               }
             </div>
             <div className="flex-1 min-w-0">
@@ -189,7 +189,7 @@ export default function Sidebar() {
           </div>
           {!isAdminLevel && currentUser.organization && (
             <div className="flex items-center gap-1.5 mt-2 pt-2" style={{ borderTop: '1px solid var(--border-medium)' }}>
-              <Building2 className="w-3 h-3 flex-shrink-0" style={{ color: roleConfig?.color || '#0077D7' }} />
+              <Building2 className="w-3 h-3 flex-shrink-0" style={{ color: 'var(--accent-primary)' }} />
               <p className="text-[9px] font-medium truncate" style={{ color: 'var(--text-muted)' }}>{currentUser.organization.name}</p>
             </div>
           )}
@@ -299,8 +299,8 @@ export default function Sidebar() {
         }}>
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0" style={{
-              background: `linear-gradient(135deg, ${roleConfig?.gradientFrom || '#0077D7'}, ${roleConfig?.gradientTo || '#005FBC'})`,
-              boxShadow: `0 2px 8px ${roleConfig?.color || '#0077D7'}40`,
+              background: `var(--accent-primary)`,
+              boxShadow: `0 2px 8px var(--accent-primary)`,
             }}>
               {(currentUser.name || '').split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2) || '?'}
             </div>
@@ -316,8 +316,8 @@ export default function Sidebar() {
       {currentUser && collapsed && (
         <div className="flex justify-center mb-3">
           <div className="w-8 h-8 rounded-xl flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0" style={{
-            background: `linear-gradient(135deg, ${roleConfig?.gradientFrom || '#0077D7'}, ${roleConfig?.gradientTo || '#005FBC'})`,
-            boxShadow: `0 2px 8px ${roleConfig?.color || '#0077D7'}40`,
+            background: `var(--accent-primary)`,
+            boxShadow: `0 2px 8px var(--accent-primary)`,
           }}
           title={currentUser.name}
           >

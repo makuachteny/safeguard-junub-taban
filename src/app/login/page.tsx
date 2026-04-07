@@ -173,7 +173,7 @@ export default function LoginPage() {
             border: '1px solid var(--border-medium)',
             boxShadow: 'var(--card-shadow)',
           }}>
-            <h2 className="text-xl font-bold mb-1" style={{ color: 'var(--text-primary)', fontFamily: "'Space Grotesk', 'DM Sans', sans-serif" }}>Sign In</h2>
+            <h2 className="text-xl font-bold mb-1" style={{ color: 'var(--text-primary)', fontFamily: "'Space Grotesk', 'DM Sans', sans-serif" }}>Staff Sign In</h2>
             <p className="text-sm mb-7" style={{ color: 'var(--text-muted)', fontFamily: "'Inter', sans-serif" }}>Access the national health record system</p>
 
             {/* Debug info */}
@@ -292,7 +292,7 @@ export default function LoginPage() {
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    Sign In <ArrowRight className="w-4 h-4" />
+                    Staff Sign In <ArrowRight className="w-4 h-4" />
                   </span>
                 )}
               </button>

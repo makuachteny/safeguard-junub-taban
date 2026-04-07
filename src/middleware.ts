@@ -71,12 +71,12 @@ const ROLE_ROUTES: Record<string, { allowed: string[]; defaultDashboard: string 
     defaultDashboard: '/dashboard/boma',
   },
   nutritionist: {
-    allowed: ['/dashboard', '/patients', '/messages', '/anc', '/immunizations', '/mch-analytics', '/settings', '/my-facility'],
-    defaultDashboard: '/dashboard',
+    allowed: ['/dashboard/nutrition', '/patients', '/messages', '/anc', '/immunizations', '/mch-analytics', '/settings', '/my-facility'],
+    defaultDashboard: '/dashboard/nutrition',
   },
   radiologist: {
-    allowed: ['/dashboard', '/patients', '/lab', '/messages', '/settings', '/my-facility'],
-    defaultDashboard: '/dashboard',
+    allowed: ['/dashboard/radiology', '/patients', '/lab', '/messages', '/settings', '/my-facility'],
+    defaultDashboard: '/dashboard/radiology',
   },
 };
 

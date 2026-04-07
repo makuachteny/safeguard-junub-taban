@@ -123,9 +123,9 @@ export default function TopBar({ hideSearch }: { title?: string; hideSearch?: bo
         {/* Role badge */}
         {roleConfig && (
           <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-bold" style={{
-            background: `${roleConfig.color}12`,
-            color: roleConfig.color,
-            border: `1px solid ${roleConfig.color}20`,
+            background: 'var(--accent-light)',
+            color: 'var(--accent-primary)',
+            border: '1px solid var(--accent-border)',
           }}>
             <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: roleConfig.color }} />
             <span>{roleConfig.badgeLabel}</span>
@@ -135,8 +135,8 @@ export default function TopBar({ hideSearch }: { title?: string; hideSearch?: bo
         {/* User avatar */}
         {currentUser && (
           <div className="w-9 h-9 rounded-md flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{
-            background: `linear-gradient(135deg, ${roleConfig?.gradientFrom || '#0077D7'}, ${roleConfig?.gradientTo || '#005FBC'})`,
-            boxShadow: `0 2px 8px ${roleConfig?.color || '#0077D7'}30`,
+            background: 'var(--accent-primary)',
+            boxShadow: '0 2px 8px var(--accent-primary)',
           }}>
             {currentUser.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
           </div>
