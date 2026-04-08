@@ -199,41 +199,52 @@ export default function TelehealthPage() {
             <p className="page-header__subtitle">Virtual consultations &middot; ISO 13131 compliant</p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <div style={{ display: 'flex', borderRadius: 'var(--card-radius)', overflow: 'hidden', border: '1px solid var(--border-medium)' }}>
-              {(['calendar', 'list'] as const).map(v => (
-                <button key={v} onClick={() => setView(v)} className={`btn btn-sm ${view === v ? '' : ''}`} style={{
-                  borderRadius: 0, border: 'none', background: view === v ? 'var(--accent-primary)' : 'var(--bg-card)',
-                  color: view === v ? '#fff' : 'var(--text-secondary)', fontWeight: 600, fontSize: 12,
-                }}>{v === 'calendar' ? 'Calendar' : 'List'}</button>
-              ))}
-            </div>
-            <button onClick={() => setShowFilters(!showFilters)} className="btn btn-secondary btn-sm" style={{ gap: 4 }}>
-              <Filter size={13} /> Filters
-            </button>
-            <button onClick={() => setShowNewForm(true)} className="btn btn-primary btn-sm" style={{ gap: 4, background: 'var(--color-success)', borderColor: 'var(--color-success)' }}>
-              <Plus size={14} /> New Session
+            <button onClick={() => setShowNewForm(true)} className="btn btn-primary" style={{ gap: 6 }}>
+              <Plus size={16} /> New Session
             </button>
           </div>
         </div>
 
-        {/* KPIs */}
+        {/* ═══ Quick Stats ═══ */}
         {stats && (
-          <div className="kpi-grid" style={{ marginBottom: 16 }}>
+          <div className="stat-grid" style={{ marginBottom: 20 }}>
             {[
-              { label: 'Today', value: stats.todayTotal, icon: Calendar, color: 'var(--accent-primary)' },
-              { label: 'Active', value: stats.todayActive, icon: Video, color: 'var(--color-success)' },
+              { label: "Today's Sessions", value: stats.todayTotal, icon: Calendar, color: 'var(--accent-primary)' },
+              { label: 'Active Now', value: stats.todayActive, icon: Video, color: 'var(--color-success)' },
               { label: 'Completed', value: stats.completedTotal, icon: CheckCircle2, color: 'var(--color-success)' },
               { label: 'Avg Duration', value: `${stats.avgDuration}m`, icon: Clock, color: 'var(--color-warning)' },
-              { label: 'Rating', value: stats.avgRating > 0 ? `${stats.avgRating}/5` : '—', icon: Star, color: 'var(--color-warning)' },
-              { label: 'Appointments', value: telehealthAppointments.length, icon: UserPlus, color: '#7C3AED' },
+              { label: 'Avg Rating', value: stats.avgRating > 0 ? `${stats.avgRating}/5` : '—', icon: Star, color: 'var(--color-warning)' },
+              { label: 'Telehealth Bookings', value: telehealthAppointments.length, icon: UserPlus, color: '#7C3AED' },
             ].map((c, i) => (
-              <div key={i} className="kpi">
-                <div className="kpi__icon" style={{ background: `${c.color}10` }}><c.icon style={{ color: c.color }} /></div>
-                <div className="kpi__body"><div className="kpi__value">{c.value}</div><div className="kpi__label">{c.label}</div></div>
+              <div key={i} className="card-elevated" style={{ padding: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <c.icon size={16} style={{ color: c.color, opacity: 0.8 }} />
+                  <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>{c.label}</span>
+                </div>
+                <div className="stat-value text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{c.value}</div>
               </div>
             ))}
           </div>
         )}
+
+        {/* ═══ Action Bar ═══ */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ display: 'flex', borderRadius: 10, overflow: 'hidden', border: '1px solid var(--border-medium)' }}>
+            {(['calendar', 'list'] as const).map(v => (
+              <button key={v} onClick={() => setView(v)} style={{
+                padding: '8px 16px', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                background: view === v ? 'var(--accent-primary)' : 'var(--bg-card)',
+                color: view === v ? '#fff' : 'var(--text-secondary)',
+              }}>
+                {v === 'calendar' ? 'Calendar' : 'List'}
+              </button>
+            ))}
+          </div>
+          <button onClick={() => setShowFilters(!showFilters)} className="btn btn-secondary" style={{ gap: 6 }}>
+            <Filter size={14} /> Filters
+          </button>
+          <div style={{ flex: 1 }} />
+        </div>
 
         {/* Filters */}
         {showFilters && (
@@ -284,7 +295,7 @@ export default function TelehealthPage() {
                 return (
                   <button key={i} onClick={() => setSelectedDate(isSel ? null : day.date)} style={{
                     padding: '8px 4px', minHeight: 72, border: 'none', cursor: 'pointer',
-                    background: isSel ? 'var(--accent-light)' : day.isToday ? 'rgba(5,150,105,0.04)' : 'transparent',
+                    background: isSel ? 'var(--accent-light)' : day.isToday ? 'rgba(16,185,129,0.04)' : 'transparent',
                     borderRight: (i + 1) % 7 !== 0 ? '1px solid var(--border-medium)' : 'none',
                     borderBottom: '1px solid var(--border-medium)',
                     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
@@ -294,7 +305,7 @@ export default function TelehealthPage() {
                       fontSize: 13, fontWeight: day.isToday ? 700 : 500,
                       color: day.isToday ? '#fff' : isSel ? 'var(--accent-primary)' : 'var(--text-primary)',
                       width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      background: day.isToday ? 'var(--color-success)' : 'transparent',
+                      background: day.isToday ? 'var(--accent-primary)' : 'transparent',
                     }}>{day.day}</span>
                     {ev && (
                       <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
@@ -527,6 +538,6 @@ function Btn({ c, onClick, children }: { c: string; onClick: () => void; childre
 
 const calBtn: React.CSSProperties = {
   background: 'var(--overlay-subtle)', border: '1px solid var(--border-medium)',
-  borderRadius: 'var(--card-radius)', width: 28, height: 28, display: 'flex', alignItems: 'center',
+  borderRadius: 8, width: 32, height: 32, display: 'flex', alignItems: 'center',
   justifyContent: 'center', cursor: 'pointer', color: 'var(--text-secondary)',
 };

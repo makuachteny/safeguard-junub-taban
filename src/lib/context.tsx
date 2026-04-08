@@ -110,6 +110,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 document.documentElement.style.setProperty(key, value);
               }
 
+              // Apply org language setting
+              if (organization?.locale) {
+                const { initLocaleFromOrg } = await import('./i18n/useTranslation');
+                initLocaleFromOrg(organization.locale);
+              }
+
               setCurrentUser({ ...data.user, hospital, organization, branding });
               setIsAuthenticated(true);
             }
@@ -299,6 +305,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const vars = brandingToCSSVars(branding);
       for (const [key, value] of Object.entries(vars)) {
         document.documentElement.style.setProperty(key, value);
+      }
+
+      // Apply org language setting
+      if (organization?.locale) {
+        const { initLocaleFromOrg } = await import('./i18n/useTranslation');
+        initLocaleFromOrg(organization.locale);
       }
 
       setCurrentUser({

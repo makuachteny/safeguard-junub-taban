@@ -623,7 +623,7 @@ export default function DashboardPage() {
               <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)' }}>Admitted Patients</p>
               <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-success)', display: 'inline-flex', alignItems: 'center', gap: 2 }}><ArrowUpRight className="w-3 h-3" />2%</span>
             </div>
-            <div className="stat-value" style={{ fontSize: 32, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1, marginBottom: 14 }}>{patients.length || 0}</div>
+            <div className="stat-value text-3xl font-bold mb-3.5" style={{ color: 'var(--text-primary)', lineHeight: 1 }}>{patients.length || 0}</div>
             <div style={{ display: 'flex', gap: 14, marginBottom: 14 }}>
               {[{ n: maleCount, l: 'Male', c: '#60A5FA' }, { n: femaleCount, l: 'Female', c: '#EC4899' }].map(g => (
                 <div key={g.l} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -649,7 +649,7 @@ export default function DashboardPage() {
           {/* ── Active Staff ── */}
           <div className="card-elevated" style={{ padding: '16px 18px' }}>
             <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 12 }}>Active Staff</p>
-            <div className="stat-value" style={{ fontSize: 32, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1, marginBottom: 16 }}>{totalDoctors + totalNurses}</div>
+            <div className="stat-value text-3xl font-bold mb-4" style={{ color: 'var(--text-primary)', lineHeight: 1 }}>{totalDoctors + totalNurses}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[
                 { Icon: Stethoscope, label: 'Doctors', count: totalDoctors, color: 'var(--accent-primary)' },

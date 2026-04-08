@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import {
   User, Calendar, FileText, FlaskConical, Syringe,
   HeartPulse, Shield, Pill, Scan, FolderOpen,
-  ChevronRight, AlertTriangle, Eye, EyeOff,
+  ChevronRight, AlertTriangle,
   MessageSquare, ArrowRight, Activity,
   Plus, X, LogOut, Send, Building2,
 } from 'lucide-react';

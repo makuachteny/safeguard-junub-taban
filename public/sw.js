@@ -1,4 +1,4 @@
-const CACHE_NAME = 'taban-v2';
+const CACHE_NAME = 'taban-v3';
 const STATIC_ASSETS = [
   '/',
   '/dashboard',
@@ -11,6 +11,19 @@ const STATIC_ASSETS = [
   '/reports',
   '/hospitals',
   '/government',
+  '/appointments',
+  '/immunizations',
+  '/births',
+  '/deaths',
+  '/anc',
+  '/messages',
+  '/settings',
+  '/telehealth',
+  '/epidemic-intelligence',
+  '/data-quality',
+  '/vital-statistics',
+  '/mch-analytics',
+  '/facility-assessments',
 ];
 
 // Background sync queue stored in IndexedDB

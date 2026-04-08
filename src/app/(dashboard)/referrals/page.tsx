@@ -39,7 +39,7 @@ export default function ReferralsPage() {
   const { hospitals } = useHospitals();
   const { patients } = usePatients();
   const { currentUser, globalSearch } = useApp();
-  const OUR_HOSPITAL_ID = currentUser?.hospitalId || 'hosp-001';
+  const OUR_HOSPITAL_ID = currentUser?.hospitalId || '';
 
   const [activeTab, setActiveTab] = useState<'incoming' | 'outgoing'>('incoming');
   const [showNewReferral, setShowNewReferral] = useState(false);
@@ -280,7 +280,7 @@ export default function ReferralsPage() {
           </div>
           <div className="p-3 rounded-lg" style={{ background: 'var(--overlay-subtle)', border: '1px solid var(--border-light)' }}>
             <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>Clinical Notes</p>
-            <p className="text-sm" style={{ color: 'var(--text-primary)' }}>{notes || 'None'}</p>
+            <p className="text-sm whitespace-pre-wrap" style={{ color: 'var(--text-primary)' }}>{notes || 'None'}</p>
           </div>
         </div>
 
@@ -856,7 +856,7 @@ export default function ReferralsPage() {
                             className="btn btn-secondary btn-sm"
                             title="Add a note to this referral"
                             style={{ padding: '5px 10px' }}
-                            onClick={() => { setNoteModalId(ref._id); setNoteText(''); }}
+                            onClick={(e) => { e.stopPropagation(); setNoteModalId(ref._id); setNoteText(''); }}
                           >
                             <MessageSquarePlus className="w-3.5 h-3.5" />
                             Add Note
@@ -878,7 +878,7 @@ export default function ReferralsPage() {
                             </div>
                             <div className="p-3 rounded-lg" style={{ background: 'var(--overlay-subtle)', border: '1px solid var(--border-light)' }}>
                               <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>Clinical Notes</p>
-                              <p className="text-sm">{ref.notes || 'None'}</p>
+                              <p className="text-sm whitespace-pre-wrap">{ref.notes || 'None'}</p>
                             </div>
                             <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-muted)' }}>
                               <AlertTriangle className="w-3.5 h-3.5" />

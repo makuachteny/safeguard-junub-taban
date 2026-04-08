@@ -113,18 +113,14 @@ export async function updateReferralStatus(
 export async function updateReferralNotes(
   id: string,
   notes: string
-): Promise<ReferralDoc | null> {
+): Promise<ReferralDoc> {
   const db = referralsDB();
-  try {
-    const existing = await db.get(id) as ReferralDoc;
-    const updated = { ...existing, notes, updatedAt: new Date().toISOString() };
-    const resp = await db.put(updated);
-    updated._rev = resp.rev;
-    logAudit('UPDATE_REFERRAL', undefined, undefined, `Referral ${id} notes updated`).catch(() => {});
-    return updated;
-  } catch {
-    return null;
-  }
+  const existing = await db.get(id) as ReferralDoc;
+  const updated = { ...existing, notes, updatedAt: new Date().toISOString() };
+  const resp = await db.put(updated);
+  updated._rev = resp.rev;
+  logAudit('UPDATE_REFERRAL', undefined, undefined, `Referral ${id} notes updated`).catch(() => {});
+  return updated;
 }
 
 /**

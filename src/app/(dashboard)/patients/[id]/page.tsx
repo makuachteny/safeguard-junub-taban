@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import TopBar from '@/components/TopBar';
 import SendMessageModal from '@/components/SendMessageModal';
 import {
-  ArrowLeft, Stethoscope, ArrowRightLeft, Phone, MapPin,
+  ArrowLeft, Stethoscope, ArrowRightLeft,
   Heart, AlertTriangle, FileText, FlaskConical,
-  Pill, Activity, Droplets, Brain, ChevronDown, ChevronUp,
+  Pill, Activity, Brain, ChevronDown, ChevronUp,
   ShieldAlert, TestTubes, MessageSquare, ChevronRight
 } from 'lucide-react';
 import { usePatients } from '@/lib/hooks/usePatients';
@@ -15,6 +15,7 @@ import { useMedicalRecords } from '@/lib/hooks/useMedicalRecords';
 import { useHospitals } from '@/lib/hooks/useHospitals';
 import { usePatientReferrals } from '@/lib/hooks/useReferrals';
 import { Package, Clock, Building2 as Building2Icon } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 
 export default function PatientDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;
@@ -23,6 +24,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [expandedAI, setExpandedAI] = useState<Set<string>>(new Set());
   const [showMessageModal, setShowMessageModal] = useState(false);
 
+  const { t } = useTranslation();
   const { patients, loading } = usePatients();
   const { hospitals } = useHospitals();
 
@@ -36,7 +38,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
         <TopBar title="Patient Record" />
         <main className="page-container flex items-center justify-center">
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-            {loading ? 'Loading patient...' : 'Patient not found.'}
+            {loading ? t('status.loading') : t('patient.notFound')}
           </p>
         </main>
       </>
@@ -47,12 +49,12 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const regHospital = hospitals.find(h => h._id === patient.registrationHospital);
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: Heart },
-    { id: 'history', label: 'Medical History', icon: FileText },
-    { id: 'vitals', label: 'Vitals', icon: Activity },
-    { id: 'labs', label: 'Lab Results', icon: FlaskConical },
-    { id: 'prescriptions', label: 'Prescriptions', icon: Pill },
-    { id: 'referrals', label: 'Referrals', icon: ArrowRightLeft },
+    { id: 'overview', label: t('tab.overview'), icon: Heart },
+    { id: 'history', label: t('tab.medicalHistory'), icon: FileText },
+    { id: 'vitals', label: t('tab.vitals'), icon: Activity },
+    { id: 'labs', label: t('tab.labResults'), icon: FlaskConical },
+    { id: 'prescriptions', label: t('tab.prescriptions'), icon: Pill },
+    { id: 'referrals', label: t('tab.referrals'), icon: ArrowRightLeft },
   ];
 
   const latestVitals = records[0]?.vitalSigns;
@@ -62,51 +64,43 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
       <TopBar title="Patient Record" />
       <main className="page-container page-enter">
           <button onClick={() => router.push('/patients')} className="flex items-center gap-1.5 text-sm mb-4" style={{ color: 'var(--taban-blue)' }}>
-            <ArrowLeft className="w-4 h-4" /> Back to Patients
+            <ArrowLeft className="w-4 h-4" /> {t('action.back')}
           </button>
 
           {/* Patient Header */}
-          <div className="card-elevated p-5 mb-5">
-            <div className="flex items-start gap-5">
-              <div className="w-16 h-16 rounded-md flex items-center justify-center text-xl font-bold text-white flex-shrink-0"
+          <div className="card-elevated px-5 py-4 mb-5">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center text-base font-bold text-white flex-shrink-0"
                 style={{ background: patient.gender === 'Male' ? 'var(--taban-blue)' : 'var(--taban-sky)' }}>
                 {(patient.firstName || '?')[0]}{(patient.surname || '?')[0]}
               </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-1">
-                  <h1 className="text-xl font-semibold">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2.5">
+                  <h1 className="text-lg font-semibold truncate">
                     {patient.firstName} {patient.middleName} {patient.surname}
                   </h1>
-                  <span className="font-mono text-xs px-2 py-0.5 rounded" style={{ background: 'var(--accent-light)', color: 'var(--taban-blue)' }}>
+                  <span className="font-mono text-[11px] px-2 py-0.5 rounded flex-shrink-0" style={{ background: 'var(--accent-light)', color: 'var(--taban-blue)' }}>
                     {patient.hospitalNumber}
                   </span>
-                </div>
-                <div className="flex items-center gap-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                  <span>{age} years · {patient.gender}</span>
-                  <span className="flex items-center gap-1"><Droplets className="w-3.5 h-3.5" /> {patient.bloodType}</span>
-                  <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> {patient.phone}</span>
-                  <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {patient.county}, {patient.state}</span>
-                </div>
-                <div className="flex items-center gap-2 mt-2">
-                  {patient.allergies?.length > 0 && patient.allergies[0] !== 'None known' && patient.allergies.map(a => (
-                    <span key={a} className="badge badge-emergency text-[10px]">
-                      <AlertTriangle className="w-3 h-3" /> Allergy: {a}
+                  {patient.allergies?.length > 0 && patient.allergies[0] !== 'None known' && (
+                    <span className="badge badge-emergency text-[10px] flex-shrink-0">
+                      <AlertTriangle className="w-3 h-3" /> Allergy: {patient.allergies.join(', ')}
                     </span>
-                  ))}
-                  {patient.chronicConditions?.length > 0 && patient.chronicConditions[0] !== 'None' && patient.chronicConditions.map(c => (
-                    <span key={c} className="badge badge-warning text-[10px]">{c}</span>
-                  ))}
+                  )}
                 </div>
+                <p className="text-sm mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                  {age} years · {patient.gender}
+                </p>
               </div>
               <div className="flex gap-2 flex-shrink-0">
                 <button onClick={() => router.push('/consultation')} className="btn btn-primary btn-sm">
-                  <Stethoscope className="w-4 h-4" /> New Consultation
+                  <Stethoscope className="w-4 h-4" /> {t('action.newConsultation')}
                 </button>
                 <button onClick={() => setShowMessageModal(true)} className="btn btn-secondary btn-sm">
-                  <MessageSquare className="w-4 h-4" /> Send Message
+                  <MessageSquare className="w-4 h-4" /> {t('action.sendMessage')}
                 </button>
                 <button onClick={() => router.push('/referrals')} className="btn btn-secondary btn-sm">
-                  <ArrowRightLeft className="w-4 h-4" /> Refer
+                  <ArrowRightLeft className="w-4 h-4" /> {t('action.refer')}
                 </button>
               </div>
             </div>
@@ -131,19 +125,19 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 {/* Latest Vitals */}
                 <div className="card-elevated">
                   <div className="px-5 py-3 border-b" style={{ borderColor: 'var(--border-light)' }}>
-                    <h3 className="font-semibold text-sm">Latest Vital Signs</h3>
+                    <h3 className="font-semibold text-sm">{t('vitals.title')}</h3>
                   </div>
                   <div className="p-5">
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       {latestVitals && [
-                        { label: 'Temperature', value: `${latestVitals.temperature}°C`, warn: latestVitals.temperature > 37.5 },
-                        { label: 'Blood Pressure', value: `${latestVitals.systolic}/${latestVitals.diastolic}`, warn: latestVitals.systolic > 140 },
-                        { label: 'Pulse', value: `${latestVitals.pulse} bpm`, warn: latestVitals.pulse > 100 },
-                        { label: 'Resp. Rate', value: `${latestVitals.respiratoryRate}/min`, warn: latestVitals.respiratoryRate > 20 },
-                        { label: 'SpO₂', value: `${latestVitals.oxygenSaturation}%`, warn: latestVitals.oxygenSaturation < 95 },
-                        { label: 'Weight', value: `${latestVitals.weight} kg`, warn: false },
-                        { label: 'Height', value: `${latestVitals.height} cm`, warn: false },
-                        { label: 'BMI', value: latestVitals.bmi.toString(), warn: latestVitals.bmi > 30 || latestVitals.bmi < 18.5 },
+                        { label: t('vitals.temperature'), value: `${latestVitals.temperature}°C`, warn: latestVitals.temperature > 37.5 },
+                        { label: t('vitals.bloodPressure'), value: `${latestVitals.systolic}/${latestVitals.diastolic}`, warn: latestVitals.systolic > 140 },
+                        { label: t('vitals.pulse'), value: `${latestVitals.pulse} bpm`, warn: latestVitals.pulse > 100 },
+                        { label: t('vitals.respRate'), value: `${latestVitals.respiratoryRate}/min`, warn: latestVitals.respiratoryRate > 20 },
+                        { label: t('vitals.spo2'), value: `${latestVitals.oxygenSaturation}%`, warn: latestVitals.oxygenSaturation < 95 },
+                        { label: t('vitals.weight'), value: `${latestVitals.weight} kg`, warn: false },
+                        { label: t('vitals.height'), value: `${latestVitals.height} cm`, warn: false },
+                        { label: t('vitals.bmi'), value: latestVitals.bmi.toString(), warn: latestVitals.bmi > 30 || latestVitals.bmi < 18.5 },
                       ].map(v => (
                         <div key={v.label} className="p-3 rounded-lg" style={{ background: v.warn ? 'rgba(229,46,66,0.14)' : 'var(--overlay-subtle)' }}>
                           <p className="text-[10px] font-medium uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>{v.label}</p>
@@ -157,7 +151,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 {/* Recent Visits */}
                 <div className="card-elevated">
                   <div className="px-5 py-3 border-b" style={{ borderColor: 'var(--border-light)' }}>
-                    <h3 className="font-semibold text-sm">Recent Encounters</h3>
+                    <h3 className="font-semibold text-sm">{t('encounters.recent')}</h3>
                   </div>
                   <div className="divide-y" style={{ borderColor: 'var(--table-row-border)' }}>
                     {records.slice(0, 4).map(rec => {
@@ -244,16 +238,19 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
               <div className="space-y-5">
                 <div className="card-elevated">
                   <div className="px-5 py-3 border-b" style={{ borderColor: 'var(--border-light)' }}>
-                    <h3 className="font-semibold text-sm">Demographics</h3>
+                    <h3 className="font-semibold text-sm">{t('patient.demographics')}</h3>
                   </div>
                   <div className="p-5 space-y-3">
                     {[
-                      { l: 'Tribe', v: patient.tribe },
-                      { l: 'Language', v: patient.primaryLanguage },
-                      { l: 'Registered', v: patient.registrationDate },
-                      { l: 'Facility', v: regHospital?.name || 'N/A' },
-                      { l: 'Next of Kin', v: `${patient.nokName} (${patient.nokRelationship})` },
-                      { l: 'NOK Phone', v: patient.nokPhone },
+                      { l: t('patient.phone'), v: patient.phone },
+                      { l: t('patient.bloodType'), v: patient.bloodType },
+                      { l: t('patient.location'), v: `${patient.county}, ${patient.state}` },
+                      { l: t('patient.tribe'), v: patient.tribe },
+                      { l: t('patient.language'), v: patient.primaryLanguage },
+                      { l: t('patient.registered'), v: patient.registrationDate },
+                      { l: t('patient.facility'), v: regHospital?.name || 'N/A' },
+                      { l: t('patient.nextOfKin'), v: `${patient.nokName} (${patient.nokRelationship})` },
+                      { l: t('patient.nokPhone'), v: patient.nokPhone },
                     ].map(item => (
                       <div key={item.l} className="flex justify-between">
                         <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{item.l}</span>
@@ -266,7 +263,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 <div className="card-elevated">
                   <div className="px-5 py-3 border-b flex items-center gap-2" style={{ borderColor: 'var(--border-light)' }}>
                     <AlertTriangle className="w-4 h-4" style={{ color: 'var(--taban-red)' }} />
-                    <h3 className="font-semibold text-sm">Allergies</h3>
+                    <h3 className="font-semibold text-sm">{t('patient.allergies')}</h3>
                   </div>
                   <div className="p-5 space-y-2">
                     {(patient.allergies || ['None known']).map(a => (
@@ -280,7 +277,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
 
                 <div className="card-elevated">
                   <div className="px-5 py-3 border-b" style={{ borderColor: 'var(--border-light)' }}>
-                    <h3 className="font-semibold text-sm">Chronic Conditions</h3>
+                    <h3 className="font-semibold text-sm">{t('patient.chronicConditions')}</h3>
                   </div>
                   <div className="p-5 space-y-2">
                     {(patient.chronicConditions || ['None']).map(c => (
@@ -294,7 +291,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
 
                 <div className="card-elevated">
                   <div className="px-5 py-3 border-b" style={{ borderColor: 'var(--border-light)' }}>
-                    <h3 className="font-semibold text-sm">Current Medications</h3>
+                    <h3 className="font-semibold text-sm">{t('patient.medications')}</h3>
                   </div>
                   <div className="p-5 space-y-2">
                     {records[0]?.prescriptions?.map((p, i) => (
@@ -313,7 +310,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
           {activeTab === 'history' && (
             <div className="card-elevated">
               <div className="px-5 py-3 border-b" style={{ borderColor: 'var(--border-light)' }}>
-                <h3 className="font-semibold text-sm">Complete Medical History Timeline</h3>
+                <h3 className="font-semibold text-sm">{t('encounters.history')}</h3>
               </div>
               <div className="relative pl-8">
                 {records.map((rec, i) => {
@@ -402,7 +399,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
           {activeTab === 'labs' && (
             <div className="card-elevated overflow-hidden">
               <div className="flex items-center justify-between px-5 py-3 border-b" style={{ borderColor: 'var(--border-light)' }}>
-                <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Lab Results</span>
+                <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{t('lab.title')}</span>
                 <button onClick={() => router.push('/lab')} className="text-xs font-medium flex items-center gap-1" style={{ color: 'var(--taban-blue)' }}>
                   View in Lab Module <ChevronRight className="w-3.5 h-3.5" />
                 </button>
@@ -524,7 +521,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
           {activeTab === 'referrals' && (
             <div className="space-y-3">
               <div className="flex items-center justify-between px-1 mb-1">
-                <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Referral History</span>
+                <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{t('referral.title')}</span>
                 <button onClick={() => router.push('/referrals')} className="text-xs font-medium flex items-center gap-1" style={{ color: 'var(--taban-blue)' }}>
                   View in Referrals <ChevronRight className="w-3.5 h-3.5" />
                 </button>
@@ -532,7 +529,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
               {patientReferrals.length === 0 ? (
                 <div className="card-elevated p-6 text-center">
                   <ArrowRightLeft className="w-10 h-10 mx-auto mb-2" style={{ color: 'var(--text-muted)', opacity: 0.3 }} />
-                  <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No referral history for this patient.</p>
+                  <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{t('referral.none')}</p>
                 </div>
               ) : (
                 patientReferrals.map(ref => {

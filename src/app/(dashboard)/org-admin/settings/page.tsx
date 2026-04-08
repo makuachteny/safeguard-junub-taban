@@ -5,14 +5,18 @@ import TopBar from '@/components/TopBar';
 import { useApp } from '@/lib/context';
 import {
   Settings, Mail, CreditCard, Building2,
-  CheckCircle, XCircle, Zap, Lock, Info,
+  CheckCircle, XCircle, Zap, Lock, Info, Shield, Timer,
 } from 'lucide-react';
 import type { OrganizationDoc } from '@/lib/db-types';
+import { useToast } from '@/components/Toast';
 
 export default function OrgSettingsPage() {
   const { currentUser } = useApp();
+  const { showToast } = useToast();
   const [org, setOrg] = useState<OrganizationDoc | null>(null);
   const [loading, setLoading] = useState(true);
+  const [lockTimeout, setLockTimeout] = useState<number>(1);
+  const [savingTimeout, setSavingTimeout] = useState(false);
 
   const brandColor = currentUser?.branding?.primaryColor || '#7C3AED';
 
@@ -22,7 +26,7 @@ export default function OrgSettingsPage() {
       try {
         const { getOrganizationById } = await import('@/lib/services/organization-service');
         const o = await getOrganizationById(currentUser.orgId!);
-        if (o) setOrg(o);
+        if (o) { setOrg(o); setLockTimeout(o.lockTimeoutMinutes ?? 1); }
       } catch (err) {
         console.error('Failed to load org settings:', err);
       } finally {
@@ -142,6 +146,90 @@ export default function OrgSettingsPage() {
                 label="Last Updated"
                 value={org?.updatedAt ? new Date(org.updatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}
               />
+            </div>
+          </div>
+
+          {/* Security — Screen Lock */}
+          <div className="lg:col-span-2 p-5 rounded-xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
+            <div className="flex items-center gap-2 mb-4">
+              <Shield className="w-5 h-5" style={{ color: 'var(--accent-primary)' }} />
+              <h2 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>Security</h2>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Lock timeout setting */}
+              <div className="p-4 rounded-lg" style={{ background: 'var(--overlay-subtle)', border: '1px solid var(--border-light)' }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Timer className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
+                  <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Screen Lock Timeout</span>
+                </div>
+                <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
+                  App locks automatically after this period of inactivity, or immediately when the screen turns off. Users must enter their PIN to unlock.
+                </p>
+                <div className="flex items-center gap-3">
+                  <select
+                    value={lockTimeout}
+                    onChange={e => setLockTimeout(Number(e.target.value))}
+                    className="text-sm"
+                    style={{ width: 'auto', padding: '6px 32px 6px 10px' }}
+                  >
+                    <option value={1}>1 minute</option>
+                    <option value={2}>2 minutes</option>
+                    <option value={5}>5 minutes</option>
+                    <option value={10}>10 minutes</option>
+                    <option value={15}>15 minutes</option>
+                    <option value={30}>30 minutes</option>
+                  </select>
+                  <button
+                    className="btn btn-primary btn-sm"
+                    disabled={savingTimeout || lockTimeout === (org?.lockTimeoutMinutes ?? 1)}
+                    onClick={async () => {
+                      if (!org) return;
+                      setSavingTimeout(true);
+                      try {
+                        const { updateOrganization } = await import('@/lib/services/organization-service');
+                        await updateOrganization(org._id, { lockTimeoutMinutes: lockTimeout });
+                        setOrg({ ...org, lockTimeoutMinutes: lockTimeout });
+                        // Also persist to localStorage for immediate effect
+                        localStorage.setItem('taban-lock-timeout', String(lockTimeout * 60_000));
+                        showToast('Lock timeout updated', 'success');
+                      } catch {
+                        showToast('Failed to update timeout', 'error');
+                      } finally {
+                        setSavingTimeout(false);
+                      }
+                    }}
+                  >
+                    {savingTimeout ? 'Saving...' : 'Save'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Lock behavior info */}
+              <div className="p-4 rounded-lg" style={{ background: 'var(--overlay-subtle)', border: '1px solid var(--border-light)' }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Lock className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
+                  <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Lock Behavior</span>
+                </div>
+                <ul className="space-y-1.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                  <li className="flex items-start gap-1.5">
+                    <span style={{ color: 'var(--accent-primary)' }}>&#8226;</span>
+                    Locks immediately when screen turns off or app is minimized
+                  </li>
+                  <li className="flex items-start gap-1.5">
+                    <span style={{ color: 'var(--accent-primary)' }}>&#8226;</span>
+                    Locks after {lockTimeout} minute{lockTimeout !== 1 ? 's' : ''} of no interaction
+                  </li>
+                  <li className="flex items-start gap-1.5">
+                    <span style={{ color: 'var(--accent-primary)' }}>&#8226;</span>
+                    Users set a 4-digit PIN on first lock, then use it to unlock
+                  </li>
+                  <li className="flex items-start gap-1.5">
+                    <span style={{ color: 'var(--accent-primary)' }}>&#8226;</span>
+                    &quot;Switch User&quot; logs out fully for shared device handoff
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
 

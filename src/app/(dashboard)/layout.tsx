@@ -8,11 +8,15 @@ import AssistantChat from '@/components/AssistantChat';
 import RoleGuard from '@/components/RoleGuard';
 import KeyboardShortcuts from '@/components/KeyboardShortcuts';
 import Breadcrumbs from '@/components/Breadcrumbs';
+import LockScreen from '@/components/LockScreen';
+import { useAutoLock } from '@/lib/hooks/useAutoLock';
 import { Loader2 } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { isAuthenticated, dbReady, sidebarCollapsed } = useApp();
+  const { isAuthenticated, currentUser, dbReady, sidebarCollapsed, logout } = useApp();
+  const orgTimeout = currentUser?.organization?.lockTimeoutMinutes;
+  const { isLocked, hasPin, unlock, verifyPin, setPin } = useAutoLock(isAuthenticated, orgTimeout);
 
   useEffect(() => {
     if (dbReady && !isAuthenticated) {
@@ -48,6 +52,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex h-screen overflow-hidden gradient-mesh-bg">
+      {isLocked && currentUser && (
+        <LockScreen
+          userName={currentUser.name}
+          hasPin={hasPin}
+          onVerifyPin={verifyPin}
+          onSetPin={setPin}
+          onUnlock={unlock}
+          onLogout={logout}
+        />
+      )}
       <a href="#main-content" className="skip-link">Skip to main content</a>
       <Sidebar />
       <div

@@ -1,12 +1,14 @@
 {
   "name": "Taban — Digital Health Records",
   "short_name": "Taban",
-  "description": "Offline-first hospital record system for South Sudan's public hospital network. Connecting 87 hospitals, serving 11.4 million citizens.",
+  "description": "Offline-first health records system. Secure, scalable EMR for hospitals and community health workers across Africa.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0A3D6B",
   "theme_color": "#0A3D6B",
   "orientation": "any",
+  "lang": "en",
+  "dir": "auto",
   "categories": ["medical", "health", "productivity"],
   "icons": [
     {

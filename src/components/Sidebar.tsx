@@ -1,12 +1,14 @@
 'use client';
 
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Settings, LogOut, Globe, Building2, X, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Settings, LogOut, Globe, Building2, X, ChevronsLeft, ChevronsRight, Check } from 'lucide-react';
 import { useApp } from '@/lib/context';
 import { getRoleConfig } from '@/lib/permissions';
 import type { NavItem } from '@/lib/permissions';
+import { useTranslation } from '@/lib/i18n/useTranslation';
+import { SUPPORTED_LOCALES } from '@/lib/i18n';
 
 function groupBySection(items: NavItem[]): { section: string | null; items: NavItem[] }[] {
   const groups: { section: string | null; items: NavItem[] }[] = [];
@@ -27,9 +29,31 @@ function groupBySection(items: NavItem[]): { section: string | null; items: NavI
 export default function Sidebar() {
   const pathname = usePathname();
   const { logout, currentUser, sidebarOpen, setSidebarOpen, sidebarCollapsed, setSidebarCollapsed } = useApp();
+  const { t, locale, setLocale } = useTranslation();
+  const [showLangPicker, setShowLangPicker] = useState(false);
+  const currentLocaleConfig = SUPPORTED_LOCALES.find(l => l.code === locale);
+
+  // Map nav hrefs to i18n keys — falls back to the original label if no key exists
+  const navLabel = (item: NavItem): string => {
+    const keyMap: Record<string, string> = {
+      '/dashboard': 'nav.dashboard', '/patients': 'nav.patients', '/consultation': 'nav.consultation',
+      '/appointments': 'nav.appointments', '/referrals': 'nav.referrals', '/lab': 'nav.lab',
+      '/pharmacy': 'nav.pharmacy', '/immunizations': 'nav.immunizations', '/anc': 'nav.anc',
+      '/births': 'nav.births', '/deaths': 'nav.deaths', '/surveillance': 'nav.surveillance',
+      '/hospitals': 'nav.hospitals', '/reports': 'nav.reports', '/messages': 'nav.messages',
+      '/settings': 'nav.settings', '/telehealth': 'nav.telehealth', '/government': 'nav.government',
+    };
+    const key = keyMap[item.href];
+    if (key) {
+      const translated = t(key);
+      if (translated !== key) return translated; // translation found
+    }
+    return item.label; // fallback to original
+  };
 
   const role = currentUser?.role;
   const isAdminLevel = role === 'super_admin' || role === 'org_admin' || role === 'government';
+  const canChangeLang = role === 'super_admin' || role === 'org_admin' || role === 'government' || role === 'medical_superintendent';
   const roleConfig = currentUser ? getRoleConfig(currentUser.role) : null;
   const navItems = roleConfig?.navItems || [];
   const groups = groupBySection(navItems);
@@ -41,6 +65,7 @@ export default function Sidebar() {
 
   const handleNavClick = () => {
     setSidebarOpen(false);
+    setShowLangPicker(false);
   };
 
   const collapsed = sidebarCollapsed;
@@ -204,11 +229,11 @@ export default function Sidebar() {
                       key={item.href}
                       href={item.href}
                       onClick={handleNavClick}
-                      title={collapsed ? item.label : undefined}
+                      title={collapsed ? navLabel(item) : undefined}
                       className={`nav-item ${isActive ? 'nav-item-active' : ''} ${collapsed ? 'justify-center !px-0' : ''}`}
                     >
                       <item.icon className="w-[17px] h-[17px] flex-shrink-0" style={{ opacity: isActive ? 1 : 0.7 }} />
-                      {!collapsed && <span className="font-medium text-[13px]">{item.label}</span>}
+                      {!collapsed && <span className="font-medium text-[13px]">{navLabel(item)}</span>}
                     </Link>
                   );
                 })}
@@ -255,15 +280,75 @@ export default function Sidebar() {
           )}
         </button>
 
+        {/* Language picker — only for org admin / hospital heads */}
+        {canChangeLang && (
+          <div className="relative">
+            <button
+              onClick={() => setShowLangPicker(!showLangPicker)}
+              title={collapsed ? `Language: ${currentLocaleConfig?.nativeName || 'English'}` : undefined}
+              className={`nav-item w-full text-left ${collapsed ? 'justify-center !px-0' : ''}`}
+              style={{ color: 'var(--nav-text)' }}
+            >
+              <Globe className="w-[17px] h-[17px]" style={{ opacity: 0.7 }} />
+              {!collapsed && (
+                <span className="text-[13px] flex-1">{currentLocaleConfig?.nativeName || 'English'}</span>
+              )}
+            </button>
+            {showLangPicker && (
+              <div
+                className="absolute left-0 bottom-full mb-1 rounded-xl overflow-hidden"
+                style={{
+                  background: 'var(--bg-card-solid)',
+                  border: '1px solid var(--border-medium)',
+                  boxShadow: 'var(--card-shadow-lg)',
+                  width: collapsed ? '220px' : '100%',
+                  zIndex: 100,
+                  maxHeight: '320px',
+                  overflowY: 'auto',
+                }}
+              >
+                <div className="px-3 py-2 border-b" style={{ borderColor: 'var(--border-light)' }}>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Language</p>
+                </div>
+                {SUPPORTED_LOCALES.map(loc => (
+                  <button
+                    key={loc.code}
+                    onClick={async () => {
+                      await setLocale(loc.code);
+                      // Persist to organization so all facility users get this language
+                      if (currentUser?.orgId) {
+                        try {
+                          const { updateOrganization } = await import('@/lib/services/organization-service');
+                          await updateOrganization(currentUser.orgId, { locale: loc.code });
+                        } catch { /* offline — will sync later */ }
+                      }
+                      setShowLangPicker(false);
+                    }}
+                    className="flex items-center gap-2.5 w-full px-3 py-2 text-left transition-colors"
+                    style={{
+                      background: loc.code === locale ? 'var(--accent-light)' : 'transparent',
+                      color: loc.code === locale ? 'var(--accent-primary)' : 'var(--text-primary)',
+                    }}
+                  >
+                    <span className="text-sm font-medium flex-1">{loc.nativeName}</span>
+                    <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{loc.region || ''}</span>
+                    {loc.code === locale && <Check className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--accent-primary)' }} />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {roleConfig?.allowedRoutes?.includes('/settings') && (
           <Link
             href="/settings"
             onClick={handleNavClick}
-            title={collapsed ? 'Settings' : undefined}
+            title={collapsed ? t('nav.settings') : undefined}
             className={`nav-item ${pathname === '/settings' ? 'nav-item-active' : ''} ${collapsed ? 'justify-center !px-0' : ''}`}
           >
             <Settings className="w-[17px] h-[17px]" style={{ opacity: pathname === '/settings' ? 1 : 0.7 }} />
-            {!collapsed && <span className="font-medium text-[13px]">Settings</span>}
+            {!collapsed && <span className="font-medium text-[13px]">{t('nav.settings')}</span>}
           </Link>
         )}
 
@@ -274,7 +359,7 @@ export default function Sidebar() {
           style={{ color: 'var(--nav-text)' }}
         >
           <LogOut className="w-[17px] h-[17px]" />
-          {!collapsed && <span className="text-[13px]">Sign Out</span>}
+          {!collapsed && <span className="text-[13px]">{t('auth.logout')}</span>}
         </button>
       </div>
 

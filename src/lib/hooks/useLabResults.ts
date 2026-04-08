@@ -11,6 +11,7 @@ export function useLabResults() {
   const { currentUser } = useApp();
   const scope = useMemo(() => (
     currentUser ? { orgId: currentUser.orgId, hospitalId: currentUser.hospitalId, role: currentUser.role } : undefined
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   ), [currentUser?.orgId, currentUser?.hospitalId, currentUser?.role]);
 
   const loadResults = useCallback(async () => {

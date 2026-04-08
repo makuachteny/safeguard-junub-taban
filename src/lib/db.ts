@@ -7,7 +7,7 @@ const databases: Record<string, PouchDB.Database> = {};
 
 export function getDB(name: string): PouchDB.Database {
   if (!databases[name]) {
-    databases[name] = new PouchDB(name);
+    databases[name] = new PouchDB(name, { auto_compaction: true });
   }
   return databases[name];
 }

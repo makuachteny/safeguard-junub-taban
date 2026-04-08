@@ -20,6 +20,8 @@ export interface UserDoc extends BaseDoc {
   hospitalName?: string;
   orgId?: string;
   isActive: boolean;
+  /** Hashed 4-6 digit PIN for screen-lock quick unlock */
+  pinHash?: string;
 }
 
 export interface PatientDoc extends BaseDoc, Omit<Patient, 'id'> {
@@ -443,6 +445,10 @@ export interface OrganizationDoc extends BaseDoc {
   contactEmail: string;
   country: string;
   isActive: boolean;
+  /** Screen lock timeout in minutes (default 1). Set by org admin. */
+  lockTimeoutMinutes?: number;
+  /** App language for this organization's facilities. Set by org admin / hospital head. */
+  locale?: string;
 }
 
 export interface PlatformConfigDoc extends BaseDoc {

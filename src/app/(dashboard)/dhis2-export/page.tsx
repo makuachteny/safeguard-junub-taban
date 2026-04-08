@@ -57,7 +57,7 @@ export default function DHIS2ExportPage() {
   const { currentUser } = useApp();
 
   const syncedCount = DHIS2_DATA_ELEMENTS.filter(d => d.synced).length;
-  const hospitalName = currentUser?.hospital?.name || 'Juba Teaching Hospital';
+  const hospitalName = currentUser?.hospital?.name || currentUser?.hospitalName || '';
 
   const handleSync = () => {
     setSyncing(true);
