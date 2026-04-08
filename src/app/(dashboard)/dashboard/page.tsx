@@ -11,10 +11,10 @@ import {
   FileText, UserCheck, Globe, Pill,
   ArrowUpRight, SendHorizontal,
   X, ClipboardList, TestTube, Bell,
-  CheckCircle2, ChevronDown, ChevronUp
+  CheckCircle2, ChevronDown, ChevronUp, Search
 } from 'lucide-react';
 import {
-  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
 import { usePatients } from '@/lib/hooks/usePatients';
@@ -276,6 +276,11 @@ export default function DashboardPage() {
   const { stats: birthStats } = useBirths();
   const [activeTab, setActiveTab] = useState('satisfaction');
 
+  // Disease trend explorer
+  const [diseaseSearch, setDiseaseSearch] = useState('');
+  const [selectedDiseases, setSelectedDiseases] = useState<Set<string>>(new Set(['Malaria', 'Pneumonia', 'Diarrheal']));
+  const [showDiseaseDropdown, setShowDiseaseDropdown] = useState(false);
+
   // Modal states
   const [soapModalOpen, setSoapModalOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<SOAPTemplate | null>(null);
@@ -423,14 +428,60 @@ export default function DashboardPage() {
     { week: 'Week 4', 'In Patients': Math.floor(patients.length * 0.4), 'Out Patients': Math.floor(patients.length * 0.25) },
   ];
 
-  // Module distribution donut (replaces "Covid" donut -- more relevant for South Sudan)
-  const diseaseDistribution = [
-    { name: 'Malaria', value: Math.floor(patients.length * 0.35), color: 'var(--color-danger)' },
-    { name: 'Respiratory', value: Math.floor(patients.length * 0.2), color: 'var(--color-warning)' },
-    { name: 'Diarrheal', value: Math.floor(patients.length * 0.15), color: '#60A5FA' },
-    { name: 'Maternal', value: Math.floor(patients.length * 0.12), color: '#EC4899' },
-    { name: 'Other', value: Math.floor(patients.length * 0.18), color: 'var(--text-muted)' },
+  // ── Disease catalog with monthly trend data ──
+  const DISEASE_COLORS: Record<string, string> = {
+    'Malaria': '#EF4444', 'Pneumonia': '#F59E0B', 'Diarrheal': '#3B82F6', 'HIV/AIDS': '#8B5CF6',
+    'Tuberculosis': '#6366F1', 'Typhoid': '#EC4899', 'Measles': '#14B8A6', 'Cholera': '#06B6D4',
+    'Hypertension': '#F97316', 'Diabetes': '#A855F7', 'Malnutrition': '#EAB308', 'Meningitis': '#DC2626',
+    'Hepatitis B': '#059669', 'Sickle Cell': '#D946EF', 'Leishmaniasis': '#0EA5E9', 'Epilepsy': '#64748B',
+    'Asthma': '#10B981', 'UTI': '#E11D48', 'Maternal': '#EC4899', 'Snakebite': '#84CC16',
+    'Burns': '#FB923C', 'Other': '#94A3B8',
+  };
+  const MONTHS_LABEL = ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'];
+  const pLen = Math.max(patients.length, 1);
+  const allDiseases: { name: string; currentCases: number; trend: number[] }[] = [
+    { name: 'Malaria', currentCases: Math.floor(pLen * 0.35), trend: [28, 32, 38, 42, 35, Math.floor(pLen * 0.35)] },
+    { name: 'Pneumonia', currentCases: Math.floor(pLen * 0.12), trend: [8, 10, 14, 12, 11, Math.floor(pLen * 0.12)] },
+    { name: 'Diarrheal', currentCases: Math.floor(pLen * 0.15), trend: [12, 14, 18, 15, 13, Math.floor(pLen * 0.15)] },
+    { name: 'HIV/AIDS', currentCases: Math.floor(pLen * 0.08), trend: [6, 6, 7, 7, 8, Math.floor(pLen * 0.08)] },
+    { name: 'Tuberculosis', currentCases: Math.floor(pLen * 0.05), trend: [4, 5, 4, 5, 5, Math.floor(pLen * 0.05)] },
+    { name: 'Typhoid', currentCases: Math.floor(pLen * 0.06), trend: [3, 5, 7, 6, 5, Math.floor(pLen * 0.06)] },
+    { name: 'Measles', currentCases: Math.floor(pLen * 0.03), trend: [1, 2, 4, 5, 3, Math.floor(pLen * 0.03)] },
+    { name: 'Cholera', currentCases: Math.floor(pLen * 0.04), trend: [2, 3, 6, 8, 5, Math.floor(pLen * 0.04)] },
+    { name: 'Hypertension', currentCases: Math.floor(pLen * 0.07), trend: [5, 5, 6, 6, 7, Math.floor(pLen * 0.07)] },
+    { name: 'Diabetes', currentCases: Math.floor(pLen * 0.04), trend: [3, 3, 3, 4, 4, Math.floor(pLen * 0.04)] },
+    { name: 'Malnutrition', currentCases: Math.floor(pLen * 0.09), trend: [7, 8, 10, 11, 9, Math.floor(pLen * 0.09)] },
+    { name: 'Meningitis', currentCases: Math.floor(pLen * 0.02), trend: [1, 1, 2, 3, 2, Math.floor(pLen * 0.02)] },
+    { name: 'Hepatitis B', currentCases: Math.floor(pLen * 0.03), trend: [2, 2, 3, 3, 3, Math.floor(pLen * 0.03)] },
+    { name: 'Sickle Cell', currentCases: Math.floor(pLen * 0.02), trend: [2, 2, 2, 2, 2, Math.floor(pLen * 0.02)] },
+    { name: 'Leishmaniasis', currentCases: Math.floor(pLen * 0.01), trend: [1, 1, 1, 2, 1, Math.floor(pLen * 0.01)] },
+    { name: 'Asthma', currentCases: Math.floor(pLen * 0.03), trend: [2, 3, 3, 3, 3, Math.floor(pLen * 0.03)] },
+    { name: 'UTI', currentCases: Math.floor(pLen * 0.05), trend: [3, 4, 5, 5, 4, Math.floor(pLen * 0.05)] },
+    { name: 'Maternal', currentCases: Math.floor(pLen * 0.12), trend: [9, 10, 11, 12, 11, Math.floor(pLen * 0.12)] },
+    { name: 'Snakebite', currentCases: Math.floor(pLen * 0.02), trend: [1, 2, 3, 2, 2, Math.floor(pLen * 0.02)] },
+    { name: 'Burns', currentCases: Math.floor(pLen * 0.02), trend: [1, 1, 2, 2, 2, Math.floor(pLen * 0.02)] },
   ];
+
+  // Filter diseases for dropdown search
+  const filteredDiseaseList = diseaseSearch
+    ? allDiseases.filter(d => d.name.toLowerCase().includes(diseaseSearch.toLowerCase()))
+    : allDiseases;
+
+  // Build trend chart data from selected diseases
+  const trendChartData = MONTHS_LABEL.map((month, i) => {
+    const point: Record<string, string | number> = { month };
+    selectedDiseases.forEach(name => {
+      const disease = allDiseases.find(d => d.name === name);
+      if (disease) point[name] = disease.trend[i];
+    });
+    return point;
+  });
+
+  // Donut data from selected diseases
+  const diseaseDistribution = Array.from(selectedDiseases).map(name => {
+    const d = allDiseases.find(x => x.name === name);
+    return { name, value: d?.currentCases || 0, color: DISEASE_COLORS[name] || '#94A3B8' };
+  });
   const totalCases = diseaseDistribution.reduce((s, d) => s + d.value, 0);
 
   const TABS = ['satisfaction', 'equipment', 'department', 'avg-wait'] as const;
@@ -789,47 +840,124 @@ export default function DashboardPage() {
         {/* ═══ BOTTOM ROW: Disease Distribution + Bed Occupancy + In/Out Patient Rate ═══ */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-          {/* Disease Distribution Donut */}
-          <div className="glass-section">
+          {/* Disease Trend Explorer */}
+          <div className="glass-section lg:col-span-2">
             <div className="glass-section-header">
-              <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Disease Distribution</span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Disease Trends</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'var(--accent-light)', color: 'var(--accent-primary)' }}>
+                  {selectedDiseases.size} selected
+                </span>
+              </div>
               <button onClick={() => router.push('/surveillance')} className="text-[10px] font-medium flex items-center gap-0.5" style={{ color: 'var(--accent-primary)' }}>
-                Details <ChevronRight className="w-3 h-3" />
+                Surveillance <ChevronRight className="w-3 h-3" />
               </button>
             </div>
-            <div className="p-4 flex items-center gap-4">
-              <div className="relative flex-shrink-0">
-                <ResponsiveContainer width={120} height={120}>
-                  <PieChart>
-                    <Pie data={diseaseDistribution} dataKey="value" cx="50%" cy="50%" outerRadius={55} innerRadius={32} paddingAngle={2}>
-                      {diseaseDistribution.map((entry, i) => (
-                        <Cell key={i} fill={entry.color} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="text-center">
-                    <p className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>{totalCases}</p>
-                    <p className="text-[8px]" style={{ color: 'var(--text-muted)' }}>Patients</p>
+
+            {/* Search & disease pills */}
+            <div className="px-4 pt-3 pb-2">
+              <div className="relative mb-2">
+                <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                <input
+                  value={diseaseSearch}
+                  onChange={e => { setDiseaseSearch(e.target.value); setShowDiseaseDropdown(true); }}
+                  onFocus={() => setShowDiseaseDropdown(true)}
+                  placeholder="Search diseases (Malaria, TB, Cholera...)"
+                  className="text-sm"
+                  style={{ paddingLeft: 32, padding: '7px 12px 7px 32px' }}
+                />
+                {showDiseaseDropdown && (
+                  <div className="absolute left-0 right-0 top-full mt-1 rounded-lg overflow-hidden" style={{
+                    background: 'var(--bg-card-solid)', border: '1px solid var(--border-medium)',
+                    boxShadow: 'var(--card-shadow-lg)', zIndex: 50, maxHeight: 200, overflowY: 'auto',
+                  }}>
+                    {filteredDiseaseList.map(d => {
+                      const isSelected = selectedDiseases.has(d.name);
+                      return (
+                        <button
+                          key={d.name}
+                          onClick={() => {
+                            setSelectedDiseases(prev => {
+                              const next = new Set(prev);
+                              if (next.has(d.name)) next.delete(d.name); else next.add(d.name);
+                              return next;
+                            });
+                          }}
+                          className="flex items-center gap-2.5 w-full px-3 py-2 text-left text-sm transition-colors"
+                          style={{ background: isSelected ? 'var(--accent-light)' : 'transparent' }}
+                        >
+                          <span className="w-3 h-3 rounded flex-shrink-0 flex items-center justify-center" style={{
+                            background: isSelected ? (DISEASE_COLORS[d.name] || '#94A3B8') : 'transparent',
+                            border: `2px solid ${DISEASE_COLORS[d.name] || '#94A3B8'}`,
+                          }}>
+                            {isSelected && <CheckCircle2 size={8} style={{ color: '#fff' }} />}
+                          </span>
+                          <span style={{ color: 'var(--text-primary)', flex: 1 }}>{d.name}</span>
+                          <span className="text-xs font-bold" style={{ color: 'var(--text-muted)' }}>{d.currentCases}</span>
+                        </button>
+                      );
+                    })}
+                    {filteredDiseaseList.length === 0 && (
+                      <p className="px-3 py-2 text-xs" style={{ color: 'var(--text-muted)' }}>No diseases found</p>
+                    )}
                   </div>
-                </div>
+                )}
               </div>
-              <div className="flex-1 space-y-2">
-                {diseaseDistribution.map(d => (
-                  <div key={d.name} className="flex items-center justify-between">
-                    <span className="flex items-center gap-1.5 text-[11px]" style={{ color: 'var(--text-secondary)' }}>
-                      <span className="w-2.5 h-2.5 rounded" style={{ background: d.color }} />
-                      {d.name}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-bold" style={{ color: 'var(--text-primary)' }}>{d.value}</span>
-                      <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>({totalCases > 0 ? Math.round((d.value / totalCases) * 100) : 0}%)</span>
-                    </div>
-                  </div>
+
+              {/* Selected disease pills */}
+              <div className="flex flex-wrap gap-1.5">
+                {Array.from(selectedDiseases).map(name => (
+                  <button
+                    key={name}
+                    onClick={() => setSelectedDiseases(prev => { const next = new Set(prev); next.delete(name); return next; })}
+                    className="flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium transition-colors"
+                    style={{
+                      background: `${DISEASE_COLORS[name] || '#94A3B8'}15`,
+                      color: DISEASE_COLORS[name] || '#94A3B8',
+                      border: `1px solid ${DISEASE_COLORS[name] || '#94A3B8'}30`,
+                    }}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: DISEASE_COLORS[name] || '#94A3B8' }} />
+                    {name}
+                    <X size={10} />
+                  </button>
                 ))}
               </div>
             </div>
+
+            {/* Trend chart */}
+            {selectedDiseases.size > 0 ? (
+              <div className="px-4 pb-4">
+                <ResponsiveContainer width="100%" height={200}>
+                  <AreaChart data={trendChartData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
+                    <XAxis dataKey="month" tick={{ fontSize: 10, fill: 'var(--text-muted)' }} axisLine={{ stroke: 'var(--border-light)' }} tickLine={false} />
+                    <YAxis tick={{ fontSize: 10, fill: 'var(--text-muted)' }} axisLine={{ stroke: 'var(--border-light)' }} tickLine={false} />
+                    <Tooltip content={<ChartTooltip />} />
+                    {Array.from(selectedDiseases).map(name => (
+                      <Area key={name} type="monotone" dataKey={name} stroke={DISEASE_COLORS[name] || '#94A3B8'} fill={`${DISEASE_COLORS[name] || '#94A3B8'}15`} strokeWidth={2} dot={{ r: 3, fill: DISEASE_COLORS[name] || '#94A3B8' }} />
+                    ))}
+                  </AreaChart>
+                </ResponsiveContainer>
+
+                {/* Totals row */}
+                <div className="flex flex-wrap gap-3 mt-2 pt-2" style={{ borderTop: '1px solid var(--border-light)' }}>
+                  {diseaseDistribution.map(d => (
+                    <div key={d.name} className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full" style={{ background: d.color }} />
+                      <span className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>{d.name}</span>
+                      <span className="text-[11px] font-bold" style={{ color: 'var(--text-primary)' }}>{d.value}</span>
+                    </div>
+                  ))}
+                  <span className="text-[10px] ml-auto" style={{ color: 'var(--text-muted)' }}>Total: {totalCases}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="px-4 pb-4 text-center py-8">
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Select diseases above to visualize trends</p>
+              </div>
+            )}
+
             {/* Alert count */}
             {activeAlerts.length > 0 && (
               <div className="mx-4 mb-4 p-2 rounded-lg flex items-center gap-2" style={{ background: 'rgba(229,46,66,0.06)', border: '1px solid rgba(229,46,66,0.12)' }}>

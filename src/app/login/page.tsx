@@ -12,31 +12,21 @@ const BLUE = '#0077D7';
 export default function LoginPage() {
   const router = useRouter();
   const { login, isAuthenticated, currentUser, dbReady } = useApp();
-  const [hospitalId, setHospitalId] = useState('hosp-001');
+  const [hospitalId, setHospitalId] = useState('');
+  const [hospitalSearch, setHospitalSearch] = useState('');
+  const [showHospitalDropdown, setShowHospitalDropdown] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [debugInfo, setDebugInfo] = useState('Checking DB...');
-  const [showDemoAccounts, setShowDemoAccounts] = useState(false);
 
-  useEffect(() => {
-    if (!dbReady) {
-      setDebugInfo('DB not ready yet...');
-      return;
-    }
-    (async () => {
-      try {
-        const { usersDB } = await import('@/lib/db');
-        const db = usersDB();
-        const allDocs = await db.allDocs();
-        setDebugInfo(`DB ready. Users found: ${allDocs.total_rows}`);
-      } catch (err: unknown) {
-        setDebugInfo(`DB error: ${err instanceof Error ? err.message : String(err)}`);
-      }
-    })();
-  }, [dbReady]);
+  const filteredHospitals = hospitals.filter(h =>
+    !hospitalSearch || h.name.toLowerCase().includes(hospitalSearch.toLowerCase()) ||
+    h.state.toLowerCase().includes(hospitalSearch.toLowerCase()) ||
+    h.type.replace(/_/g, ' ').toLowerCase().includes(hospitalSearch.toLowerCase())
+  );
+  const [showDemoAccounts, setShowDemoAccounts] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated && currentUser) {
@@ -67,19 +57,7 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      const { usersDB } = await import('@/lib/db');
-      const { verifyPassword } = await import('@/lib/auth');
-      const db = usersDB();
-      const sanitized = username.trim().toLowerCase().replace(/[^a-z0-9._-]/g, '');
-      try {
-        const user = await db.get(`user-${sanitized}`) as { passwordHash: string; isActive: boolean; role: string; hospitalId?: string };
-        const pwMatch = await verifyPassword(password, user.passwordHash);
-        setDebugInfo(`User: ${sanitized} | Active: ${user.isActive} | PW match: ${pwMatch} | Role: ${user.role} | Hospital: ${user.hospitalId || 'none'} | Selected: ${hospitalId}`);
-      } catch {
-        setDebugInfo(`User "user-${sanitized}" not found in DB`);
-      }
-
-      const result = await login(username, password, hospitalId);
+      const result = await login(username, password, hospitalId || undefined);
       if (result) {
         router.push(getDefaultDashboard(result));
       } else {
@@ -176,14 +154,6 @@ export default function LoginPage() {
             <h2 className="text-xl font-bold mb-1" style={{ color: 'var(--text-primary)', fontFamily: "'Space Grotesk', 'DM Sans', sans-serif" }}>Staff Sign In</h2>
             <p className="text-sm mb-7" style={{ color: 'var(--text-muted)', fontFamily: "'Inter', sans-serif" }}>Access the national health record system</p>
 
-            {/* Debug info */}
-            <div className="mb-4 p-2 rounded-lg text-center" style={{
-              background: 'rgba(252,211,77,0.08)',
-              border: '1px solid rgba(252,211,77,0.15)',
-            }}>
-              <p className="text-[10px] font-mono" style={{ color: '#D97706' }}>{debugInfo}</p>
-            </div>
-
             {!dbReady && (
               <div className="mb-4 p-3 rounded-lg text-center" style={{
                 background: 'rgba(43,111,224,0.08)',
@@ -197,35 +167,59 @@ export default function LoginPage() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label htmlFor="login-hospital" style={inputLabelStyle}>Hospital Facility</label>
-                <select
+              <div style={{ position: 'relative' }}>
+                <label htmlFor="login-hospital" style={inputLabelStyle}>Hospital / Facility</label>
+                <input
                   id="login-hospital"
-                  value={hospitalId}
-                  onChange={(e) => setHospitalId(e.target.value)}
-                  className="login-select"
-                  style={{
-                    ...inputStyle,
-                    cursor: 'pointer',
-                    paddingRight: '24px',
-                  }}
-                >
-                  <optgroup label="Hospitals">
-                    {hospitals.filter(h => h.type === 'national_referral' || h.type === 'state_hospital' || h.type === 'county_hospital').map(h => (
-                      <option key={h.id} value={h.id}>{h.name} — {h.state}</option>
-                    ))}
-                  </optgroup>
-                  <optgroup label="Primary Health Care Centres (PHCC)">
-                    {hospitals.filter(h => h.type === 'phcc').map(h => (
-                      <option key={h.id} value={h.id}>{h.name} — {h.state}</option>
-                    ))}
-                  </optgroup>
-                  <optgroup label="Primary Health Care Units (PHCU)">
-                    {hospitals.filter(h => h.type === 'phcu').map(h => (
-                      <option key={h.id} value={h.id}>{h.name} — {h.state}</option>
-                    ))}
-                  </optgroup>
-                </select>
+                  type="text"
+                  value={hospitalSearch}
+                  onChange={(e) => { setHospitalSearch(e.target.value); setShowHospitalDropdown(true); setHospitalId(''); }}
+                  onFocus={() => setShowHospitalDropdown(true)}
+                  placeholder="Search by hospital name, state, or type..."
+                  autoComplete="off"
+                  style={inputStyle}
+                />
+                {hospitalId && (
+                  <div style={{ marginTop: 4, fontSize: 11, color: 'var(--color-success)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Building2 size={12} /> {hospitals.find(h => h.id === hospitalId)?.name || hospitalId}
+                  </div>
+                )}
+                {showHospitalDropdown && hospitalSearch.length > 0 && (
+                  <div style={{
+                    position: 'absolute', left: 0, right: 0, top: '100%', marginTop: 4,
+                    background: 'var(--bg-card-solid)', border: '1px solid var(--border-medium)',
+                    borderRadius: 8, boxShadow: 'var(--card-shadow-lg)', zIndex: 50,
+                    maxHeight: 200, overflowY: 'auto',
+                  }}>
+                    {filteredHospitals.length === 0 ? (
+                      <p style={{ padding: '10px 14px', fontSize: 12, color: 'var(--text-muted)' }}>No facilities found</p>
+                    ) : (
+                      filteredHospitals.slice(0, 10).map(h => {
+                        const typeLabel = h.type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                        return (
+                          <button
+                            key={h.id}
+                            type="button"
+                            onClick={() => { setHospitalId(h.id); setHospitalSearch(h.name); setShowHospitalDropdown(false); }}
+                            style={{
+                              width: '100%', padding: '8px 14px', border: 'none', cursor: 'pointer',
+                              background: hospitalId === h.id ? 'var(--accent-light)' : 'transparent',
+                              textAlign: 'left', display: 'flex', alignItems: 'center', gap: 10,
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-secondary)'}
+                            onMouseLeave={e => e.currentTarget.style.background = hospitalId === h.id ? 'var(--accent-light)' : 'transparent'}
+                          >
+                            <Building2 size={14} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{h.name}</div>
+                              <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>{typeLabel} — {h.state}</div>
+                            </div>
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                )}
               </div>
 
               <div>
