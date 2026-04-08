@@ -7,21 +7,21 @@ type BadgeVariant =
   | 'growing' | 'stable' | 'declining';
 
 const BADGE_STYLES: Record<BadgeVariant, { color: string; bg: string; border: string }> = {
-  emergency: { color: '#F87171', bg: 'rgba(229,46,66,0.18)', border: 'rgba(229,46,66,0.28)' },
-  critical:  { color: '#F87171', bg: 'rgba(229,46,66,0.18)', border: 'rgba(229,46,66,0.28)' },
-  danger:    { color: '#F87171', bg: 'rgba(229,46,66,0.18)', border: 'rgba(229,46,66,0.28)' },
-  warning:   { color: 'var(--color-warning)', bg: 'rgba(252,211,77,0.16)', border: 'rgba(252,211,77,0.22)' },
-  high:      { color: '#FB923C', bg: 'rgba(251,146,60,0.16)', border: 'rgba(251,146,60,0.22)' },
-  growing:   { color: '#FB923C', bg: 'rgba(251,146,60,0.16)', border: 'rgba(251,146,60,0.22)' },
-  watch:     { color: '#38BDF8', bg: 'rgba(56,189,248,0.16)', border: 'rgba(56,189,248,0.22)' },
-  info:      { color: '#38BDF8', bg: 'rgba(56,189,248,0.16)', border: 'rgba(56,189,248,0.22)' },
-  medium:    { color: 'var(--color-warning)', bg: 'rgba(252,211,77,0.16)', border: 'rgba(252,211,77,0.22)' },
-  stable:    { color: 'var(--color-warning)', bg: 'rgba(252,211,77,0.16)', border: 'rgba(252,211,77,0.22)' },
-  normal:    { color: 'var(--color-success)', bg: 'rgba(62,207,142,0.16)', border: 'rgba(62,207,142,0.22)' },
-  success:   { color: 'var(--color-success)', bg: 'rgba(62,207,142,0.16)', border: 'rgba(62,207,142,0.22)' },
-  low:       { color: 'var(--color-success)', bg: 'rgba(62,207,142,0.16)', border: 'rgba(62,207,142,0.22)' },
-  declining: { color: 'var(--color-success)', bg: 'rgba(62,207,142,0.16)', border: 'rgba(62,207,142,0.22)' },
-  muted:     { color: '#A0B1C8', bg: 'rgba(100,116,139,0.18)', border: 'rgba(100,116,139,0.25)' },
+  emergency: { color: 'var(--color-danger)', bg: 'var(--color-danger-bg)', border: 'rgba(220,38,38,0.2)' },
+  critical:  { color: 'var(--color-danger)', bg: 'var(--color-danger-bg)', border: 'rgba(220,38,38,0.2)' },
+  danger:    { color: 'var(--color-danger)', bg: 'var(--color-danger-bg)', border: 'rgba(220,38,38,0.2)' },
+  warning:   { color: 'var(--color-warning)', bg: 'var(--color-warning-bg)', border: 'rgba(217,119,6,0.2)' },
+  high:      { color: 'var(--color-warning)', bg: 'var(--color-warning-bg)', border: 'rgba(217,119,6,0.2)' },
+  growing:   { color: 'var(--color-warning)', bg: 'var(--color-warning-bg)', border: 'rgba(217,119,6,0.2)' },
+  watch:     { color: 'var(--accent-primary)', bg: 'var(--accent-light)', border: 'var(--accent-border)' },
+  info:      { color: 'var(--accent-primary)', bg: 'var(--accent-light)', border: 'var(--accent-border)' },
+  medium:    { color: 'var(--color-warning)', bg: 'var(--color-warning-bg)', border: 'rgba(217,119,6,0.2)' },
+  stable:    { color: 'var(--accent-primary)', bg: 'var(--accent-light)', border: 'var(--accent-border)' },
+  normal:    { color: 'var(--color-success)', bg: 'var(--color-success-bg)', border: 'rgba(13,148,136,0.2)' },
+  success:   { color: 'var(--color-success)', bg: 'var(--color-success-bg)', border: 'rgba(13,148,136,0.2)' },
+  low:       { color: 'var(--color-success)', bg: 'var(--color-success-bg)', border: 'rgba(13,148,136,0.2)' },
+  declining: { color: 'var(--color-success)', bg: 'var(--color-success-bg)', border: 'rgba(13,148,136,0.2)' },
+  muted:     { color: 'var(--text-muted)', bg: 'var(--overlay-subtle)', border: 'var(--border-medium)' },
 };
 
 interface StatusBadgeProps {

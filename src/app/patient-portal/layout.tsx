@@ -53,7 +53,7 @@ export default function PatientPortalLayout({ children }: { children: React.Reac
             aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
             style={{ background: 'var(--overlay-subtle)', border: '1px solid var(--border-medium)', borderRadius: 6, padding: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 36, minHeight: 36 }}
           >
-            {theme === 'light' ? <Moon size={16} style={{ color: 'var(--text-secondary)' }} /> : <Sun size={16} style={{ color: '#fbbf24' }} />}
+            {theme === 'light' ? <Moon size={16} style={{ color: 'var(--text-secondary)' }} /> : <Sun size={16} style={{ color: 'var(--text-secondary)' }} />}
           </button>
 
           {isLoggedIn ? (

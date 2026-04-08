@@ -353,7 +353,7 @@ export default function GovernmentDashboardPage() {
             { label: 'Hospitals', value: totalHospitals.toString(), icon: Building2, color: 'var(--accent-primary)', bg: 'rgba(0,119,215,0.10)', href: '/hospitals' },
             { label: 'Patients', value: totalPatients.toLocaleString(), icon: Users, color: 'var(--accent-primary)', bg: 'rgba(0,119,215,0.10)', href: '/hospitals' },
             { label: 'Beds', value: totalBeds.toLocaleString(), icon: BedDouble, color: 'var(--color-warning)', bg: 'rgba(252,211,77,0.10)', href: '/hospitals' },
-            { label: 'Staff', value: totalStaff.toLocaleString(), icon: Stethoscope, color: '#38BDF8', bg: 'rgba(56,189,248,0.10)', href: '/hospitals' },
+            { label: 'Staff', value: totalStaff.toLocaleString(), icon: Stethoscope, color: 'var(--accent-primary)', bg: 'rgba(0,119,215,0.10)', href: '/hospitals' },
             { label: 'Online', value: onlineHospitals.toString(), icon: Wifi, color: 'var(--accent-primary)', bg: 'rgba(0,119,215,0.10)', href: '/hospitals' },
             { label: 'Offline', value: offlineHospitals.toString(), icon: WifiOff, color: 'var(--text-muted)', bg: 'rgba(100,116,139,0.10)', href: '/hospitals' },
             { label: 'Alerts', value: activeAlerts.toString(), icon: AlertTriangle, color: 'var(--color-danger)', bg: 'rgba(229,46,66,0.08)', href: '/surveillance' },

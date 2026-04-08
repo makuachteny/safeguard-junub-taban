@@ -676,8 +676,8 @@ export default function DashboardPage() {
               {[
                 { Icon: SendHorizontal, label: 'Pending Referrals', value: pendingReferrals.length, color: 'var(--color-warning)' },
                 { Icon: AlertTriangle, label: 'Active Alerts', value: activeAlerts.length, color: 'var(--color-danger)' },
-                { Icon: Syringe, label: 'Immunizations', value: immStats?.totalVaccinations || 0, color: '#A855F7' },
-                { Icon: Baby, label: 'ANC / Births', value: `${ancStats?.totalVisits || 0} / ${birthStats?.total || 0}`, color: '#EC4899' },
+                { Icon: Syringe, label: 'Immunizations', value: immStats?.totalVaccinations || 0, color: 'var(--accent-primary)' },
+                { Icon: Baby, label: 'ANC / Births', value: `${ancStats?.totalVisits || 0} / ${birthStats?.total || 0}`, color: 'var(--accent-primary)' },
               ].map(item => (
                 <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{ width: 28, height: 28, borderRadius: 7, background: `${item.color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -912,12 +912,12 @@ export default function DashboardPage() {
               {[
                 { label: 'New Patient', icon: Users, action: () => router.push('/patients/new'), color: 'var(--accent-primary)' },
                 { label: 'New Consultation', icon: ClipboardList, action: () => setSoapModalOpen(true), color: 'var(--color-success)' },
-                { label: 'Quick Prescribe', icon: Pill, action: () => setPrescribeModalOpen(true), color: '#A855F7' },
-                { label: 'Quick Lab Order', icon: TestTube, action: () => setLabModalOpen(true), color: 'var(--color-warning)' },
-                { label: 'Immunization', icon: Syringe, action: () => router.push('/immunizations'), color: '#0D9488' },
-                { label: 'ANC Visit', icon: HeartPulse, action: () => router.push('/anc'), color: '#EC4899' },
-                { label: 'Birth Reg.', icon: Baby, action: () => router.push('/births'), color: '#60A5FA' },
-                { label: 'Referral', icon: SendHorizontal, action: () => router.push('/referrals'), color: 'var(--color-danger)' },
+                { label: 'Quick Prescribe', icon: Pill, action: () => setPrescribeModalOpen(true), color: 'var(--accent-primary)' },
+                { label: 'Quick Lab Order', icon: TestTube, action: () => setLabModalOpen(true), color: 'var(--accent-primary)' },
+                { label: 'Immunization', icon: Syringe, action: () => router.push('/immunizations'), color: 'var(--accent-primary)' },
+                { label: 'ANC Visit', icon: HeartPulse, action: () => router.push('/anc'), color: 'var(--accent-primary)' },
+                { label: 'Birth Reg.', icon: Baby, action: () => router.push('/births'), color: 'var(--accent-primary)' },
+                { label: 'Referral', icon: SendHorizontal, action: () => router.push('/referrals'), color: 'var(--accent-primary)' },
               ].map(action => (
                 <button
                   key={action.label}
@@ -946,8 +946,8 @@ export default function DashboardPage() {
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Connection</span>
-                <span className="flex items-center gap-1 text-[10px] font-bold" style={{ color: '#10B944' }}>
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#10B944' }} />
+                <span className="flex items-center gap-1 text-[10px] font-bold" style={{ color: 'var(--color-success)' }}>
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--color-success)' }} />
                   Active
                 </span>
               </div>
@@ -1138,7 +1138,7 @@ export default function DashboardPage() {
                           <div className="flex flex-wrap gap-2 mt-1">
                             <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'var(--accent-light)', color: 'var(--accent-primary)' }}>{item.dose}</span>
                             <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(62,207,142,0.08)', color: 'var(--color-success)' }}>{item.route}</span>
-                            <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(168,85,247,0.08)', color: '#A855F7' }}>{item.frequency}</span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'var(--overlay-subtle)', color: 'var(--text-secondary)' }}>{item.frequency}</span>
                             <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(245,158,11,0.08)', color: 'var(--color-warning)' }}>{item.duration}</span>
                           </div>
                         </div>
