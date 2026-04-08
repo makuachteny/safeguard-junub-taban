@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import { Bell, Search, Moon, Sun, Menu } from 'lucide-react';
+import { Bell, Search, Moon, Sun, Menu, Wifi, WifiOff, CloudOff } from 'lucide-react';
 import { useApp } from '@/lib/context';
 import { getRoleConfig } from '@/lib/permissions';
-import SyncStatus from './SyncStatus';
 
 export default function TopBar({ hideSearch }: { title?: string; hideSearch?: boolean }) {
-  const { currentUser, theme, toggleTheme, globalSearch, setGlobalSearch, setSidebarOpen } = useApp();
+  const { currentUser, theme, toggleTheme, globalSearch, setGlobalSearch, setSidebarOpen, isOnline, syncStatus, toggleOnline, syncNow } = useApp();
   const [localSearch, setLocalSearch] = useState(globalSearch);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const roleConfig = currentUser ? getRoleConfig(currentUser.role) : null;
@@ -17,6 +16,15 @@ export default function TopBar({ hideSearch }: { title?: string; hideSearch?: bo
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => setGlobalSearch(value), 300);
   }, [setGlobalSearch]);
+
+  // Determine sync icon and label
+  const syncState = syncStatus?.state || (isOnline ? 'disabled' : 'offline');
+  const SyncIcon = syncState === 'offline' ? WifiOff : syncState === 'disabled' ? CloudOff : Wifi;
+  const syncLabel = syncState === 'offline' ? 'Offline' : syncState === 'disabled' ? 'Local Only' : syncState === 'syncing' ? 'Syncing' : syncState === 'error' ? 'Sync Error' : 'Online';
+  const syncColor = syncState === 'offline' ? 'var(--color-warning)' : syncState === 'error' ? 'var(--color-danger)' : syncState === 'syncing' ? '#60A5FA' : syncState === 'disabled' ? 'var(--text-muted)' : 'var(--color-success)';
+
+  // Shared icon-button style
+  const iconBtn = "w-9 h-9 rounded-lg flex items-center justify-center transition-colors relative";
 
   return (
     <header
@@ -32,13 +40,11 @@ export default function TopBar({ hideSearch }: { title?: string; hideSearch?: bo
         {/* Hamburger menu - visible on mobile/tablet */}
         <button
           onClick={() => setSidebarOpen(true)}
-          className="lg:hidden p-2 -ml-1 rounded-md transition-all hover:scale-105"
-          style={{
-            background: 'var(--overlay-subtle)',
-            border: '1px solid var(--border-medium)',
-          }}
+          aria-label="Open navigation menu"
+          className={`lg:hidden ${iconBtn} -ml-1`}
+          style={{ background: 'var(--overlay-subtle)' }}
         >
-          <Menu className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
+          <Menu className="w-5 h-5" style={{ color: 'var(--text-primary)' }} />
         </button>
 
         {/* Search */}
@@ -70,73 +76,85 @@ export default function TopBar({ hideSearch }: { title?: string; hideSearch?: bo
         {/* Mobile search button */}
         {!hideSearch && (
           <button
-            className="sm:hidden p-2.5 rounded-md transition-all"
-            style={{
-              background: 'var(--overlay-subtle)',
-              border: '1px solid var(--border-medium)',
-            }}
+            aria-label="Search patients and records"
+            className={`sm:hidden ${iconBtn}`}
+            style={{ background: 'var(--overlay-subtle)' }}
             onClick={() => {
               const val = prompt('Search patients, records...');
               if (val !== null) handleSearch(val);
             }}
           >
-            <Search className="w-4 h-4" style={{ color: 'var(--text-secondary)' }} />
+            <Search className="w-[18px] h-[18px]" style={{ color: 'var(--text-primary)' }} />
           </button>
         )}
       </div>
 
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-1.5">
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
-          className="p-2.5 rounded-md transition-all hover:scale-105"
-          style={{
-            background: 'var(--overlay-subtle)',
-            border: '1px solid var(--border-medium)',
-          }}
-          title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+          aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+          className={iconBtn}
+          style={{ background: 'transparent' }}
         >
           {theme === 'light' ? (
-            <Moon className="w-4 h-4" style={{ color: 'var(--text-secondary)' }} />
+            <Moon className="w-[18px] h-[18px]" style={{ color: 'var(--text-secondary)' }} />
           ) : (
-            <Sun className="w-4 h-4" style={{ color: '#fbbf24' }} />
+            <Sun className="w-[18px] h-[18px]" style={{ color: '#fbbf24' }} />
           )}
         </button>
 
         {/* Sync Status */}
-        <div className="hidden sm:block">
-          <SyncStatus />
-        </div>
+        <button
+          onClick={() => {
+            if (syncStatus && syncStatus.state !== 'disabled') {
+              syncNow();
+            } else {
+              toggleOnline();
+            }
+          }}
+          aria-label={syncLabel}
+          title={syncLabel}
+          className={`hidden sm:flex ${iconBtn}`}
+          style={{ background: 'transparent' }}
+        >
+          <SyncIcon className={`w-[18px] h-[18px] ${syncState === 'syncing' ? 'animate-pulse' : ''}`} style={{ color: syncColor }} />
+          {/* Status dot */}
+          <span className="absolute top-1 right-1 w-2 h-2 rounded-full" aria-hidden="true" style={{
+            background: syncColor,
+            boxShadow: `0 0 4px ${syncColor}`,
+          }} />
+        </button>
 
         {/* Notifications */}
-        <button className="relative p-2.5 rounded-md transition-all hover:scale-105" style={{
-          background: 'var(--overlay-subtle)',
-          border: '1px solid var(--border-medium)',
-        }}>
-          <Bell className="w-4 h-4" style={{ color: 'var(--text-secondary)' }} />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{
+        <button
+          aria-label="Notifications"
+          className={`relative ${iconBtn}`}
+          style={{ background: 'transparent' }}
+        >
+          <Bell className="w-[18px] h-[18px]" style={{ color: 'var(--text-secondary)' }} />
+          <span className="absolute top-1 right-1 w-2 h-2 rounded-full" aria-hidden="true" style={{
             background: 'var(--accent-primary)',
-            boxShadow: '0 0 6px var(--accent-light)',
+            boxShadow: '0 0 4px var(--accent-light)',
           }} />
         </button>
 
         {/* Role badge */}
         {roleConfig && (
-          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-bold" style={{
+          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold" style={{
             background: 'var(--accent-light)',
             color: 'var(--accent-primary)',
             border: '1px solid var(--accent-border)',
           }}>
-            <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: roleConfig.color }} />
-            <span>{roleConfig.badgeLabel}</span>
+            <span className="w-2 h-2 rounded-full flex-shrink-0" aria-hidden="true" style={{ background: roleConfig.color }} />
+            <span>{currentUser?.organization?.name || roleConfig.badgeLabel}</span>
           </div>
         )}
 
         {/* User avatar */}
         {currentUser && (
-          <div className="w-9 h-9 rounded-md flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{
             background: 'var(--accent-primary)',
-            boxShadow: '0 2px 8px var(--accent-primary)',
           }}>
             {currentUser.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
           </div>

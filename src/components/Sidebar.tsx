@@ -118,22 +118,23 @@ export default function Sidebar() {
       {/* Logo */}
       <div className={`pt-5 pb-3 ${collapsed ? 'px-2' : 'px-5'}`}>
         <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3'}`}>
-          {brandLogo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={brandLogo} alt={brandName} className="w-9 h-9 rounded-2xl flex-shrink-0 object-contain" />
-          ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src="/assets/taban-icon.svg" alt={brandName} className="w-9 h-9 rounded-2xl flex-shrink-0 object-contain" style={{
-              boxShadow: '0 2px 8px rgba(10, 61, 107, 0.3)',
-            }} />
-          )}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={brandLogo || '/assets/taban-logo.svg'}
+            alt={brandName}
+            className="flex-shrink-0 object-contain"
+            style={{ width: collapsed ? 36 : 42, height: collapsed ? 36 : 42 }}
+          />
           {!collapsed && (
             <div className="flex-1 min-w-0">
               <h1 className="font-extrabold text-[15px] leading-tight tracking-wide truncate" style={{ color: 'var(--text-primary)' }}>
                 {brandName}
               </h1>
               <p className="text-[9px] uppercase tracking-[0.18em] font-semibold" style={{ color: 'var(--accent-primary)' }}>
-                Digital Health Records
+                {role === 'government' ? 'MINISTRY OF HEALTH'
+                  : role === 'super_admin' ? 'Platform Administration'
+                  : role === 'org_admin' ? 'Organization Admin'
+                  : 'Digital Health Records'}
               </p>
             </div>
           )}
@@ -141,7 +142,8 @@ export default function Sidebar() {
           {!collapsed && (
             <button
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-2 rounded-xl transition-all hover:scale-105"
+              aria-label="Close navigation menu"
+              className="lg:hidden p-2 rounded-xl transition-all hover:scale-105 min-w-[44px] min-h-[44px] flex items-center justify-center"
               style={{ background: 'var(--overlay-subtle)' }}
             >
               <X className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
@@ -182,7 +184,7 @@ export default function Sidebar() {
       )}
 
       {/* Navigation */}
-      <nav className={`flex-1 mt-1 overflow-y-auto overflow-x-hidden no-scrollbar ${collapsed ? 'px-2' : 'px-3'}`}>
+      <nav aria-label="Main navigation" className={`flex-1 mt-1 overflow-y-auto overflow-x-hidden no-scrollbar ${collapsed ? 'px-2' : 'px-3'}`}>
         {hasSections ? (
           groups.map((group, gi) => (
             <div key={gi} className={gi > 0 ? 'mt-4' : ''}>
@@ -239,9 +241,9 @@ export default function Sidebar() {
         {/* Collapse toggle - desktop only */}
         <button
           onClick={() => setSidebarCollapsed(!collapsed)}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           className="hidden lg:flex nav-item w-full text-left items-center"
           style={{ color: 'var(--nav-text)' }}
-          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {collapsed ? (
             <ChevronsRight className="w-[17px] h-[17px] mx-auto" />
@@ -267,9 +269,9 @@ export default function Sidebar() {
 
         <button
           onClick={() => { setSidebarOpen(false); logout(); }}
+          aria-label="Sign Out"
           className={`nav-item w-full text-left ${collapsed ? 'justify-center !px-0' : ''}`}
           style={{ color: 'var(--nav-text)' }}
-          title={collapsed ? 'Sign Out' : undefined}
         >
           <LogOut className="w-[17px] h-[17px]" />
           {!collapsed && <span className="text-[13px]">Sign Out</span>}

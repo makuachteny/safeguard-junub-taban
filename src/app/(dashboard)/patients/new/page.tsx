@@ -179,40 +179,40 @@ export default function NewPatientPage() {
                   </div>
                   <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
-                      <label>First Name *</label>
-                      <input type="text" value={form.firstName} onChange={e => update('firstName', e.target.value)} placeholder="e.g. Deng" style={errors.firstName ? { borderColor: 'var(--color-danger)' } : {}} />
-                      {errors.firstName && <p className="text-[11px] mt-1" style={{ color: 'var(--color-danger)' }}>{errors.firstName}</p>}
+                      <label htmlFor="pt-firstName">First Name *</label>
+                      <input id="pt-firstName" type="text" value={form.firstName} onChange={e => update('firstName', e.target.value)} placeholder="e.g. Deng" aria-required="true" aria-invalid={!!errors.firstName} style={errors.firstName ? { borderColor: 'var(--color-danger)' } : {}} />
+                      {errors.firstName && <p className="text-[11px] mt-1" role="alert" style={{ color: 'var(--color-danger)' }}>{errors.firstName}</p>}
                     </div>
                     <div>
-                      <label>Middle Name</label>
-                      <input type="text" value={form.middleName} onChange={e => update('middleName', e.target.value)} placeholder="e.g. Mabior" />
+                      <label htmlFor="pt-middleName">Middle Name</label>
+                      <input id="pt-middleName" type="text" value={form.middleName} onChange={e => update('middleName', e.target.value)} placeholder="e.g. Mabior" />
                     </div>
                     <div>
-                      <label>Surname *</label>
-                      <input type="text" value={form.surname} onChange={e => update('surname', e.target.value)} placeholder="e.g. Garang" style={errors.surname ? { borderColor: 'var(--color-danger)' } : {}} />
-                      {errors.surname && <p className="text-[11px] mt-1" style={{ color: 'var(--color-danger)' }}>{errors.surname}</p>}
+                      <label htmlFor="pt-surname">Surname *</label>
+                      <input id="pt-surname" type="text" value={form.surname} onChange={e => update('surname', e.target.value)} placeholder="e.g. Garang" aria-required="true" aria-invalid={!!errors.surname} style={errors.surname ? { borderColor: 'var(--color-danger)' } : {}} />
+                      {errors.surname && <p className="text-[11px] mt-1" role="alert" style={{ color: 'var(--color-danger)' }}>{errors.surname}</p>}
                     </div>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
-                    <label>Maiden Name</label>
-                    <input type="text" value={form.maidenName} onChange={e => update('maidenName', e.target.value)} placeholder="For married women" />
+                    <label htmlFor="pt-maidenName">Maiden Name</label>
+                    <input id="pt-maidenName" type="text" value={form.maidenName} onChange={e => update('maidenName', e.target.value)} placeholder="For married women" />
                   </div>
                   <div>
-                    <label>Date of Birth {!form.estimatedAge && '*'}</label>
-                    <input type="date" value={form.dateOfBirth} onChange={e => update('dateOfBirth', e.target.value)} style={errors.dateOfBirth ? { borderColor: 'var(--color-danger)' } : {}} />
-                    {errors.dateOfBirth && <p className="text-[11px] mt-1" style={{ color: 'var(--color-danger)' }}>{errors.dateOfBirth}</p>}
+                    <label htmlFor="pt-dob">Date of Birth {!form.estimatedAge && '*'}</label>
+                    <input id="pt-dob" type="date" value={form.dateOfBirth} onChange={e => update('dateOfBirth', e.target.value)} aria-invalid={!!errors.dateOfBirth} style={errors.dateOfBirth ? { borderColor: 'var(--color-danger)' } : {}} />
+                    {errors.dateOfBirth && <p className="text-[11px] mt-1" role="alert" style={{ color: 'var(--color-danger)' }}>{errors.dateOfBirth}</p>}
                   </div>
                   <div>
-                    <label>Estimated Age (if DOB unknown)</label>
-                    <input type="number" value={form.estimatedAge} onChange={e => update('estimatedAge', e.target.value)} placeholder="e.g. 35" />
+                    <label htmlFor="pt-estimatedAge">Estimated Age (if DOB unknown)</label>
+                    <input id="pt-estimatedAge" type="number" value={form.estimatedAge} onChange={e => update('estimatedAge', e.target.value)} placeholder="e.g. 35" />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
-                    <label>Gender *</label>
-                    <select value={form.gender} onChange={e => update('gender', e.target.value)} style={errors.gender ? { borderColor: 'var(--color-danger)' } : {}}>
+                    <label htmlFor="pt-gender">Gender *</label>
+                    <select id="pt-gender" value={form.gender} onChange={e => update('gender', e.target.value)} aria-required="true" aria-invalid={!!errors.gender} style={errors.gender ? { borderColor: 'var(--color-danger)' } : {}}>
                       <option value="">Select gender</option>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
@@ -220,15 +220,15 @@ export default function NewPatientPage() {
                     {errors.gender && <p className="text-[11px] mt-1" style={{ color: 'var(--color-danger)' }}>{errors.gender}</p>}
                   </div>
                   <div>
-                    <label>Tribe / Ethnicity</label>
-                    <select value={form.tribe} onChange={e => update('tribe', e.target.value)}>
+                    <label htmlFor="pt-tribe">Tribe / Ethnicity</label>
+                    <select id="pt-tribe" value={form.tribe} onChange={e => update('tribe', e.target.value)}>
                       <option value="">Select tribe</option>
                       {tribes.map(t => <option key={t} value={t}>{t}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label>Primary Language</label>
-                    <select value={form.primaryLanguage} onChange={e => update('primaryLanguage', e.target.value)}>
+                    <label htmlFor="pt-language">Primary Language</label>
+                    <select id="pt-language" value={form.primaryLanguage} onChange={e => update('primaryLanguage', e.target.value)}>
                       <option value="">Select language</option>
                       {languages.map(l => <option key={l} value={l}>{l}</option>)}
                     </select>
@@ -243,16 +243,16 @@ export default function NewPatientPage() {
                 <h3 className="text-base font-semibold mb-4">Contact & Location</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
-                    <label>Phone Number *</label>
-                    <input type="tel" value={form.phone} onChange={e => update('phone', e.target.value)} placeholder="e.g. 0912345678" />
+                    <label htmlFor="pt-phone">Phone Number *</label>
+                    <input id="pt-phone" type="tel" value={form.phone} onChange={e => update('phone', e.target.value)} placeholder="e.g. 0912345678" aria-required="true" />
                   </div>
                   <div>
-                    <label>Alternative Phone</label>
-                    <input type="tel" value={form.altPhone} onChange={e => update('altPhone', e.target.value)} placeholder="Optional" />
+                    <label htmlFor="pt-altPhone">Alternative Phone</label>
+                    <input id="pt-altPhone" type="tel" value={form.altPhone} onChange={e => update('altPhone', e.target.value)} placeholder="Optional" />
                   </div>
                   <div>
-                    <label>WhatsApp Number</label>
-                    <input type="tel" value={form.whatsapp} onChange={e => update('whatsapp', e.target.value)} placeholder="If different" />
+                    <label htmlFor="pt-whatsapp">WhatsApp Number</label>
+                    <input id="pt-whatsapp" type="tel" value={form.whatsapp} onChange={e => update('whatsapp', e.target.value)} placeholder="If different" />
                   </div>
                 </div>
 
@@ -264,22 +264,22 @@ export default function NewPatientPage() {
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
-                      <label>Boma Code</label>
-                      <input type="text" value={form.bomaCode} onChange={e => update('bomaCode', e.target.value.toUpperCase().slice(0, 4))} placeholder="e.g. XY" maxLength={4} />
+                      <label htmlFor="pt-bomaCode">Boma Code</label>
+                      <input id="pt-bomaCode" type="text" value={form.bomaCode} onChange={e => update('bomaCode', e.target.value.toUpperCase().slice(0, 4))} placeholder="e.g. XY" maxLength={4} />
                     </div>
                     <div>
-                      <label>Household Number</label>
-                      <input type="number" value={form.householdNumber} onChange={e => update('householdNumber', e.target.value)} placeholder="e.g. 1001" />
+                      <label htmlFor="pt-householdNumber">Household Number</label>
+                      <input id="pt-householdNumber" type="number" value={form.householdNumber} onChange={e => update('householdNumber', e.target.value)} placeholder="e.g. 1001" />
                     </div>
                     <div>
-                      <label>Geocode ID</label>
-                      <input type="text" readOnly value={geocodeId || '—'} className="font-mono" style={{ background: 'var(--overlay-subtle)' }} />
+                      <label htmlFor="pt-geocodeId">Geocode ID</label>
+                      <input id="pt-geocodeId" type="text" readOnly value={geocodeId || '—'} className="font-mono" aria-readonly="true" style={{ background: 'var(--overlay-subtle)' }} />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
                     <div>
-                      <label>National ID (if available)</label>
-                      <input type="text" value={form.nationalId} onChange={e => update('nationalId', e.target.value)} placeholder="Optional — most won't have" />
+                      <label htmlFor="pt-nationalId">National ID (if available)</label>
+                      <input id="pt-nationalId" type="text" value={form.nationalId} onChange={e => update('nationalId', e.target.value)} placeholder="Optional — most won't have" />
                     </div>
                   </div>
                 </div>
@@ -288,32 +288,32 @@ export default function NewPatientPage() {
                   <h4 className="text-sm font-medium mb-3" style={{ color: 'var(--text-secondary)' }}>Address</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label>State *</label>
-                      <select value={form.state} onChange={e => { update('state', e.target.value); update('county', ''); }} style={errors.state ? { borderColor: 'var(--color-danger)' } : {}}>
+                      <label htmlFor="pt-state">State *</label>
+                      <select id="pt-state" value={form.state} onChange={e => { update('state', e.target.value); update('county', ''); }} aria-required="true" aria-invalid={!!errors.state} style={errors.state ? { borderColor: 'var(--color-danger)' } : {}}>
                         <option value="">Select state</option>
                         {states.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
-                      {errors.state && <p className="text-[11px] mt-1" style={{ color: 'var(--color-danger)' }}>{errors.state}</p>}
+                      {errors.state && <p className="text-[11px] mt-1" role="alert" style={{ color: 'var(--color-danger)' }}>{errors.state}</p>}
                     </div>
                     <div>
-                      <label>County *</label>
-                      <select value={form.county} onChange={e => update('county', e.target.value)} disabled={!form.state}>
+                      <label htmlFor="pt-county">County *</label>
+                      <select id="pt-county" value={form.county} onChange={e => update('county', e.target.value)} disabled={!form.state} aria-required="true">
                         <option value="">Select county</option>
                         {counties.map(c => <option key={c} value={c}>{c}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label>Payam (Sub-county)</label>
-                      <input type="text" value={form.payam} onChange={e => update('payam', e.target.value)} placeholder="Enter payam" />
+                      <label htmlFor="pt-payam">Payam (Sub-county)</label>
+                      <input id="pt-payam" type="text" value={form.payam} onChange={e => update('payam', e.target.value)} placeholder="Enter payam" />
                     </div>
                     <div>
-                      <label>Boma (Village)</label>
-                      <input type="text" value={form.boma} onChange={e => update('boma', e.target.value)} placeholder="Enter boma" />
+                      <label htmlFor="pt-boma">Boma (Village)</label>
+                      <input id="pt-boma" type="text" value={form.boma} onChange={e => update('boma', e.target.value)} placeholder="Enter boma" />
                     </div>
                   </div>
                   <div className="mt-4">
-                    <label>Residential Address</label>
-                    <textarea value={form.address} onChange={e => update('address', e.target.value)} rows={2} placeholder="Detailed address description" className="resize-none" />
+                    <label htmlFor="pt-address">Residential Address</label>
+                    <textarea id="pt-address" value={form.address} onChange={e => update('address', e.target.value)} rows={2} placeholder="Detailed address description" className="resize-none" />
                   </div>
                 </div>
               </div>

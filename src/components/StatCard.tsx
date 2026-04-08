@@ -27,6 +27,10 @@ export default function StatCard({
     <div
       className={`card-elevated ${onClick ? 'cursor-pointer' : ''} ${compact ? 'p-3' : 'p-4'}`}
       onClick={onClick}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      aria-label={onClick ? `${label}: ${value}` : undefined}
       style={bg ? { background: bg } : undefined}
     >
       <div className="flex items-center justify-between mb-2">
@@ -37,7 +41,7 @@ export default function StatCard({
           {label}
         </span>
         {Icon && (
-          <div className={`${compact ? 'w-7 h-7' : 'w-8 h-8'} rounded-xl flex items-center justify-center`} style={{ background: `${color}12` }}>
+          <div className={`${compact ? 'w-7 h-7' : 'w-8 h-8'} rounded-xl flex items-center justify-center`} aria-hidden="true" style={{ background: `${color}12` }}>
             <Icon className={compact ? 'w-3.5 h-3.5' : 'w-4 h-4'} style={{ color }} />
           </div>
         )}

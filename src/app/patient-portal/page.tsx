@@ -3,14 +3,14 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
   User, Calendar, FileText, FlaskConical, Syringe,
-  HeartPulse, Shield,
-  ChevronRight, AlertTriangle,
+  HeartPulse, Shield, Pill, Scan, FolderOpen,
+  ChevronRight, AlertTriangle, Eye, EyeOff,
   MessageSquare, ArrowRight, Activity,
   Plus, X, LogOut, Send, Building2,
 } from 'lucide-react';
 import type { PatientDoc, AppointmentDoc, LabResultDoc, MedicalRecordDoc } from '@/lib/db-types';
 
-type Tab = 'overview' | 'appointments' | 'records' | 'lab' | 'prescriptions' | 'immunizations' | 'messages' | 'chat';
+type Tab = 'overview' | 'appointments' | 'records' | 'lab' | 'prescriptions' | 'radiology' | 'documents' | 'immunizations' | 'messages' | 'chat';
 
 /* ═════════════════════════════════════════
    PATIENT LOGIN SCREEN
@@ -85,97 +85,159 @@ function PatientLogin({ onLogin }: { onLogin: (patient: PatientDoc) => void }) {
     } finally { setLoading(false); }
   };
 
+  const BLUE = '#0077D7';
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '12px 14px', fontSize: 15,
+    border: '1px solid var(--border-medium)', borderRadius: 4,
+    background: 'var(--bg-card-solid)', color: 'var(--text-primary)',
+    outline: 'none', transition: 'border-color 0.2s, box-shadow 0.2s',
+    fontFamily: "'Inter', 'DM Sans', sans-serif",
+  };
+  const labelStyle: React.CSSProperties = {
+    display: 'block', fontSize: 13, fontWeight: 600,
+    color: 'var(--text-secondary)', marginBottom: 6,
+    fontFamily: "'DM Sans', 'Inter', sans-serif",
+  };
+
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 20px', background: 'var(--bg-primary)' }}>
-      <style dangerouslySetInnerHTML={{ __html: patientPortalCSS }} />
-      <div style={{ width: '100%', maxWidth: 520, textAlign: 'center' }}>
-        {/* Logo */}
-        <div style={{ marginBottom: 40 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/assets/taban-icon.svg" alt="Taban" style={{ width: 64, height: 64, borderRadius: 16, margin: '0 auto 18px' }} />
-          <h1 className="pp-title">Patient Portal</h1>
-          <p className="pp-subtitle">Access your health records, appointments, and lab results securely</p>
+    <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
+      <div className="flex flex-col items-center justify-center px-6 py-10 relative">
+
+        {/* Logo — matching staff login */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-3 mb-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/assets/taban-logo.svg" alt="TABAN" className="w-16 h-16" />
+          </div>
+          <h1 className="text-[22px] font-bold tracking-[0.12em]" style={{ color: 'var(--text-primary)', fontFamily: "'Space Grotesk', 'DM Sans', sans-serif" }}>TABAN</h1>
+          <p className="text-[10px] font-medium tracking-[0.2em] uppercase mt-1" style={{ color: 'var(--text-muted)', fontFamily: "'DM Sans', 'Inter', sans-serif" }}>
+            Republic of South Sudan · Patient Portal
+          </p>
+          {/* South Sudan flag stripe */}
+          <div className="flex items-center justify-center gap-0 mt-3">
+            <div className="h-[3px] w-8 rounded-l-full" style={{ background: '#111' }} />
+            <div className="h-[3px] w-8" style={{ background: '#E52E42' }} />
+            <div className="h-[3px] w-4" style={{ background: '#fff', border: '0.5px solid var(--border-medium)' }} />
+            <div className="h-[3px] w-8" style={{ background: '#10B944' }} />
+            <div className="h-[3px] w-4" style={{ background: '#0F4C81' }} />
+            <div className="h-[3px] w-2 rounded-r-full" style={{ background: '#FCD34D' }} />
+          </div>
         </div>
 
-        {/* Login card */}
-        <div className="pp-card" style={{ padding: '36px 32px', textAlign: 'left' }}>
-          {/* Mode toggle */}
-          <div className="pp-toggle">
-            <button onClick={() => { setMode('login'); setError(''); }} className={`pp-toggle__btn ${mode === 'login' ? 'pp-toggle__btn--active' : ''}`}>Hospital ID</button>
-            <button onClick={() => { setMode('lookup'); setError(''); }} className={`pp-toggle__btn ${mode === 'lookup' ? 'pp-toggle__btn--active' : ''}`}>Name Lookup</button>
-          </div>
+        {/* Form card */}
+        <div style={{ width: '100%', maxWidth: '420px' }}>
+          <div className="p-8 sm:p-10" style={{
+            background: 'var(--bg-card-solid)', borderRadius: '6px',
+            border: '1px solid var(--border-medium)', boxShadow: 'var(--card-shadow)',
+          }}>
+            <h2 className="text-xl font-bold mb-1" style={{ color: 'var(--text-primary)', fontFamily: "'Space Grotesk', 'DM Sans', sans-serif" }}>Patient Sign In</h2>
+            <p className="text-sm mb-7" style={{ color: 'var(--text-muted)', fontFamily: "'Inter', sans-serif" }}>Access your health records securely</p>
 
-          {!dbReady && (
-            <div style={{ padding: '10px 14px', borderRadius: 4, background: 'var(--accent-light)', border: '1px solid var(--accent-border)', marginBottom: 16, textAlign: 'center' }}>
-              <p style={{ fontSize: 12, color: 'var(--accent-primary)', fontWeight: 600 }}>Initializing database...</p>
-            </div>
-          )}
-
-          <form onSubmit={handleLogin}>
-            {mode === 'login' ? (
-              <>
-                <div className="pp-field">
-                  <label className="pp-label">Hospital Number or Geocode ID</label>
-                  <input className="pp-input" type="text" value={hospitalNumber} onChange={e => setHospitalNumber(e.target.value)}
-                    placeholder="e.g. JTH-000001 or BOMA-JB-HH1024" required />
-                </div>
-                <div className="pp-field">
-                  <label className="pp-label">Phone Number</label>
-                  <input className="pp-input" type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)}
-                    placeholder="e.g. +211 912 345 678" required />
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="pp-field">
-                  <label className="pp-label">First Name</label>
-                  <input className="pp-input" type="text" value={firstName} onChange={e => setFirstName(e.target.value)}
-                    placeholder="Your first name" required />
-                </div>
-                <div className="pp-field">
-                  <label className="pp-label">Surname</label>
-                  <input className="pp-input" type="text" value={surname} onChange={e => setSurname(e.target.value)}
-                    placeholder="Your surname" required />
-                </div>
-                <div className="pp-field">
-                  <label className="pp-label">Date of Birth (optional)</label>
-                  <input className="pp-input" type="date" value={dateOfBirth} onChange={e => setDateOfBirth(e.target.value)} />
-                </div>
-              </>
-            )}
-
-            {error && (
-              <div className="pp-error">
-                <AlertTriangle size={14} style={{ color: '#DA1230', flexShrink: 0, marginTop: 2 }} />
-                <span>{error}</span>
+            {!dbReady && (
+              <div className="mb-4 p-3 rounded-lg text-center" style={{
+                background: 'rgba(43,111,224,0.08)', border: '1px solid rgba(43,111,224,0.15)',
+              }}>
+                <p className="text-xs" style={{ color: BLUE }}>
+                  <svg className="animate-spin w-3 h-3 inline mr-1.5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                  Initializing offline database...
+                </p>
               </div>
             )}
 
-            <button type="submit" disabled={loading} className="pp-btn-primary" style={{ width: '100%', opacity: loading ? 0.6 : 1 }}>
-              {loading ? 'Searching...' : 'Access My Records'} <ArrowRight size={14} />
-            </button>
-          </form>
+            {/* Mode toggle */}
+            <div className="flex mb-6 rounded overflow-hidden" style={{ border: '1px solid var(--border-medium)', background: 'var(--bg-secondary)' }}>
+              <button onClick={() => { setMode('login'); setError(''); }} type="button" className="flex-1 py-3 text-sm font-bold transition-all" style={{
+                background: mode === 'login' ? BLUE : 'transparent',
+                color: mode === 'login' ? '#fff' : 'var(--text-secondary)',
+                border: 'none', cursor: 'pointer', borderRadius: 3, margin: 2,
+              }}>Hospital ID</button>
+              <button onClick={() => { setMode('lookup'); setError(''); }} type="button" className="flex-1 py-3 text-sm font-bold transition-all" style={{
+                background: mode === 'lookup' ? BLUE : 'transparent',
+                color: mode === 'lookup' ? '#fff' : 'var(--text-secondary)',
+                border: 'none', cursor: 'pointer', borderRadius: 3, margin: 2,
+              }}>Name Lookup</button>
+            </div>
 
-          <div className="pp-notice">
-            <Shield size={14} style={{ color: 'var(--accent-primary)', flexShrink: 0, marginTop: 2 }} />
-            <span>Your data is encrypted and stored locally on this device. We never share your information without consent.</span>
-          </div>
+            <form onSubmit={handleLogin} className="space-y-5">
+              {mode === 'login' ? (
+                <>
+                  <div>
+                    <label htmlFor="pp-hospital" style={labelStyle}>Hospital Number or Geocode ID</label>
+                    <input id="pp-hospital" type="text" value={hospitalNumber} onChange={e => setHospitalNumber(e.target.value)}
+                      placeholder="e.g. JTH-000001" required style={inputStyle}
+                      onFocus={e => { e.currentTarget.style.borderColor = BLUE; e.currentTarget.style.boxShadow = `0 0 0 3px rgba(0,119,215,0.1)`; }}
+                      onBlur={e => { e.currentTarget.style.borderColor = ''; e.currentTarget.style.boxShadow = ''; }} />
+                  </div>
+                  <div>
+                    <label htmlFor="pp-phone" style={labelStyle}>Phone Number</label>
+                    <input id="pp-phone" type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)}
+                      placeholder="e.g. +211 912 345 678" required style={inputStyle}
+                      onFocus={e => { e.currentTarget.style.borderColor = BLUE; e.currentTarget.style.boxShadow = `0 0 0 3px rgba(0,119,215,0.1)`; }}
+                      onBlur={e => { e.currentTarget.style.borderColor = ''; e.currentTarget.style.boxShadow = ''; }} />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <label htmlFor="pp-firstName" style={labelStyle}>First Name</label>
+                    <input id="pp-firstName" type="text" value={firstName} onChange={e => setFirstName(e.target.value)}
+                      placeholder="Your first name" required style={inputStyle}
+                      onFocus={e => { e.currentTarget.style.borderColor = BLUE; e.currentTarget.style.boxShadow = `0 0 0 3px rgba(0,119,215,0.1)`; }}
+                      onBlur={e => { e.currentTarget.style.borderColor = ''; e.currentTarget.style.boxShadow = ''; }} />
+                  </div>
+                  <div>
+                    <label htmlFor="pp-surname" style={labelStyle}>Surname</label>
+                    <input id="pp-surname" type="text" value={surname} onChange={e => setSurname(e.target.value)}
+                      placeholder="Your surname" required style={inputStyle}
+                      onFocus={e => { e.currentTarget.style.borderColor = BLUE; e.currentTarget.style.boxShadow = `0 0 0 3px rgba(0,119,215,0.1)`; }}
+                      onBlur={e => { e.currentTarget.style.borderColor = ''; e.currentTarget.style.boxShadow = ''; }} />
+                  </div>
+                  <div>
+                    <label htmlFor="pp-dob" style={labelStyle}>Date of Birth (optional)</label>
+                    <input id="pp-dob" type="date" value={dateOfBirth} onChange={e => setDateOfBirth(e.target.value)} style={inputStyle}
+                      onFocus={e => { e.currentTarget.style.borderColor = BLUE; e.currentTarget.style.boxShadow = `0 0 0 3px rgba(0,119,215,0.1)`; }}
+                      onBlur={e => { e.currentTarget.style.borderColor = ''; e.currentTarget.style.boxShadow = ''; }} />
+                  </div>
+                </>
+              )}
 
-          {/* Demo accounts */}
-          <div style={{ marginTop: 16 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Demo Accounts</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {[
-                { id: 'JTH-000001', phone: '0912345678', name: 'Deng Mabior Garang' },
-                { id: 'JTH-000002', phone: '0916111222', name: 'Nyabol Gatdet Koang' },
-                { id: 'JTH-000003', phone: '0921333444', name: 'Achol Mayen Deng' },
-              ].map(demo => (
-                <button key={demo.id} type="button" onClick={() => { setMode('login'); setHospitalNumber(demo.id); setPhoneNumber(demo.phone); setError(''); }}
-                  className="pp-demo-btn">
-                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{demo.name}</span>
-                  <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{demo.id} &middot; {demo.phone}</span>
-                </button>
-              ))}
+              {error && (
+                <div role="alert" className="p-3 rounded-xl text-sm" style={{
+                  background: 'rgba(229,46,66,0.06)', color: '#E52E42',
+                  border: '1px solid rgba(229,46,66,0.15)',
+                }}>{error}</div>
+              )}
+
+              <button type="submit" disabled={loading || !dbReady}
+                className="w-full flex items-center justify-center gap-2 text-[15px] font-semibold text-white transition-all duration-200 mt-3"
+                style={{
+                  fontFamily: "'Inter', 'DM Sans', sans-serif",
+                  background: BLUE, padding: '14px 20px', borderRadius: 4,
+                  border: 'none', cursor: loading ? 'wait' : 'pointer',
+                  opacity: loading || !dbReady ? 0.6 : 1,
+                  boxShadow: '0 2px 8px rgba(0,119,215,0.25)',
+                }}>
+                {loading ? 'Searching...' : 'Patient Sign In'} <ArrowRight size={14} />
+              </button>
+            </form>
+
+            {/* Demo accounts */}
+            <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--border-medium)' }}>
+              <p className="text-[11px] font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>Demo Accounts</p>
+              <div className="flex flex-col gap-1.5">
+                {[
+                  { id: 'JTH-000001', phone: '0912345678', name: 'Deng Mabior Garang' },
+                  { id: 'JTH-000002', phone: '0916111222', name: 'Nyabol Gatdet Koang' },
+                  { id: 'JTH-000003', phone: '0921333444', name: 'Achol Mayen Deng' },
+                ].map(demo => (
+                  <button key={demo.id} type="button" onClick={() => { setMode('login'); setHospitalNumber(demo.id); setPhoneNumber(demo.phone); setError(''); }}
+                    className="w-full flex items-center justify-between px-3 py-2.5 rounded text-left transition-all"
+                    style={{ background: 'var(--overlay-subtle)', border: '1px solid var(--border-medium)', cursor: 'pointer' }}>
+                    <span className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{demo.name}</span>
+                    <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{demo.id}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -272,7 +334,10 @@ function PatientDashboard({ patient, onLogout }: { patient: PatientDoc; onLogout
   const mainTabs: { key: Tab; label: string; icon: typeof User; count?: number }[] = [
     { key: 'overview', label: 'Overview', icon: Activity },
     { key: 'records', label: 'Medical Records', icon: FileText, count: records.length },
+    { key: 'prescriptions', label: 'Prescriptions', icon: Pill },
     { key: 'lab', label: 'Lab Results', icon: FlaskConical, count: labResults.filter(l => l.status === 'pending').length },
+    { key: 'radiology', label: 'Radiology & Imaging', icon: Scan },
+    { key: 'documents', label: 'Documents', icon: FolderOpen },
     { key: 'immunizations', label: 'Immunizations', icon: Syringe },
   ];
   const actionTabs: { key: Tab; label: string; icon: typeof User; count?: number }[] = [
@@ -679,6 +744,154 @@ function PatientDashboard({ patient, onLogout }: { patient: PatientDoc; onLogout
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* ═══ Prescriptions ═══ */}
+      {activeTab === 'prescriptions' && (
+        <div>
+          <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 14 }}>Prescriptions</h2>
+          {records.length === 0 ? (
+            <Empty icon={Pill} text="No prescriptions found" />
+          ) : (() => {
+            const allRx = records.flatMap(rec => {
+              const rxList = (rec as unknown as Record<string, unknown>).prescriptions as Array<{ medication: string; dosage: string; frequency?: string; duration?: string }> || [];
+              return rxList.map(rx => ({ ...rx, date: rec.createdAt?.slice(0, 10) || '', recordId: rec._id }));
+            }).sort((a, b) => b.date.localeCompare(a.date));
+            return allRx.length === 0 ? (
+              <Empty icon={Pill} text="No prescriptions recorded yet" />
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {allRx.map((rx, i) => (
+                  <div key={i} className="card-elevated" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, borderLeft: '3px solid var(--accent-primary)' }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 8, background: 'var(--accent-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Pill size={16} style={{ color: 'var(--accent-primary)' }} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{rx.medication}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{rx.dosage}{rx.frequency ? ` · ${rx.frequency}` : ''}{rx.duration ? ` · ${rx.duration}` : ''}</div>
+                    </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)' }}>{rx.date}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+        </div>
+      )}
+
+      {/* ═══ Radiology & Imaging ═══ */}
+      {activeTab === 'radiology' && (
+        <div>
+          <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 14 }}>Radiology & Imaging</h2>
+          {/* Mock radiology data from lab results that are imaging-related, or show placeholder */}
+          {(() => {
+            const imagingTests = labResults.filter(l =>
+              /x-ray|xray|mri|ct scan|ultrasound|radiology|imaging|echo|mammogram/i.test(l.testName || '')
+            );
+            return imagingTests.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {imagingTests.map(img => (
+                  <div key={img._id} className="card-elevated" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 8, background: 'var(--accent-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Scan size={16} style={{ color: 'var(--accent-primary)' }} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{img.testName}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{(img.orderedAt || img.createdAt).slice(0, 10)} · {img.orderedBy}</div>
+                    </div>
+                    <Badge text={img.status} color={img.status === 'pending' ? 'var(--color-warning)' : 'var(--accent-primary)'} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div>
+                <Empty icon={Scan} text="No imaging results available" />
+                <div className="card-elevated" style={{ padding: 18, marginTop: 14 }}>
+                  <SH icon={Scan} title="Available Imaging Services" />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
+                    {['X-Ray', 'Ultrasound', 'CT Scan', 'MRI', 'Echocardiogram', 'Mammogram'].map(svc => (
+                      <div key={svc} style={{ padding: '10px 12px', borderRadius: 8, background: 'var(--overlay-subtle)', border: '1px solid var(--border-medium)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Scan size={13} style={{ color: 'var(--accent-primary)' }} />
+                        <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{svc}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 12 }}>
+                    Imaging results will appear here once ordered by your doctor. Contact your facility to schedule imaging.
+                  </p>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+      )}
+
+      {/* ═══ Documents ═══ */}
+      {activeTab === 'documents' && (
+        <div>
+          <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 14 }}>Documents</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {/* Generate document entries from existing data */}
+            {records.length > 0 && (
+              <div className="card-elevated" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
+                onClick={() => setActiveTab('records')}>
+                <div style={{ width: 36, height: 36, borderRadius: 8, background: 'var(--accent-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <FileText size={16} style={{ color: 'var(--accent-primary)' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>Medical Records</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{records.length} consultation record{records.length !== 1 ? 's' : ''}</div>
+                </div>
+                <ChevronRight size={14} style={{ color: 'var(--text-muted)' }} />
+              </div>
+            )}
+            {labResults.length > 0 && (
+              <div className="card-elevated" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
+                onClick={() => setActiveTab('lab')}>
+                <div style={{ width: 36, height: 36, borderRadius: 8, background: 'var(--accent-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <FlaskConical size={16} style={{ color: 'var(--accent-primary)' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>Lab Reports</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{labResults.length} lab result{labResults.length !== 1 ? 's' : ''}</div>
+                </div>
+                <ChevronRight size={14} style={{ color: 'var(--text-muted)' }} />
+              </div>
+            )}
+            {/* Discharge summaries */}
+            <div className="card-elevated" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 8, background: 'var(--overlay-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <FolderOpen size={16} style={{ color: 'var(--text-muted)' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>Discharge Summaries</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Available after inpatient discharge</div>
+              </div>
+            </div>
+            {/* Referral letters */}
+            <div className="card-elevated" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 8, background: 'var(--overlay-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <ArrowRight size={16} style={{ color: 'var(--text-muted)' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>Referral Letters</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Generated when referred to another facility</div>
+              </div>
+            </div>
+            {/* Insurance / ID docs */}
+            <div className="card-elevated" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 8, background: 'var(--overlay-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Shield size={16} style={{ color: 'var(--text-muted)' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>Insurance & ID Documents</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Upload insurance cards and identification</div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

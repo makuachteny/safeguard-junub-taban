@@ -51,7 +51,7 @@ export default function Breadcrumbs() {
         className="flex items-center gap-1 transition-colors"
         style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}
       >
-        <Home className="w-3 h-3" />
+        <Home className="w-3 h-3" aria-hidden="true" />
         <span>Home</span>
       </Link>
 
@@ -62,9 +62,10 @@ export default function Breadcrumbs() {
 
         return (
           <span key={path} className="flex items-center gap-1">
-            <ChevronRight className="w-3 h-3" style={{ color: 'var(--text-muted)', opacity: 0.5 }} />
+            <ChevronRight className="w-3 h-3" aria-hidden="true" style={{ color: 'var(--text-muted)', opacity: 0.5 }} />
             {isLast ? (
               <span
+                aria-current="page"
                 className="font-semibold"
                 style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}
               >

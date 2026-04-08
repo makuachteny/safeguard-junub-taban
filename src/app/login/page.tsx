@@ -198,8 +198,9 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label style={inputLabelStyle}>Hospital Facility</label>
+                <label htmlFor="login-hospital" style={inputLabelStyle}>Hospital Facility</label>
                 <select
+                  id="login-hospital"
                   value={hospitalId}
                   onChange={(e) => setHospitalId(e.target.value)}
                   className="login-select"
@@ -228,32 +229,37 @@ export default function LoginPage() {
               </div>
 
               <div>
-                <label style={inputLabelStyle}>Username or Staff ID</label>
+                <label htmlFor="login-username" style={inputLabelStyle}>Username or Staff ID</label>
                 <input
+                  id="login-username"
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="e.g. dr.wani or JTH-1234"
+                  autoComplete="username"
                   className="login-input"
                   style={inputStyle}
                 />
               </div>
 
               <div>
-                <label style={inputLabelStyle}>Password</label>
+                <label htmlFor="login-password" style={inputLabelStyle}>Password</label>
                 <div className="relative">
                   <input
+                    id="login-password"
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
+                    autoComplete="current-password"
                     className="login-input"
                     style={{ ...inputStyle, paddingRight: '36px' }}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 p-1.5 rounded-md transition-colors"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 p-2 rounded-md transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                     style={{ color: '#94a3b8' }}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -262,7 +268,7 @@ export default function LoginPage() {
               </div>
 
               {error && (
-                <div className="p-3 rounded-xl text-sm" style={{
+                <div role="alert" className="p-3 rounded-xl text-sm" style={{
                   background: 'rgba(229,46,66,0.06)',
                   color: '#E52E42',
                   border: '1px solid rgba(229,46,66,0.15)',

@@ -67,7 +67,7 @@
   /* Text */
   --text-primary: #1e293b;
   --text-secondary: #475569;
-  --text-muted: #94a3b8;
+  --text-muted: #6b7a8d;
   --link-color: #0077D7;
 
   /* Borders */
@@ -177,7 +177,7 @@
 
   --text-primary: #F1F5F9;
   --text-secondary: #CBD5E1;
-  --text-muted: #64748B;
+  --text-muted: #7E8FA6;
 
   --border-light: rgba(255, 255, 255, 0.06);
   --border-medium: rgba(255, 255, 255, 0.10);
@@ -208,8 +208,8 @@
   --table-row-border: rgba(255, 255, 255, 0.06);
   --table-row-hover: rgba(43, 111, 224, 0.12);
 
-  --nav-text: rgba(255, 255, 255, 0.5);
-  --nav-text-hover: rgba(255, 255, 255, 0.85);
+  --nav-text: rgba(255, 255, 255, 0.6);
+  --nav-text-hover: rgba(255, 255, 255, 0.9);
   --nav-hover-bg: rgba(255, 255, 255, 0.08);
   --nav-active-bg: #0077D7;
   --nav-active-text: #ffffff;
@@ -851,6 +851,67 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 :focus-visible {
   outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
+}
+
+.nav-item:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: -2px;
+  border-radius: var(--btn-radius);
+}
+
+/* ============ Screen-reader only (visually hidden) ============ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ============ Skip navigation link ============ */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 9999;
+  padding: 12px 24px;
+  background: var(--accent-primary);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0 0 var(--card-radius) var(--card-radius);
+  text-decoration: none;
+  transition: top 0.15s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* ============ Reduced motion ============ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-fadeInUp,
+  .animate-slide-in,
+  .page-enter {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .skeleton {
+    animation: none !important;
+  }
 }
 
 /* ============ Selection ============ */

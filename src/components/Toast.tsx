@@ -36,10 +36,18 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={{ showToast }}>
       {children}
       {/* Toast container */}
-      <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-2" style={{ maxWidth: '400px' }}>
+      <div
+        role="region"
+        aria-label="Notifications"
+        aria-live="polite"
+        aria-atomic="false"
+        className="fixed top-4 right-4 z-[9999] flex flex-col gap-2"
+        style={{ maxWidth: '400px' }}
+      >
         {toasts.map(toast => (
           <div
             key={toast.id}
+            role="alert"
             className="flex items-center gap-3 px-4 py-3 shadow-lg animate-fadeInUp"
             style={{
               background: toast.type === 'success' ? 'var(--color-success)' : 'var(--color-danger)',
@@ -50,12 +58,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             }}
           >
             {toast.type === 'success' ? (
-              <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+              <CheckCircle2 className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
             ) : (
-              <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+              <AlertTriangle className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
             )}
             <p className="text-sm font-medium flex-1">{toast.message}</p>
-            <button onClick={() => removeToast(toast.id)} className="p-0.5 rounded hover:bg-white/20 transition-colors flex-shrink-0">
+            <button
+              onClick={() => removeToast(toast.id)}
+              aria-label="Dismiss notification"
+              className="p-1.5 rounded hover:bg-white/20 transition-colors flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
+            >
               <X className="w-3.5 h-3.5" />
             </button>
           </div>

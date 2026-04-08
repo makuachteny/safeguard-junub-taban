@@ -48,6 +48,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex h-screen overflow-hidden gradient-mesh-bg">
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <Sidebar />
       <div
         className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10 transition-all duration-300 ease-in-out"
@@ -59,7 +60,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         `}</style>
         <div className="dashboard-content-area flex-1 flex flex-col min-w-0 overflow-hidden pt-3">
           <Breadcrumbs />
-          <RoleGuard>{children}</RoleGuard>
+          <main id="main-content" className="flex-1 flex flex-col min-w-0 overflow-hidden">
+            <RoleGuard>{children}</RoleGuard>
+          </main>
         </div>
       </div>
       <AssistantChat />
