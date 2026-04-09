@@ -141,6 +141,7 @@ export default function LandingPage() {
           </div>
 
           <nav className="tb-nav">
+            <Link href="/product" className="tb-nav__link">Product</Link>
             {["Features", "Solutions", "Pricing", "About"].map(s => (
               <button key={s} className="tb-nav__link" onClick={() => scrollTo(s.toLowerCase())}>{s}</button>
             ))}
@@ -243,19 +244,49 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ════════ PROBLEM STATEMENT ════════ */}
+        {/* ════════ PROBLEM — VISUAL STORY ════════ */}
         <section className="tb-problem" id="about">
           <div className="tb-container">
             <SectionIn>
               <div className="tb-section-header">
                 <span className="tb-eyebrow">The Challenge</span>
-                <h2 className="tb-heading">A health system <em>without</em> data,<br />is a health system <em>without</em> hope.</h2>
-                <p className="tb-lead">
-                  South Sudan faces compounding barriers that make conventional EHR systems impossible.
-                  Taban was designed from the ground up to solve every one of them.
-                </p>
+                <h2 className="tb-heading">No data, <em>no hope</em><br />Taban changes <em>everything</em></h2>
               </div>
             </SectionIn>
+
+            {/* Visual Before/After Story */}
+            <SectionIn>
+              <div className="tb-problem__story">
+                <div className="tb-problem__story-side tb-problem__story-side--before">
+                  <div className="tb-problem__story-img">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/assets/paper-records.jpg" alt="Paper-based health records — the current reality" />
+                    <div className="tb-problem__story-overlay tb-problem__story-overlay--before" />
+                  </div>
+                  <div className="tb-problem__story-label tb-problem__story-label--before">
+                    <span className="tb-problem__story-tag">Today</span>
+                    <h3>Paper records. Lost data. Zero visibility.</h3>
+                    <p>67% of facilities submit nothing to the national system. Patient histories vanish. Outbreaks go undetected.</p>
+                  </div>
+                </div>
+                <div className="tb-problem__story-divider">
+                  <ArrowRight size={20} />
+                </div>
+                <div className="tb-problem__story-side tb-problem__story-side--after">
+                  <div className="tb-problem__story-img">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/assets/african-nurse.jpg" alt="Digital health records on mobile — the Taban solution" />
+                    <div className="tb-problem__story-overlay tb-problem__story-overlay--after" />
+                  </div>
+                  <div className="tb-problem__story-label tb-problem__story-label--after">
+                    <span className="tb-problem__story-tag tb-problem__story-tag--blue">With Taban</span>
+                    <h3>Digital records. Offline-first. Every patient tracked.</h3>
+                    <p>Complete health records on any device. Works without internet. Auto-syncs to the national system.</p>
+                  </div>
+                </div>
+              </div>
+            </SectionIn>
+
             <div className="tb-problem__grid">
               {PROBLEM_STATS.map((s, i) => (
                 <SectionIn key={i}>
@@ -271,6 +302,50 @@ export default function LandingPage() {
                   </div>
                 </SectionIn>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ════════ IMPACT — PHOTO GRID ════════ */}
+        <section className="tb-impact-photos">
+          <div className="tb-container">
+            <SectionIn>
+              <div className="tb-section-header">
+                <span className="tb-eyebrow">Who We Serve</span>
+                <h2 className="tb-heading">Built for the people who <em>need it most</em></h2>
+              </div>
+            </SectionIn>
+            <div className="tb-impact-photos__grid">
+              <SectionIn>
+                <div className="tb-impact-photos__item tb-impact-photos__item--large">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/assets/landing-img.jpg" alt="South Sudanese healthcare workers" />
+                  <div className="tb-impact-photos__caption">
+                    <span>Frontline Workers</span>
+                    <p>Nurses, midwives, and community health workers delivering care in the hardest-to-reach areas.</p>
+                  </div>
+                </div>
+              </SectionIn>
+              <SectionIn>
+                <div className="tb-impact-photos__item">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/assets/village-community.jpg" alt="Children in South Sudan communities" />
+                  <div className="tb-impact-photos__caption">
+                    <span>Communities</span>
+                    <p>11.4 million South Sudanese with no reliable health records.</p>
+                  </div>
+                </div>
+              </SectionIn>
+              <SectionIn>
+                <div className="tb-impact-photos__item">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/assets/mother-child.jpg" alt="Maternal and child healthcare" />
+                  <div className="tb-impact-photos__caption">
+                    <span>Mothers &amp; Children</span>
+                    <p>ANC tracking, immunization, and birth registration for every family.</p>
+                  </div>
+                </div>
+              </SectionIn>
             </div>
           </div>
         </section>
@@ -800,7 +875,7 @@ const FAQS = [
 // ═══════════════════════════════════════════════════════════════════
 
 const globalCSS = `
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&family=IBM+Plex+Serif:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
 :root {
   --blue: #0077D7;
@@ -810,31 +885,36 @@ const globalCSS = `
   --blue-light: #DFF2FF;
   --blue-pale: #F7FBFF;
 
-  --text: #1D1D1D;
-  --text-secondary: #666666;
-  --text-muted: #838383;
+  --text: #211F1D;
+  --text-secondary: #555555;
+  --text-muted: #767c8e;
 
   --bg: #FFFFFF;
-  --bg-subtle: #F7F7F7;
-  --bg-muted: #EFEFEF;
+  --bg-subtle: #f4f4f4;
+  --bg-muted: #e7e2de;
 
-  --border: #D3D3D3;
-  --border-subtle: #E8E8E8;
+  --border: #e7e2de;
+  --border-subtle: #eff1f6;
 
-  --radius: 4px;
-  --radius-lg: 6px;
-  --radius-xl: 8px;
+  --radius: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
 
-  --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.07);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.08);
-  --shadow-xl: 0 16px 48px rgba(0,0,0,0.1);
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.08);
+  --shadow-md: 6px 6px 9px rgba(0,0,0,0.12);
+  --shadow-lg: 12px 12px 50px rgba(0,0,0,0.15);
+  --shadow-xl: 6px 6px 0px rgba(0,0,0,0.08);
 
-  --font-display: 'Space Grotesk', 'DM Sans', Helvetica, Arial, sans-serif;
-  --font-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
-  --font-body: 'Inter', 'DM Sans', Helvetica, Arial, sans-serif;
-  --font-accent: 'DM Sans', 'Inter', Helvetica, Arial, sans-serif;
+  --font-display: 'IBM Plex Sans', sans-serif;
+  --font-serif: 'IBM Plex Serif', Georgia, serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+  --font-accent: 'IBM Plex Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  --content-width: 720px;
+  --wide-width: 1120px;
+  --spacing-block: 1.5rem;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -845,16 +925,15 @@ body {
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-size: 18px;
-  line-height: 1.7;
+  font-size: 1.125rem;
+  line-height: 1.5;
   font-weight: 400;
 }
 a { color: inherit; text-decoration: none; }
 
 /* ── Container ── */
-.tb-container { max-width: calc(100% - 64px); margin: 0 auto; padding: 0; }
-@media (min-width: 1200px) { .tb-container { max-width: 1200px; } }
-@media (min-width: 1400px) { .tb-container { max-width: 1280px; } }
+.tb-container { max-width: var(--wide-width); margin: 0 auto; padding: 0 30px; }
+@media (min-width: 1200px) { .tb-container { padding: 0; } }
 
 /* ── Reveal Animation ── */
 .tb-reveal {
@@ -864,18 +943,18 @@ a { color: inherit; text-decoration: none; }
 .tb-reveal--visible { opacity: 1; transform: translateY(0); }
 
 /* ── Section Headers ── */
-.tb-section-header { text-align: center; max-width: 780px; margin: 0 auto 60px; }
+.tb-section-header { text-align: center; max-width: var(--content-width); margin: 0 auto 56px; }
 .tb-eyebrow {
   display: inline-flex; align-items: center; gap: 6px;
-  font-family: var(--font-accent); font-size: 12px; font-weight: 700;
-  letter-spacing: 2px; text-transform: uppercase; color: var(--blue);
-  margin-bottom: 18px;
+  font-family: var(--font-accent); font-size: 0.75rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue);
+  margin-bottom: 16px;
 }
 .tb-eyebrow--light { color: rgba(255,255,255,0.5); }
 .tb-heading {
-  font-family: var(--font-display); font-size: clamp(32px, 5vw, 58px);
-  font-weight: 700; line-height: 1.08; color: var(--text);
-  letter-spacing: -0.025em; margin-bottom: 22px;
+  font-family: var(--font-display); font-size: clamp(1.875rem, 5vw, 3rem);
+  font-weight: 700; line-height: 1.25; color: var(--text);
+  letter-spacing: -0.01em; margin-bottom: 20px;
 }
 .tb-heading em {
   font-style: normal; font-weight: 700;
@@ -883,36 +962,36 @@ a { color: inherit; text-decoration: none; }
 }
 .tb-heading--light { color: #fff; }
 .tb-heading--light em { color: rgba(255,255,255,0.6); }
-.tb-lead { font-size: 17px; line-height: 1.8; color: var(--text-secondary); max-width: 640px; margin: 0 auto; font-weight: 400; }
+.tb-lead { font-size: 1.125rem; line-height: 1.5; color: var(--text-secondary); max-width: 640px; margin: 0 auto; font-weight: 400; }
 .tb-check { color: var(--blue); flex-shrink: 0; }
 
-/* ── Buttons — ModMed style: sharp, clean, 2px radius ── */
+/* ── Buttons — OpenMRS-inspired: square, clean ── */
 .tb-btn {
-  display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px;
-  border-radius: 2px; font-family: var(--font-body); font-size: 16px;
+  display: inline-flex; align-items: center; gap: 8px; padding: 15px 30px;
+  border-radius: 100px; font-family: var(--font-body); font-size: 1rem;
   font-weight: 500; cursor: pointer; transition: all 0.2s ease; border: 2px solid transparent;
   text-decoration: none; justify-content: center; white-space: nowrap;
-  line-height: 1.125;
+  line-height: 1.25;
 }
 .tb-btn--primary { background: var(--blue); color: #fff; border-color: var(--blue); }
 .tb-btn--primary:hover { background: var(--blue-hover); border-color: var(--blue-hover); }
-.tb-btn--hero { background: var(--blue); color: #fff; border-color: var(--blue); padding: 16px 36px; font-size: 18px; }
+.tb-btn--hero { background: var(--blue); color: #fff; border-color: var(--blue); padding: 15px 36px; font-size: 1.05rem; }
 .tb-btn--hero:hover { background: var(--blue-hover); border-color: var(--blue-hover); }
 .tb-btn--hero-outline {
-  background: transparent; color: #fff; padding: 16px 36px; font-size: 18px;
+  background: transparent; color: #fff; padding: 15px 36px; font-size: 1.05rem;
   border: 2px solid rgba(255,255,255,0.4);
 }
 .tb-btn--hero-outline:hover { border-color: #fff; background: rgba(255,255,255,0.06); }
 .tb-btn--outline { background: transparent; color: var(--text); border: 2px solid var(--border); }
 .tb-btn--outline:hover { border-color: var(--blue); color: var(--blue); }
-.tb-btn--ghost { background: transparent; color: var(--text-secondary); border: none; font-size: 14px; padding: 8px 18px; }
+.tb-btn--ghost { background: transparent; color: var(--text-secondary); border: none; font-size: 0.875rem; padding: 8px 18px; }
 .tb-btn--ghost:hover { color: var(--text); }
 .tb-btn--card { background: transparent; border: 2px solid; width: 100%; }
 .tb-btn--card:hover { opacity: 0.8; }
-.tb-btn--cta { background: #fff; color: var(--blue); padding: 16px 36px; font-size: 18px; border-color: #fff; }
+.tb-btn--cta { background: #fff; color: var(--blue); padding: 15px 36px; font-size: 1.05rem; border-color: #fff; }
 .tb-btn--cta:hover { background: var(--bg-subtle); }
 .tb-btn--cta-outline {
-  background: transparent; color: #fff; padding: 14px 32px; font-size: 17px;
+  background: transparent; color: #fff; padding: 13px 32px; font-size: 1rem;
   border: 2px solid rgba(255,255,255,0.4);
 }
 .tb-btn--cta-outline:hover { border-color: #fff; }
@@ -947,14 +1026,14 @@ a { color: inherit; text-decoration: none; }
 .tb-header__inner { display: flex; align-items: center; gap: 12px; }
 .tb-logo { display: flex; align-items: center; gap: 10px; cursor: pointer; }
 .tb-logo__text {
-  font-family: var(--font-display); font-size: 20px; font-weight: 700;
+  font-family: var(--font-display); font-size: 1.2rem; font-weight: 700;
   letter-spacing: 0.06em; transition: color 0.3s;
 }
 .tb-nav { display: flex; gap: 0; margin-left: auto; }
 .tb-nav__link {
-  background: none; border: none; font-family: var(--font-accent); font-size: 14px;
+  background: none; border: none; font-family: var(--font-accent); font-size: 0.875rem;
   font-weight: 500; padding: 8px 18px;
-  border-radius: 0; cursor: pointer; transition: color 0.2s;
+  border-radius: 0; cursor: pointer; transition: color 0.2s; text-decoration: none;
 }
 .tb-header__actions { display: flex; gap: 8px; margin-left: 16px; }
 .tb-mobile-toggle { display: none; background: none; border: none; cursor: pointer; padding: 8px; transition: color 0.3s; }
@@ -990,9 +1069,9 @@ a { color: inherit; text-decoration: none; }
   display: flex; flex-direction: column; justify-content: center; gap: 0;
 }
 .tb-hero__title {
-  font-family: var(--font-display); font-size: clamp(36px, 4vw, 56px);
-  font-weight: 700; line-height: 1.1; color: #fff;
-  letter-spacing: -0.025em; margin-bottom: 18px;
+  font-family: var(--font-display); font-size: clamp(2.25rem, 5vw, 3.5rem);
+  font-weight: 700; line-height: 1.25; color: #fff;
+  letter-spacing: -0.01em; margin-bottom: 18px;
   animation: heroFade 0.8s ease 0.1s both;
 }
 .tb-hero__title--gradient {
@@ -1102,8 +1181,8 @@ a { color: inherit; text-decoration: none; }
 }
 .tb-ticker__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; text-align: center; }
 .tb-ticker__value {
-  font-family: 'Space Grotesk', var(--font-display); font-size: 42px; font-weight: 700;
-  color: var(--blue); letter-spacing: -0.02em; line-height: 1;
+  font-family: var(--font-display); font-size: 2.5rem; font-weight: 700;
+  color: var(--blue); letter-spacing: -0.01em; line-height: 1;
 }
 .tb-ticker__label {
   font-size: 12px; font-weight: 600; color: var(--text-muted);
@@ -1111,8 +1190,100 @@ a { color: inherit; text-decoration: none; }
 }
 @media (max-width: 600px) { .tb-ticker__grid { grid-template-columns: repeat(2, 1fr); gap: 24px; } }
 
-/* ── Problem ── */
+/* ── Problem — Visual Story ── */
 .tb-problem { padding: 112px 0; background: var(--bg-subtle); }
+.tb-problem__story {
+  display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: stretch;
+  margin-bottom: 64px;
+}
+.tb-problem__story-side {
+  border-radius: var(--radius-lg); overflow: hidden;
+  border: 1px solid var(--border); background: #fff;
+  box-shadow: var(--shadow-sm); transition: all 0.3s ease;
+}
+.tb-problem__story-side:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+.tb-problem__story-img {
+  position: relative; height: 220px; overflow: hidden;
+}
+.tb-problem__story-img img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  filter: saturate(0.8);
+}
+.tb-problem__story-side--before .tb-problem__story-img img {
+  filter: saturate(0.3) contrast(0.9);
+}
+.tb-problem__story-overlay {
+  position: absolute; inset: 0;
+}
+.tb-problem__story-overlay--before {
+  background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(10,61,107,0.15) 100%);
+}
+.tb-problem__story-overlay--after {
+  background: linear-gradient(180deg, rgba(0,119,215,0.05) 0%, rgba(0,119,215,0.12) 100%);
+}
+.tb-problem__story-label { padding: 24px; }
+.tb-problem__story-tag {
+  display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; padding: 4px 12px; border-radius: 100px;
+  background: rgba(0,0,0,0.06); color: var(--text-muted); margin-bottom: 12px;
+}
+.tb-problem__story-tag--blue {
+  background: rgba(0,119,215,0.08); color: var(--blue);
+}
+.tb-problem__story-label h3 {
+  font-family: var(--font-display); font-size: 18px; font-weight: 700;
+  line-height: 1.25; margin-bottom: 8px; color: var(--text);
+}
+.tb-problem__story-label p {
+  font-size: 14px; line-height: 1.65; color: var(--text-secondary);
+}
+.tb-problem__story-divider {
+  display: flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--blue); color: #fff; flex-shrink: 0;
+  align-self: center; box-shadow: 0 4px 12px rgba(0,119,215,0.3);
+}
+@media (max-width: 800px) {
+  .tb-problem__story { grid-template-columns: 1fr; gap: 16px; }
+  .tb-problem__story-divider { margin: 0 auto; transform: rotate(90deg); }
+}
+
+/* ── Impact Photo Grid ── */
+.tb-impact-photos { padding: 112px 0; background: var(--bg); }
+.tb-impact-photos__grid {
+  display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 20px;
+}
+.tb-impact-photos__item {
+  border-radius: var(--radius-lg); overflow: hidden;
+  position: relative; cursor: default;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.tb-impact-photos__item:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+.tb-impact-photos__item img {
+  width: 100%; height: 280px; object-fit: cover; display: block;
+  transition: transform 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+.tb-impact-photos__item:hover img { transform: scale(1.04); }
+.tb-impact-photos__item--large img { height: 100%; min-height: 280px; }
+.tb-impact-photos__caption {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 24px;
+  background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.0) 100%);
+  color: #fff;
+}
+.tb-impact-photos__caption span {
+  font-family: var(--font-display); font-size: 16px; font-weight: 700;
+  display: block; margin-bottom: 4px;
+}
+.tb-impact-photos__caption p {
+  font-size: 13px; line-height: 1.5; color: rgba(255,255,255,0.75);
+}
+@media (max-width: 800px) {
+  .tb-impact-photos__grid { grid-template-columns: 1fr; }
+  .tb-impact-photos__item--large img { height: 280px; }
+}
+
 .tb-problem__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
 .tb-stat-card {
   background: #fff; border-radius: var(--radius-lg); padding: 28px 24px;
@@ -1128,7 +1299,7 @@ a { color: inherit; text-decoration: none; }
 .tb-stat-card:hover { box-shadow: var(--shadow-md); }
 .tb-stat-card:hover::before { background: var(--blue); }
 .tb-stat-card__top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
-.tb-stat-card__number { font-family: 'Space Grotesk', var(--font-display); font-size: 40px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
+.tb-stat-card__number { font-family: var(--font-display); font-size: 2.25rem; font-weight: 700; line-height: 1; letter-spacing: -0.01em; }
 .tb-stat-card__dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 8px; }
 .tb-stat-card__label { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.04em; }
 .tb-stat-card__desc { font-size: 14px; color: var(--text-secondary); line-height: 1.65; }
@@ -1163,7 +1334,7 @@ a { color: inherit; text-decoration: none; }
   width: 48px; height: 48px; border-radius: 12px;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
-.tb-features__panel-title { font-family: var(--font-display); font-size: 22px; font-weight: 500; margin-bottom: 8px; }
+.tb-features__panel-title { font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; }
 .tb-features__panel-desc { font-size: 15px; line-height: 1.65; color: var(--text-secondary); }
 .tb-features__panel-list {
   list-style: none; display: grid; grid-template-columns: 1fr 1fr;
@@ -1403,9 +1574,9 @@ textarea.tb-field__input { resize: vertical; }
   text-align: center;
 }
 .tb-cta__title {
-  font-family: var(--font-display); font-size: clamp(28px, 3.8vw, 42px);
-  font-weight: 700; line-height: 1.2; color: #fff; margin-bottom: 16px;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display); font-size: clamp(1.875rem, 4vw, 2.5rem);
+  font-weight: 700; line-height: 1.25; color: #fff; margin-bottom: 16px;
+  letter-spacing: -0.01em;
 }
 .tb-cta__title em {
   font-style: normal; font-weight: 400; color: rgba(255,255,255,0.6);
@@ -1419,8 +1590,8 @@ textarea.tb-field__input { resize: vertical; }
 .tb-footer__tagline { font-size: 14px; line-height: 1.65; margin-bottom: 12px; }
 .tb-footer__built { font-size: 13px; font-weight: 600; color: var(--blue); }
 .tb-footer__col h4 {
-  font-family: var(--font-display); font-size: 13px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.8); margin-bottom: 16px;
+  font-family: var(--font-display); font-size: 0.75rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.8); margin-bottom: 16px;
 }
 .tb-footer__col button, .tb-footer__col a {
   display: block; background: none; border: none; font-family: var(--font-body);

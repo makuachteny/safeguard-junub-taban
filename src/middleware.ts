@@ -117,22 +117,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Landing page — redirect to login (no public marketing in production)
-  if (pathname === '/') {
-    const token = request.cookies.get('taban-token')?.value;
-    if (!token) {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-    // Authenticated users on "/" get redirected to their dashboard
-    const payload = await verifyToken(token);
-    if (!payload) {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-    const config = ROLE_ROUTES[payload.role];
-    if (config) {
-      return NextResponse.redirect(new URL(config.defaultDashboard, request.url));
-    }
-    return NextResponse.redirect(new URL('/login', request.url));
+  // Public marketing pages — landing, product, public-stats
+  if (pathname === '/' || pathname === '/product' || pathname === '/public-stats' || pathname === '/patient-portal') {
+    return NextResponse.next();
   }
 
   // All other routes require authentication
