@@ -71,6 +71,7 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [navDrop, setNavDrop] = useState<string | null>(null);
+  const [demoOpen, setDemoOpen] = useState(false);
   const { t, locale, setLocale } = useTranslation();
   const [demoForm, setDemoForm] = useState({ name: "", email: "", org: "", role: "", phone: "", message: "" });
   const [demoSubmitted, setDemoSubmitted] = useState(false);
@@ -181,7 +182,27 @@ export default function LandingPage() {
           </nav>
 
           <div className="tb-header__actions">
-            <Link href="/login" className="tb-btn tb-btn--demo">Demo</Link>
+            <div className="tb-demo-btn" onMouseEnter={() => setDemoOpen(true)} onMouseLeave={() => setDemoOpen(false)}>
+              <button className="tb-btn tb-btn--demo">{t('landing.nav.demo')} <ChevronDown size={12} /></button>
+              {demoOpen && (
+                <div className="tb-demo-btn__dropdown">
+                  <Link href="/login" className="tb-demo-btn__option" onClick={() => setDemoOpen(false)}>
+                    <IconHospital size={18} />
+                    <div>
+                      <span className="tb-demo-btn__label">{t('landing.demo.staff')}</span>
+                      <span className="tb-demo-btn__desc">{t('landing.demo.staffDesc')}</span>
+                    </div>
+                  </Link>
+                  <Link href="/patient-portal" className="tb-demo-btn__option" onClick={() => setDemoOpen(false)}>
+                    <IconPatientRecords size={18} />
+                    <div>
+                      <span className="tb-demo-btn__label">{t('landing.demo.patient')}</span>
+                      <span className="tb-demo-btn__desc">{t('landing.demo.patientDesc')}</span>
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
             {/* Language Selector — wired to i18n system */}
             <div className="tb-lang" onClick={() => setLangOpen(!langOpen)}>
               <span className="tb-lang__code">{locale.toUpperCase()}</span>
@@ -408,8 +429,8 @@ export default function LandingPage() {
           <div className="tb-container">
             <SectionIn>
               <div className="tb-section-header">
-                <span className="tb-eyebrow">Platform</span>
-                <h2 className="tb-heading"><em>Everything</em> you need.<br />Nothing you don&apos;t.</h2>
+                <span className="tb-eyebrow">{t('landing.platform.eyebrow')}</span>
+                <h2 className="tb-heading">{t('landing.platform.heading')}</h2>
               </div>
             </SectionIn>
             <div className="tb-features__layout">
@@ -468,9 +489,9 @@ export default function LandingPage() {
           <div className="tb-container">
             <SectionIn>
               <div className="tb-section-header">
-                <span className="tb-eyebrow">Implementation</span>
-                <h2 className="tb-heading">From zero to <em>live</em> in 30 days</h2>
-                <p className="tb-lead">Our battle-tested deployment process gets your facilities running fast.</p>
+                <span className="tb-eyebrow">{t('landing.impl.eyebrow')}</span>
+                <h2 className="tb-heading">{t('landing.impl.heading')}</h2>
+                <p className="tb-lead">{t('landing.impl.desc')}</p>
               </div>
             </SectionIn>
             <div className="tb-how__grid">
@@ -501,8 +522,8 @@ export default function LandingPage() {
           <div className="tb-container">
             <SectionIn>
               <div className="tb-section-header">
-                <span className="tb-eyebrow">Solutions</span>
-                <h2 className="tb-heading">Purpose-built for <em>every</em> stakeholder</h2>
+                <span className="tb-eyebrow">{t('landing.solutions.eyebrow')}</span>
+                <h2 className="tb-heading">{t('landing.solutions.heading')}</h2>
               </div>
             </SectionIn>
             <div className="tb-solutions__grid">
@@ -521,7 +542,7 @@ export default function LandingPage() {
                         {s.features.map((f, j) => <li key={j}><Check size={14} className="tb-check" /> {f}</li>)}
                       </ul>
                       <div className="tb-solutions__card-price">
-                        <span className="tb-solutions__card-from">Starting from</span>
+                        <span className="tb-solutions__card-from">{t('landing.solutions.startingFrom')}</span>
                         <span className="tb-solutions__card-amount">{s.price}</span>
                       </div>
                       <button className="tb-btn tb-btn--card" style={{ borderColor: s.color, color: s.color }} onClick={() => setShowDemoModal(true)}>
@@ -540,9 +561,9 @@ export default function LandingPage() {
           <div className="tb-container">
             <SectionIn>
               <div className="tb-section-header">
-                <span className="tb-eyebrow">Why Taban</span>
-                <h2 className="tb-heading">Every challenge. <em>Addressed.</em></h2>
-                <p className="tb-lead">We studied what makes EHR deployments fail in fragile states and engineered solutions for each one.</p>
+                <span className="tb-eyebrow">{t('landing.challenges.eyebrow')}</span>
+                <h2 className="tb-heading">{t('landing.challenges.heading')}</h2>
+                <p className="tb-lead">{t('landing.challenges.desc')}</p>
               </div>
             </SectionIn>
             <div className="tb-challenges__grid">
@@ -566,8 +587,8 @@ export default function LandingPage() {
           <div className="tb-container">
             <SectionIn>
               <div className="tb-section-header">
-                <span className="tb-eyebrow">Pricing</span>
-                <h2 className="tb-heading">Transparent pricing. <em>No surprises.</em></h2>
+                <span className="tb-eyebrow">{t('landing.pricing.eyebrow')}</span>
+                <h2 className="tb-heading">{t('landing.pricing.heading')}</h2>
                 <p className="tb-lead">Offline-first architecture means dramatically lower infrastructure costs than any competitor.</p>
               </div>
             </SectionIn>
@@ -575,7 +596,7 @@ export default function LandingPage() {
               {PRICING.map((p, i) => (
                 <SectionIn key={i}>
                   <div className={`tb-pricing__card ${p.featured ? "tb-pricing__card--featured" : ""}`}>
-                    {p.featured && <div className="tb-pricing__badge">Recommended</div>}
+                    {p.featured && <div className="tb-pricing__badge">{t('landing.pricing.recommended')}</div>}
                     <h3 className="tb-pricing__name">{p.name}</h3>
                     <p className="tb-pricing__target">{p.target}</p>
                     <div className="tb-pricing__amount">
@@ -608,8 +629,8 @@ export default function LandingPage() {
         <section className="tb-demo" id="demo">
           <div className="tb-container" style={{ textAlign: "center", maxWidth: 640 }}>
             <SectionIn>
-              <span className="tb-eyebrow tb-eyebrow--light">Get Started</span>
-              <h2 className="tb-heading tb-heading--light">See Taban <em>in action</em></h2>
+              <span className="tb-eyebrow tb-eyebrow--light">{t('landing.demo.eyebrow')}</span>
+              <h2 className="tb-heading tb-heading--light">{t('landing.demo.heading')}</h2>
               <p style={{ fontSize: 17, lineHeight: 1.7, color: "rgba(255,255,255,0.55)", marginBottom: 20 }}>
                 Schedule a 30-minute personalized walkthrough. See all 11 dashboards, offline-first capabilities,
                 and how Taban transforms healthcare delivery at your facility.
@@ -636,8 +657,8 @@ export default function LandingPage() {
               {demoSubmitted ? (
                 <div className="tb-demo__success">
                   <div className="tb-demo__success-icon"><Check size={28} /></div>
-                  <h3>Request Received</h3>
-                  <p>Thank you, {demoForm.name}! Our team will contact you within 24 hours.</p>
+                  <h3>{t('landing.demo.received')}</h3>
+                  <p>{t('landing.demo.thankYou', { name: demoForm.name })}</p>
                   <div className="tb-demo__success-actions">
                     <a className="tb-btn tb-btn--primary" href={scheduleHref} target="_blank" rel="noreferrer">
                       Schedule Demo <IconAppointments size={14} />
@@ -649,8 +670,8 @@ export default function LandingPage() {
                 </div>
               ) : (
                 <form className="tb-demo__form" onSubmit={handleDemoSubmit}>
-                  <h3 className="tb-demo__form-title">Request a Free Demo</h3>
-                  <p className="tb-demo__form-sub">Fill out the form and we&apos;ll be in touch shortly.</p>
+                  <h3 className="tb-demo__form-title">{t('landing.demo.formTitle')}</h3>
+                  <p className="tb-demo__form-sub">{t('landing.demo.formSub')}</p>
                   {demoSubmitError && <div className="tb-demo__error">{demoSubmitError}</div>}
                   {[
                     { key: "name", label: "Full Name", type: "text", placeholder: "Dr. Wani Lado" },
@@ -697,8 +718,8 @@ export default function LandingPage() {
           <div className="tb-container">
             <SectionIn>
               <div className="tb-section-header">
-                <span className="tb-eyebrow">FAQ</span>
-                <h2 className="tb-heading">Common questions</h2>
+                <span className="tb-eyebrow">{t('landing.faq.eyebrow')}</span>
+                <h2 className="tb-heading">{t('landing.faq.heading')}</h2>
               </div>
             </SectionIn>
             <div className="tb-faq__list">
@@ -719,8 +740,8 @@ export default function LandingPage() {
         <section className="tb-cta">
           <div className="tb-container tb-cta__inner">
             <SectionIn>
-              <h2 className="tb-cta__title">67% of facilities report nothing today.<br /><em>Let&apos;s change that.</em></h2>
-              <p className="tb-cta__desc">Join the movement to bring data-driven healthcare to 11.4 million South Sudanese.</p>
+              <h2 className="tb-cta__title">{t('landing.cta.title1')}<br /><em>{t('landing.cta.title2')}</em></h2>
+              <p className="tb-cta__desc">{t('landing.cta.desc')}</p>
               <div className="tb-cta__buttons">
                 <button className="tb-btn tb-btn--cta" onClick={() => setShowDemoModal(true)}>
                   Request Your Demo <ArrowRight size={16} />
@@ -744,25 +765,25 @@ export default function LandingPage() {
                 <img src="/assets/taban-icon.svg" alt="Taban" style={{ width: 30, height: 30, borderRadius: 8 }} />
                 <span className="tb-logo__text" style={{ color: "#fff" }}>TABAN</span>
               </div>
-              <p className="tb-footer__tagline">&ldquo;Hope&rdquo; in Dinka. Purpose-built digital health records for the world&apos;s hardest health environments.</p>
-              <p className="tb-footer__built">Built by South Sudanese, for South Sudan.</p>
+              <p className="tb-footer__tagline">{t('landing.footer.tagline')}</p>
+              <p className="tb-footer__built">{t('landing.footer.built')}</p>
             </div>
             <div className="tb-footer__col">
-              <h4>Platform</h4>
-              <button onClick={() => scrollTo("features")}>Features</button>
-              <button onClick={() => scrollTo("solutions")}>Solutions</button>
-              <button onClick={() => scrollTo("pricing")}>Pricing</button>
-              <button onClick={() => setShowDemoModal(true)}>Request Demo</button>
+              <h4>{t('landing.footer.platform')}</h4>
+              <button onClick={() => scrollTo("features")}>{t('landing.footer.features')}</button>
+              <button onClick={() => scrollTo("solutions")}>{t('landing.footer.solutions')}</button>
+              <button onClick={() => scrollTo("pricing")}>{t('landing.footer.pricing')}</button>
+              <button onClick={() => setShowDemoModal(true)}>{t('landing.footer.requestDemo')}</button>
             </div>
             <div className="tb-footer__col">
-              <h4>Resources</h4>
-              <button onClick={() => scrollTo("about")}>About</button>
-              <button onClick={() => scrollTo("faq")}>FAQ</button>
-              <Link href="/public-stats">Public Statistics</Link>
-              <Link href="/login">Staff Sign In</Link>
+              <h4>{t('landing.footer.resources')}</h4>
+              <button onClick={() => scrollTo("about")}>{t('landing.footer.about')}</button>
+              <button onClick={() => scrollTo("faq")}>{t('landing.faq.heading')}</button>
+              <Link href="/public-stats">{t('landing.footer.publicStats')}</Link>
+              <Link href="/login">{t('landing.footer.staffSignIn')}</Link>
             </div>
             <div className="tb-footer__col">
-              <h4>Contact</h4>
+              <h4>{t('landing.footer.contact')}</h4>
               <div className="tb-footer__contact"><Mail size={14} /> info@taban.health</div>
               <div className="tb-footer__contact"><Phone size={14} /> +211 912 345 678</div>
               <div className="tb-footer__contact"><MapPin size={14} /> Juba, South Sudan</div>
@@ -1131,6 +1152,29 @@ a { color: inherit; text-decoration: none; }
 .tb-nav__dropdown-label { font-size: 0.875rem; font-weight: 600; color: var(--text); }
 .tb-nav__dropdown-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; }
 .tb-nav__dropdown { background: #fff; border: 1px solid var(--border); box-shadow: var(--shadow-md); }
+/* Demo Button Dropdown */
+.tb-demo-btn { position: relative; }
+.tb-demo-btn__dropdown {
+  position: absolute; top: 100%; right: 0; padding-top: 8px; z-index: 200;
+  animation: fadeIn 0.15s ease;
+}
+.tb-demo-btn__dropdown::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 8px;
+}
+.tb-demo-btn__option {
+  display: flex; align-items: center; gap: 14px; width: 280px;
+  padding: 14px 18px; background: #fff; text-decoration: none;
+  color: var(--text); transition: background 0.1s;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.tb-demo-btn__option:first-child { border-top: 2px solid var(--blue); }
+.tb-demo-btn__option:last-child { border-bottom: none; }
+.tb-demo-btn__option:hover { background: var(--bg-subtle); }
+.tb-demo-btn__option svg { color: var(--blue); flex-shrink: 0; }
+.tb-demo-btn__label { font-size: 0.9rem; font-weight: 600; display: block; }
+.tb-demo-btn__desc { font-size: 0.75rem; color: var(--text-muted); display: block; line-height: 1.4; }
+.tb-demo-btn__dropdown { background: #fff; border: 1px solid var(--border); box-shadow: var(--shadow-md); }
+
 .tb-header__actions { display: flex; gap: 12px; margin-left: 16px; align-items: center; }
 
 /* Demo button — outlined like OpenMRS */
