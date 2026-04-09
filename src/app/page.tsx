@@ -1585,7 +1585,7 @@ textarea.tb-field__input { resize: vertical; }
 .tb-cta__buttons { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 
 /* ── Footer ── */
-.tb-footer { background: #0F172A; padding: 64px 0 32px; color: rgba(255,255,255,0.5); }
+.tb-footer { background: #211F1D; padding: 64px 0 32px; color: rgba(255,255,255,0.5); }
 .tb-footer__grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
 .tb-footer__tagline { font-size: 14px; line-height: 1.65; margin-bottom: 12px; }
 .tb-footer__built { font-size: 13px; font-weight: 600; color: var(--blue); }

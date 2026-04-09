@@ -823,9 +823,9 @@ a { color: inherit; text-decoration: none; }
 .p-btn--ghost { background: transparent; color: var(--p-text-secondary); border: none; padding: 8px 16px; font-size: 14px; }
 .p-btn--ghost:hover { color: var(--p-text); }
 .p-btn--lg { padding: 16px 36px; font-size: 16px; }
-.p-btn--cta { background: #fff; color: var(--p-blue); padding: 16px 36px; font-size: 18px; border-color: #fff; }
+.p-btn--cta { background: #fff; color: var(--p-blue); padding: 15px 36px; font-size: 1.05rem; border-color: #fff; }
 .p-btn--cta:hover { background: var(--p-bg-cool); }
-.p-btn--cta-outline { background: transparent; color: #fff; padding: 14px 32px; font-size: 17px; border: 2px solid rgba(255,255,255,0.4); }
+.p-btn--cta-outline { background: transparent; color: #fff; padding: 13px 32px; font-size: 1rem; border: 2px solid rgba(255,255,255,0.4); }
 .p-btn--cta-outline:hover { border-color: #fff; }
 
 /* ── Header ── */
@@ -846,7 +846,7 @@ a { color: inherit; text-decoration: none; }
 .p-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
 .p-logo__icon { width: 30px; height: 30px; border-radius: 8px; }
 .p-logo__text {
-  font-family: var(--p-font-display); font-size: 20px; font-weight: 700;
+  font-family: var(--p-font-display); font-size: 1.2rem; font-weight: 700;
   letter-spacing: 0.06em; color: var(--p-text); transition: color 0.3s;
 }
 .p-nav { display: flex; gap: 0; margin-left: auto; }
@@ -917,9 +917,9 @@ a { color: inherit; text-decoration: none; }
 .p-hero__stat:last-child { border-right: none; }
 .p-hero__stat:hover { background: var(--p-blue-pale); }
 .p-hero__stat-value {
-  font-family: 'Space Grotesk', var(--p-font-display); font-size: 42px; font-weight: 700;
+  font-family: var(--p-font-display); font-size: 2.5rem; font-weight: 700;
   color: var(--p-blue); line-height: 1; margin-bottom: 6px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 .p-hero__stat-label {
   font-size: 12px; font-weight: 600; color: var(--p-text-secondary);
@@ -1299,7 +1299,7 @@ a { color: inherit; text-decoration: none; }
 
 /* ── Footer ── */
 .p-footer {
-  background: #0F172A; padding: 64px 0 32px; color: rgba(255,255,255,0.5);
+  background: #211F1D; padding: 64px 0 32px; color: rgba(255,255,255,0.5);
 }
 .p-footer__grid {
   display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px;
