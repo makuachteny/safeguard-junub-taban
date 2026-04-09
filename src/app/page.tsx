@@ -2,14 +2,20 @@
 
 import { useState, useEffect, useRef } from "react";
 import {
-  WifiOff, Shield, Brain, Activity, Baby, Download,
-  ArrowRight, Check, ChevronDown, ChevronUp, Play, Phone,
-  Mail, MapPin, Building2, Users, Globe, Lock, Database,
-  GraduationCap, DollarSign, Video, Calendar,
-  HeartPulse, ClipboardCheck, Zap, BarChart3,
-  Menu, X, Server, Star,
+  ArrowRight, Check, ChevronDown, ChevronUp, Phone,
+  Mail, MapPin, Menu, X, Star,
 } from "lucide-react";
 import Link from "next/link";
+import {
+  IconPatientRecords, IconOffline, IconBrain, IconSurveillance,
+  IconAppointments, IconTelehealth, IconCRVS, IconExport,
+  IconShield, IconAssessment, IconTraining, IconDeploy, IconAnalytics,
+  IconHospital, IconGlobe, IconHeartCare, IconPrivacy, IconStorage,
+  IconCost, IconInterop,
+} from "@/components/HealthIcons";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { SUPPORTED_LOCALES } from "@/lib/i18n";
+import type { Locale } from "@/lib/i18n";
 
 /* ═══════════════════════════════════════════════════════════════════
    TABAN — Landing Page
@@ -53,12 +59,6 @@ function Counter({ end, suffix = "", prefix = "", duration = 2000 }: { end: numb
 }
 
 // ─── Smooth scroll helper ───────────────────────────────────────
-const HERO_STATS = [
-  { icon: Shield, value: "100%", label: "Offline first", sub: "Works without connectivity" },
-  { icon: Activity, value: "11.4M", label: "People covered", sub: "Live facility & community data" },
-  { icon: Download, value: "Instant", label: "Sync to National", sub: "Auto push to DHIS2-ready store" },
-];
-
 function scrollTo(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -69,6 +69,9 @@ export default function LandingPage() {
   const [activeFeature, setActiveFeature] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+  const [navDrop, setNavDrop] = useState<string | null>(null);
+  const { t, locale, setLocale } = useTranslation();
   const [demoForm, setDemoForm] = useState({ name: "", email: "", org: "", role: "", phone: "", message: "" });
   const [demoSubmitted, setDemoSubmitted] = useState(false);
   const [demoErrors, setDemoErrors] = useState<Record<string, string>>({});
@@ -131,28 +134,70 @@ export default function LandingPage() {
     <>
       <style dangerouslySetInnerHTML={{ __html: globalCSS }} />
 
-      {/* ════════ STICKY HEADER ════════ */}
+      {/* ════════ GRADIENT TOP BAR ════════ */}
+      <div className="tb-gradient-bar" />
+
+      {/* ════════ HEADER ════════ */}
       <header className={`tb-header ${scrolled ? "tb-header--scrolled" : ""}`}>
         <div className="tb-container tb-header__inner">
           <div className="tb-logo" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/assets/taban-icon.svg" alt="Taban" style={{ width: 30, height: 30, borderRadius: 8 }} />
             <span className="tb-logo__text">TABAN</span>
+            <span className="tb-logo__sub">HEALTH RECORD SYSTEM</span>
           </div>
 
           <nav className="tb-nav">
-            <Link href="/product" className="tb-nav__link">Product</Link>
-            {["Features", "Solutions", "Pricing", "About"].map(s => (
-              <button key={s} className="tb-nav__link" onClick={() => scrollTo(s.toLowerCase())}>{s}</button>
+            {NAV_ITEMS.map(item => (
+              <div key={item.label} className="tb-nav__item" onMouseEnter={() => item.children && setNavDrop(item.label)} onMouseLeave={() => setNavDrop(null)}>
+                {item.href ? (
+                  <Link href={item.href} className="tb-nav__link">
+                    {item.label} {item.children && <ChevronDown size={12} />}
+                  </Link>
+                ) : (
+                  <button className="tb-nav__link" onClick={() => item.scrollTo && scrollTo(item.scrollTo)}>
+                    {item.label} {item.children && <ChevronDown size={12} />}
+                  </button>
+                )}
+                {item.children && navDrop === item.label && (
+                  <div className="tb-nav__dropdown">
+                    {item.children.map(child => (
+                      child.href ? (
+                        <Link key={child.label} href={child.href} className="tb-nav__dropdown-item" onClick={() => setNavDrop(null)}>
+                          <span className="tb-nav__dropdown-label">{child.label}</span>
+                          {child.desc && <span className="tb-nav__dropdown-desc">{child.desc}</span>}
+                        </Link>
+                      ) : (
+                        <button key={child.label} className="tb-nav__dropdown-item" onClick={() => { if (child.scrollTo) scrollTo(child.scrollTo); setNavDrop(null); }}>
+                          <span className="tb-nav__dropdown-label">{child.label}</span>
+                          {child.desc && <span className="tb-nav__dropdown-desc">{child.desc}</span>}
+                        </button>
+                      )
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
           </nav>
 
           <div className="tb-header__actions">
-            <Link href="/patient-portal" className="tb-btn tb-btn--ghost">Patient Portal</Link>
-            <Link href="/login" className="tb-btn tb-btn--ghost">Staff Sign In</Link>
-            <button className="tb-btn tb-btn--primary" onClick={() => setShowDemoModal(true)}>
-              Get a Demo <ArrowRight size={15} />
-            </button>
+            <Link href="/login" className="tb-btn tb-btn--demo">Demo</Link>
+            {/* Language Selector — wired to i18n system */}
+            <div className="tb-lang" onClick={() => setLangOpen(!langOpen)}>
+              <span className="tb-lang__code">{locale.toUpperCase()}</span>
+              <ChevronDown size={12} />
+              {langOpen && (
+                <div className="tb-lang__dropdown">
+                  {SUPPORTED_LOCALES.map(l => (
+                    <button key={l.code} className={`tb-lang__option ${locale === l.code ? "tb-lang__option--active" : ""}`} onClick={(e) => { e.stopPropagation(); setLocale(l.code as Locale); setLangOpen(false); }}>
+                      <span>{l.name}</span>
+                      <span className="tb-lang__native">{l.nativeName}</span>
+                      {l.region && <span className="tb-lang__region">{l.region}</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <button className="tb-mobile-toggle" onClick={() => setMobileNav(!mobileNav)}>
@@ -162,67 +207,78 @@ export default function LandingPage() {
 
         {mobileNav && (
           <div className="tb-mobile-nav">
-            {["Features", "Solutions", "Pricing", "About"].map(s => (
-              <button key={s} className="tb-mobile-nav__link" onClick={() => { scrollTo(s.toLowerCase()); setMobileNav(false); }}>{s}</button>
+            {NAV_ITEMS.map(item => (
+              <div key={item.label}>
+                {item.href ? (
+                  <Link href={item.href} className="tb-mobile-nav__link" onClick={() => setMobileNav(false)}>{item.label}</Link>
+                ) : item.scrollTo ? (
+                  <button className="tb-mobile-nav__link" onClick={() => { scrollTo(item.scrollTo!); setMobileNav(false); }}>{item.label}</button>
+                ) : (
+                  <div className="tb-mobile-nav__group">{item.label}</div>
+                )}
+                {item.children && (
+                  <div className="tb-mobile-nav__sub">
+                    {item.children.map(child => (
+                      child.href ? (
+                        <Link key={child.label} href={child.href} className="tb-mobile-nav__sublink" onClick={() => setMobileNav(false)}>{child.label}</Link>
+                      ) : (
+                        <button key={child.label} className="tb-mobile-nav__sublink" onClick={() => { if (child.scrollTo) scrollTo(child.scrollTo); setMobileNav(false); }}>{child.label}</button>
+                      )
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
-            <Link href="/login" className="tb-btn tb-btn--ghost" style={{ width: "100%", textAlign: "center" }}>Staff Sign In</Link>
-            <button className="tb-btn tb-btn--primary" style={{ width: "100%" }} onClick={() => { setShowDemoModal(true); setMobileNav(false); }}>Get a Demo</button>
+            <Link href="/login" className="tb-btn tb-btn--primary" style={{ width: "100%", marginTop: 8 }}>Demo</Link>
           </div>
         )}
       </header>
 
       <main className="tb-main">
-        {/* ════════ HERO ════════ */}
+        {/* ════════ HERO — OpenMRS-inspired centered layout ════════ */}
         <section className="tb-hero">
-          <div className="tb-hero__mesh" />
-          <div className="tb-container tb-hero__layout">
-            <div className="tb-hero__content">
-              <h1 className="tb-hero__title">
-                The EHR built by people, for people,<br /><span className="tb-hero__title--gradient">with people.</span>
-              </h1>
-              <p className="tb-hero__subtitle">
-                67% of South Sudan&apos;s health facilities report zero data. Taban is the offline-first
-                health record system serving 11.4 million people &mdash; from village health workers to
-                the Ministry of Health.
-              </p>
-              <div className="tb-hero__stats">
-                {HERO_STATS.map((stat) => (
-                  <div key={stat.label} className="tb-hero__stat-card">
-                    <stat.icon className="tb-hero__stat-icon" />
-                    <div>
-                      <div className="tb-hero__stat-value">{stat.value}</div>
-                      <div className="tb-hero__stat-label">{stat.label}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="tb-hero__ctas">
-                <button className="tb-btn tb-btn--hero" onClick={() => setShowDemoModal(true)}>
-                  Request a Demo <ArrowRight size={16} />
-                </button>
-                <button className="tb-btn tb-btn--hero-outline" onClick={() => scrollTo("features")}>
-                  <Play size={14} /> See How It Works
-                </button>
-              </div>
-              <div className="tb-hero__trust">
-                <div className="tb-hero__trust-logos">
-                  <div className="tb-trust-item">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/assets/moh.jpg" alt="Ministry of Health" style={{ height: 36, borderRadius: 6 }} />
-                  </div>
-                  <div className="tb-trust-item">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/assets/ssrp.svg" alt="SSRP" style={{ height: 32 }} />
-                  </div>
-                  <div className="tb-trust-item tb-trust-item--badge">WHO Aligned</div>
-                  <div className="tb-trust-item tb-trust-item--badge">ISO 13606</div>
-                </div>
-              </div>
+          {/* Decorative shape (like OpenMRS yellow blob) */}
+          <div className="tb-hero__shape" />
+          <div className="tb-container tb-hero__centered">
+            <h1 className="tb-hero__title">
+              {t('landing.hero.title1')} <strong>{t('landing.hero.title2')}</strong><br />
+              {t('landing.hero.title3')} <span className="tb-hero__title--accent">{t('landing.hero.title4')}</span>
+            </h1>
+            <p className="tb-hero__subtitle">
+              {t('landing.hero.subtitle')}
+            </p>
+            <div className="tb-hero__ctas">
+              <button className="tb-btn tb-btn--hero" onClick={() => setShowDemoModal(true)}>
+                {t('landing.hero.cta1')}
+              </button>
+              <button className="tb-btn tb-btn--hero-outline-dark" onClick={() => scrollTo("features")}>
+                {t('landing.hero.cta2')}
+              </button>
             </div>
-            <div className="tb-hero__visual">
-              <div className="tb-hero__dashboard">
+          </div>
+
+          {/* Photo Collage */}
+          <div className="tb-hero__collage">
+            <div className="tb-hero__collage-inner">
+              <div className="tb-hero__collage-item tb-hero__collage-item--1">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/assets/dashboard-screenshot.png" alt="Taban Dashboard" className="tb-hero__dashboard-img" />
+                <img src="/assets/paper-records.jpg" alt="Healthcare documentation" />
+              </div>
+              <div className="tb-hero__collage-item tb-hero__collage-item--2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/assets/landing-img.jpg" alt="South Sudanese healthcare workers" />
+              </div>
+              <div className="tb-hero__collage-item tb-hero__collage-item--3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/assets/village-community.jpg" alt="Community members" />
+              </div>
+              <div className="tb-hero__collage-item tb-hero__collage-item--4">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/assets/african-nurse.jpg" alt="Doctor using digital health tools" />
+              </div>
+              <div className="tb-hero__collage-item tb-hero__collage-item--5">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/assets/mother-child.jpg" alt="Maternal healthcare" />
               </div>
             </div>
           </div>
@@ -249,8 +305,8 @@ export default function LandingPage() {
           <div className="tb-container">
             <SectionIn>
               <div className="tb-section-header">
-                <span className="tb-eyebrow">The Challenge</span>
-                <h2 className="tb-heading">No data, <em>no hope</em><br />Taban changes <em>everything</em></h2>
+                <span className="tb-eyebrow">{t('landing.challenge.eyebrow')}</span>
+                <h2 className="tb-heading">{t('landing.challenge.heading1')} <em>{t('landing.challenge.heading2')}</em><br />{t('landing.challenge.heading3')} <em>{t('landing.challenge.heading4')}</em></h2>
               </div>
             </SectionIn>
 
@@ -264,9 +320,9 @@ export default function LandingPage() {
                     <div className="tb-problem__story-overlay tb-problem__story-overlay--before" />
                   </div>
                   <div className="tb-problem__story-label tb-problem__story-label--before">
-                    <span className="tb-problem__story-tag">Today</span>
-                    <h3>Paper records. Lost data. Zero visibility.</h3>
-                    <p>67% of facilities submit nothing to the national system. Patient histories vanish. Outbreaks go undetected.</p>
+                    <span className="tb-problem__story-tag">{t('landing.story.today')}</span>
+                    <h3>{t('landing.story.todayTitle')}</h3>
+                    <p>{t('landing.story.todayDesc')}</p>
                   </div>
                 </div>
                 <div className="tb-problem__story-divider">
@@ -279,9 +335,9 @@ export default function LandingPage() {
                     <div className="tb-problem__story-overlay tb-problem__story-overlay--after" />
                   </div>
                   <div className="tb-problem__story-label tb-problem__story-label--after">
-                    <span className="tb-problem__story-tag tb-problem__story-tag--blue">With Taban</span>
-                    <h3>Digital records. Offline-first. Every patient tracked.</h3>
-                    <p>Complete health records on any device. Works without internet. Auto-syncs to the national system.</p>
+                    <span className="tb-problem__story-tag tb-problem__story-tag--blue">{t('landing.story.withTaban')}</span>
+                    <h3>{t('landing.story.tabanTitle')}</h3>
+                    <p>{t('landing.story.tabanDesc')}</p>
                   </div>
                 </div>
               </div>
@@ -291,11 +347,8 @@ export default function LandingPage() {
               {PROBLEM_STATS.map((s, i) => (
                 <SectionIn key={i}>
                   <div className="tb-stat-card">
-                    <div className="tb-stat-card__top">
-                      <div className="tb-stat-card__number" style={{ color: s.color }}>
-                        <Counter end={s.value} suffix={s.suffix} prefix={s.prefix} />
-                      </div>
-                      <div className="tb-stat-card__dot" style={{ background: s.color }} />
+                    <div className="tb-stat-card__number" style={{ color: s.color }}>
+                      <Counter end={s.value} suffix={s.suffix} prefix={s.prefix} />
                     </div>
                     <div className="tb-stat-card__label">{s.label}</div>
                     <p className="tb-stat-card__desc">{s.desc}</p>
@@ -311,8 +364,8 @@ export default function LandingPage() {
           <div className="tb-container">
             <SectionIn>
               <div className="tb-section-header">
-                <span className="tb-eyebrow">Who We Serve</span>
-                <h2 className="tb-heading">Built for the people who <em>need it most</em></h2>
+                <span className="tb-eyebrow">{t('landing.serve.eyebrow')}</span>
+                <h2 className="tb-heading">{t('landing.serve.heading1')} <em>{t('landing.serve.heading2')}</em></h2>
               </div>
             </SectionIn>
             <div className="tb-impact-photos__grid">
@@ -321,8 +374,8 @@ export default function LandingPage() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src="/assets/landing-img.jpg" alt="South Sudanese healthcare workers" />
                   <div className="tb-impact-photos__caption">
-                    <span>Frontline Workers</span>
-                    <p>Nurses, midwives, and community health workers delivering care in the hardest-to-reach areas.</p>
+                    <span>{t('landing.serve.workers')}</span>
+                    <p>{t('landing.serve.workersDesc')}</p>
                   </div>
                 </div>
               </SectionIn>
@@ -331,8 +384,8 @@ export default function LandingPage() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src="/assets/village-community.jpg" alt="Children in South Sudan communities" />
                   <div className="tb-impact-photos__caption">
-                    <span>Communities</span>
-                    <p>11.4 million South Sudanese with no reliable health records.</p>
+                    <span>{t('landing.serve.communities')}</span>
+                    <p>{t('landing.serve.communitiesDesc')}</p>
                   </div>
                 </div>
               </SectionIn>
@@ -341,8 +394,8 @@ export default function LandingPage() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src="/assets/mother-child.jpg" alt="Maternal and child healthcare" />
                   <div className="tb-impact-photos__caption">
-                    <span>Mothers &amp; Children</span>
-                    <p>ANC tracking, immunization, and birth registration for every family.</p>
+                    <span>{t('landing.serve.mothers')}</span>
+                    <p>{t('landing.serve.mothersDesc')}</p>
                   </div>
                 </div>
               </SectionIn>
@@ -587,7 +640,7 @@ export default function LandingPage() {
                   <p>Thank you, {demoForm.name}! Our team will contact you within 24 hours.</p>
                   <div className="tb-demo__success-actions">
                     <a className="tb-btn tb-btn--primary" href={scheduleHref} target="_blank" rel="noreferrer">
-                      Schedule Demo <Calendar size={14} />
+                      Schedule Demo <IconAppointments size={14} />
                     </a>
                     <button className="tb-btn tb-btn--outline" onClick={() => { setShowDemoModal(false); setDemoSubmitted(false); }}>
                       Close
@@ -640,7 +693,7 @@ export default function LandingPage() {
         )}
 
         {/* ════════ FAQ ════════ */}
-        <section className="tb-faq">
+        <section className="tb-faq" id="faq">
           <div className="tb-container">
             <SectionIn>
               <div className="tb-section-header">
@@ -718,9 +771,9 @@ export default function LandingPage() {
           <div className="tb-footer__bottom">
             <p>&copy; {new Date().getFullYear()} Taban Health Technologies. All rights reserved.</p>
             <div className="tb-footer__badges">
-              <span><Shield size={12} /> ISO 13606</span>
-              <span><Lock size={12} /> ISO 13131</span>
-              <span><Globe size={12} /> DHIS2 Compatible</span>
+              <span><IconShield size={12} /> ISO 13606</span>
+              <span><IconPrivacy size={12} /> ISO 13131</span>
+              <span><IconGlobe size={12} /> DHIS2 Compatible</span>
             </div>
           </div>
         </div>
@@ -750,51 +803,51 @@ const PROBLEM_STATS = [
   { value: 60, suffix: "+", prefix: "", label: "Languages Spoken", desc: "No single lingua franca. Existing tools require literacy most health workers don't have.", color: "#0A3D6B" },
 ];
 
-const FEATURES: { title: string; icon: typeof Shield; desc: string; bullets: string[]; color: string; mockRows: string[] }[] = [
+const FEATURES: { title: string; icon: React.ComponentType<{ size?: number; className?: string }>; desc: string; bullets: string[]; color: string; mockRows: string[] }[] = [
   {
-    title: "Patient Records", icon: Users, color: "#0077D7",
+    title: "Patient Records", icon: IconPatientRecords, color: "#0077D7",
     desc: "Complete electronic health records with geocode-based patient identification. No national ID needed — BOMA-{code}-HH{number} tracks patients by village and household.",
     bullets: ["Photo-based patient identification", "Geocode IDs for populations without national IDs", "Full medical history, vitals, and diagnoses", "Cross-facility record sharing via sync"],
     mockRows: ["Ayen Makuei — ANC", "Deng Ajak — Hypertension", "Nyabol Garang — Malaria", "Akech Deng — Immunization"],
   },
   {
-    title: "Offline-First", icon: WifiOff, color: "#0A5FC2",
+    title: "Offline-First", icon: IconOffline, color: "#0A5FC2",
     desc: "Works 100% without internet. Every feature, every dashboard, every record — available offline. Data syncs automatically when connectivity returns. Zero data loss.",
     bullets: ["PouchDB local storage — full function offline", "Automatic background sync via CouchDB", "Conflict resolution for multi-site editing", "Service worker for instant page loads"],
     mockRows: ["Last sync: 2m ago", "Local records: 1,247", "Pending sync: 3 docs", "Connection: Offline"],
   },
   {
-    title: "AI Diagnosis", icon: Brain, color: "#0A3D6B",
+    title: "AI Diagnosis", icon: IconBrain, color: "#0A3D6B",
     desc: "Rule-based clinical decision support running entirely in the browser. WHO/IMCI guideline-aligned. Suggests diagnoses, treatments, and lab orders — no internet required.",
     bullets: ["15+ priority diseases covered", "ICD-10/ICD-11 coding", "Severity assessment and triage", "Suggested treatments per WHO guidelines"],
     mockRows: ["Malaria — 87% conf.", "Pneumonia — 42% conf.", "Suggested: RDT, FBC", "Severity: Moderate"],
   },
   {
-    title: "Surveillance", icon: Activity, color: "#0077D7",
+    title: "Surveillance", icon: IconSurveillance, color: "#0077D7",
     desc: "Real-time disease surveillance and epidemic intelligence. IDSR-aligned weekly reporting. Outbreak detection at the boma level before it reaches the county.",
     bullets: ["Automated outbreak alert thresholds", "Geographic cluster detection", "IDSR weekly report generation", "State and national aggregate views"],
     mockRows: ["Cholera — Jonglei: WARNING", "Measles — WBeG: WATCH", "Malaria — C.Eq: NORMAL", "IDSR Week 12: Submitted"],
   },
   {
-    title: "Appointments", icon: Calendar, color: "#0A5FC2",
+    title: "Appointments", icon: IconAppointments, color: "#0A5FC2",
     desc: "Patient appointment booking from payam level and above. Schedule, confirm, check in, and track across departments. Recurring appointments for chronic care.",
     bullets: ["Scheduling conflict detection", "SMS appointment reminders", "Recurring follow-up support", "No-show and completion tracking"],
     mockRows: ["09:00 — Dr. Wani — General", "10:30 — ANC Follow-up", "14:00 — Lab Collection", "15:30 — Specialist Ref."],
   },
   {
-    title: "Telehealth", icon: Video, color: "#0A3D6B",
+    title: "Telehealth", icon: IconTelehealth, color: "#0A3D6B",
     desc: "Virtual consultations for private sector facilities. Video, audio, and chat sessions with clinical documentation, consent tracking, and billing — ISO 13131 compliant.",
     bullets: ["Video, audio, and chat sessions", "Patient consent and quality monitoring", "Clinical notes with ICD-10 coding", "Consultation fee and payment tracking"],
     mockRows: ["Session: taban-a3f9...", "Type: Video Call", "Duration: 24 min", "Rating: 4.8/5"],
   },
   {
-    title: "Birth & Death (CRVS)", icon: Baby, color: "#0077D7",
+    title: "Birth & Death (CRVS)", icon: IconCRVS, color: "#0077D7",
     desc: "WHO-compliant civil registration and vital statistics. Birth certificates, death certificates with ICD-11 cause-of-death coding. Maternal death linkage for MMR tracking.",
     bullets: ["WHO medical certificate format", "ICD-11 cause-of-death coding", "Maternal mortality linkage", "Delivery attendant classification"],
     mockRows: ["Births this month: 47", "Deaths registered: 12", "MMR tracking: Active", "Certificates: 59 issued"],
   },
   {
-    title: "DHIS2 Export", icon: Download, color: "#0A5FC2",
+    title: "DHIS2 Export", icon: IconExport, color: "#0A5FC2",
     desc: "We don't replace the national health information system — we feed it. Automated data aggregation and export to DHIS2 for government reporting and donor accountability.",
     bullets: ["Automated monthly aggregation", "DHIS2 data element mapping", "Facility and district level reports", "Donor reporting templates"],
     mockRows: ["Export: March 2026", "Facilities: 5/5 ready", "Data elements: 142", "Status: Ready to submit"],
@@ -802,31 +855,60 @@ const FEATURES: { title: string; icon: typeof Shield; desc: string; bullets: str
 ];
 
 const HOW_STEPS = [
-  { title: "Assess & Configure", desc: "We assess your facility's needs, configure role-based dashboards, and set up organization branding. Your system is tailored before day one.", time: "Week 1", icon: ClipboardCheck, color: "#0077D7" },
-  { title: "Train Your Team", desc: "On-site training for every role — from front desk to doctors. Icon-based guides for low-literacy health workers. Facility champions are designated.", time: "Week 2", icon: GraduationCap, color: "#0A5FC2" },
-  { title: "Deploy & Go Live", desc: "Tablets deployed, data migrated, system live. Full offline function from minute one. No internet dependency for any clinical workflow.", time: "Week 3", icon: Zap, color: "#0A3D6B" },
-  { title: "Support & Scale", desc: "Ongoing remote support, bug fixes, and feature updates. Expand to additional facilities as your organization grows.", time: "Ongoing", icon: BarChart3, color: "#0077D7" },
+  { title: "Assess & Configure", desc: "We assess your facility's needs, configure role-based dashboards, and set up organization branding. Your system is tailored before day one.", time: "Week 1", icon: IconAssessment, color: "#0077D7" },
+  { title: "Train Your Team", desc: "On-site training for every role — from front desk to doctors. Icon-based guides for low-literacy health workers. Facility champions are designated.", time: "Week 2", icon: IconTraining, color: "#0A5FC2" },
+  { title: "Deploy & Go Live", desc: "Tablets deployed, data migrated, system live. Full offline function from minute one. No internet dependency for any clinical workflow.", time: "Week 3", icon: IconDeploy, color: "#0A3D6B" },
+  { title: "Support & Scale", desc: "Ongoing remote support, bug fixes, and feature updates. Expand to additional facilities as your organization grows.", time: "Ongoing", icon: IconAnalytics, color: "#0077D7" },
 ];
 
 const SOLUTIONS = [
   {
-    title: "Private Hospitals", icon: Building2, color: "#0077D7",
+    title: "Private Hospitals", icon: IconHospital, color: "#0077D7",
     desc: "Full-featured EHR with telehealth, appointment booking, AI diagnosis, and billing. Professional and Enterprise tiers with multi-facility admin.",
     features: ["Telehealth video consultations", "Appointment scheduling", "Lab, pharmacy, and referral management", "AI-assisted diagnosis", "Patient billing integration", "Custom organization branding"],
     price: "$200/facility/mo",
   },
   {
-    title: "Government & MOH", icon: Globe, color: "#0A5FC2",
+    title: "Government & MOH", icon: IconGlobe, color: "#0A5FC2",
     desc: "National health system integration with DHIS2 export, disease surveillance, and facility performance monitoring. Donor-subsidized pricing available.",
     features: ["National surveillance dashboard", "DHIS2 automated export", "Facility assessment scoring", "Data quality monitoring", "10-state coverage", "Government role-based access"],
     price: "$75/facility/mo",
   },
   {
-    title: "NGOs & INGOs", icon: HeartPulse, color: "#0A3D6B",
+    title: "NGOs & INGOs", icon: IconHeartCare, color: "#0A3D6B",
     desc: "Program-specific deployments for health interventions. Immunization campaigns, ANC tracking, community health worker management, and donor reporting.",
     features: ["Community health worker dashboards", "Immunization defaulter tracking", "MCH analytics and reporting", "Boma-level household visits", "Donor-ready reports", "Multi-program support"],
     price: "$100/facility/mo",
   },
+];
+
+const NAV_ITEMS: { label: string; href?: string; scrollTo?: string; children?: { label: string; desc?: string; href?: string; scrollTo?: string }[] }[] = [
+  {
+    label: "Product", children: [
+      { label: "EMR Features", desc: "90+ features for any clinical program", href: "/product#features" },
+      { label: "Technology", desc: "Open-source health stack", href: "/product#technology" },
+      { label: "Roadmap", desc: "What we're building next", href: "/product#roadmap" },
+      { label: "Releases", desc: "Latest updates & patches", href: "/product#releases" },
+      { label: "Interoperability", desc: "DHIS2, FHIR, and more", href: "/product#interoperability" },
+    ],
+  },
+  {
+    label: "Community", children: [
+      { label: "The Challenge", desc: "Why South Sudan needs Taban", scrollTo: "about" },
+      { label: "Who We Serve", desc: "Healthcare workers & communities", scrollTo: "about" },
+      { label: "Public Statistics", desc: "Open health data", href: "/public-stats" },
+      { label: "Patient Portal", desc: "Access your health records", href: "/patient-portal" },
+    ],
+  },
+  {
+    label: "About Us", children: [
+      { label: "Our Solutions", desc: "Private, Government & NGO", scrollTo: "solutions" },
+      { label: "Pricing", desc: "Transparent, no surprises", scrollTo: "pricing" },
+      { label: "FAQ", desc: "Common questions answered", scrollTo: "faq" },
+      { label: "Contact", desc: "Get in touch", scrollTo: "demo" },
+    ],
+  },
+  { label: "Features", scrollTo: "features" },
 ];
 
 const IMPACT_METRICS = [
@@ -836,13 +918,13 @@ const IMPACT_METRICS = [
   { value: 99, suffix: ".9%", prefix: "", label: "Offline Uptime" },
 ];
 
-const CHALLENGES: { challenge: string; solution: string; icon: typeof Shield; color: string }[] = [
-  { challenge: "Security Breaches", solution: "JWT authentication, bcrypt password hashing, rate limiting, audit logging, HTTP-only cookies, and Content Security Policy headers. Data stays on-device until sync.", icon: Lock, color: "#0077D7" },
-  { challenge: "Data Storage Limitations", solution: "PouchDB local-first architecture stores all data on-device. CouchDB bidirectional sync handles replication. PostgreSQL for server-side analytics. Scales to thousands of facilities.", icon: Database, color: "#0A5FC2" },
-  { challenge: "Data Inconsistencies", solution: "Typed TypeScript interfaces enforce data integrity. Validation at entry. Last-write-wins conflict resolution with timestamps. ICD-10/ICD-11 standardized coding throughout.", icon: ClipboardCheck, color: "#0A3D6B" },
-  { challenge: "Interoperability", solution: "DHIS2 export feeds the national system. ISO 13606 health record communication standard. Referral transfer packages move complete patient data between facilities.", icon: Server, color: "#0077D7" },
-  { challenge: "Implementation Cost", solution: "Offline-first = minimal server infrastructure. No per-user cloud fees. Tablets from $200. Total Tier 1 deployment for 5 facilities: $10,000 including hardware, training, and 6 months of support.", icon: DollarSign, color: "#0A5FC2" },
-  { challenge: "Training & Adoption", solution: "Icon-driven interfaces for low-literacy workers. Photo-based patient IDs. 2-day on-site training. Facility champion stipends. Designed so simple a primary school child can use it.", icon: GraduationCap, color: "#0A3D6B" },
+const CHALLENGES: { challenge: string; solution: string; icon: React.ComponentType<{ size?: number; className?: string }>; color: string }[] = [
+  { challenge: "Security Breaches", solution: "JWT authentication, bcrypt password hashing, rate limiting, audit logging, HTTP-only cookies, and Content Security Policy headers. Data stays on-device until sync.", icon: IconPrivacy, color: "#0077D7" },
+  { challenge: "Data Storage Limitations", solution: "PouchDB local-first architecture stores all data on-device. CouchDB bidirectional sync handles replication. PostgreSQL for server-side analytics. Scales to thousands of facilities.", icon: IconStorage, color: "#0A5FC2" },
+  { challenge: "Data Inconsistencies", solution: "Typed TypeScript interfaces enforce data integrity. Validation at entry. Last-write-wins conflict resolution with timestamps. ICD-10/ICD-11 standardized coding throughout.", icon: IconAssessment, color: "#0A3D6B" },
+  { challenge: "Interoperability", solution: "DHIS2 export feeds the national system. ISO 13606 health record communication standard. Referral transfer packages move complete patient data between facilities.", icon: IconInterop, color: "#0077D7" },
+  { challenge: "Implementation Cost", solution: "Offline-first = minimal server infrastructure. No per-user cloud fees. Tablets from $200. Total Tier 1 deployment for 5 facilities: $10,000 including hardware, training, and 6 months of support.", icon: IconCost, color: "#0A5FC2" },
+  { challenge: "Training & Adoption", solution: "Icon-driven interfaces for low-literacy workers. Photo-based patient IDs. 2-day on-site training. Facility champion stipends. Designed so simple a primary school child can use it.", icon: IconTraining, color: "#0A3D6B" },
 ];
 
 const PRICING = [
@@ -912,8 +994,8 @@ const globalCSS = `
   --font-accent: 'IBM Plex Sans', sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
 
-  --content-width: 720px;
-  --wide-width: 1120px;
+  --content-width: 800px;
+  --wide-width: 1280px;
   --spacing-block: 1.5rem;
 }
 
@@ -952,9 +1034,9 @@ a { color: inherit; text-decoration: none; }
 }
 .tb-eyebrow--light { color: rgba(255,255,255,0.5); }
 .tb-heading {
-  font-family: var(--font-display); font-size: clamp(1.875rem, 5vw, 3rem);
-  font-weight: 700; line-height: 1.25; color: var(--text);
-  letter-spacing: -0.01em; margin-bottom: 20px;
+  font-family: var(--font-display); font-size: clamp(2.25rem, 5vw, 3.5rem);
+  font-weight: 700; line-height: 1.2; color: var(--text);
+  letter-spacing: -0.01em; margin-bottom: 24px;
 }
 .tb-heading em {
   font-style: normal; font-weight: 700;
@@ -962,7 +1044,7 @@ a { color: inherit; text-decoration: none; }
 }
 .tb-heading--light { color: #fff; }
 .tb-heading--light em { color: rgba(255,255,255,0.6); }
-.tb-lead { font-size: 1.125rem; line-height: 1.5; color: var(--text-secondary); max-width: 640px; margin: 0 auto; font-weight: 400; }
+.tb-lead { font-size: 1.2rem; line-height: 1.6; color: var(--text-secondary); max-width: 700px; margin: 0 auto; font-weight: 400; }
 .tb-check { color: var(--blue); flex-shrink: 0; }
 
 /* ── Buttons — OpenMRS-inspired: square, clean ── */
@@ -996,181 +1078,194 @@ a { color: inherit; text-decoration: none; }
 }
 .tb-btn--cta-outline:hover { border-color: #fff; }
 
-/* ── Header — white text by default (on blue hero), dark when scrolled ── */
+/* ── Gradient Top Bar — hidden ── */
+.tb-gradient-bar { display: none; }
+
+/* ── Header ── */
 .tb-header {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  padding: 18px 0; transition: all 0.3s ease;
+  padding: 16px 0; transition: all 0.3s ease;
+  background: #fff; border-bottom: 1px solid var(--border-subtle);
 }
-.tb-header .tb-logo__text { color: #fff; }
-.tb-header .tb-nav__link { color: rgba(255,255,255,0.75); }
-.tb-header .tb-nav__link:hover { color: #fff; }
-.tb-header .tb-btn--ghost { color: rgba(255,255,255,0.85); }
-.tb-header .tb-btn--ghost:hover { color: #fff; background: rgba(255,255,255,0.1); }
-.tb-header .tb-btn--primary { background: #fff; color: var(--blue); border-color: #fff; }
-.tb-header .tb-btn--primary:hover { background: rgba(255,255,255,0.9); }
-.tb-header .tb-mobile-toggle { color: #fff; }
-
 .tb-header--scrolled {
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 0 var(--border-subtle); padding: 12px 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06); padding: 10px 0;
 }
-.tb-header--scrolled .tb-logo__text { color: var(--text); }
-.tb-header--scrolled .tb-nav__link { color: var(--text-secondary); }
-.tb-header--scrolled .tb-nav__link:hover { color: var(--text); }
-.tb-header--scrolled .tb-btn--ghost { color: var(--text-secondary); }
-.tb-header--scrolled .tb-btn--ghost:hover { color: var(--text); background: var(--bg-muted); }
-.tb-header--scrolled .tb-btn--primary { background: var(--blue); color: #fff; border-color: var(--blue); }
-.tb-header--scrolled .tb-btn--primary:hover { background: var(--blue-hover); }
-.tb-header--scrolled .tb-mobile-toggle { color: var(--text); }
-
-.tb-header__inner { display: flex; align-items: center; gap: 12px; }
+.tb-header__inner { display: flex; align-items: center; gap: 16px; }
 .tb-logo { display: flex; align-items: center; gap: 10px; cursor: pointer; }
 .tb-logo__text {
-  font-family: var(--font-display); font-size: 1.2rem; font-weight: 700;
-  letter-spacing: 0.06em; transition: color 0.3s;
+  font-family: var(--font-display); font-size: 1.4rem; font-weight: 700;
+  letter-spacing: 0.04em; color: var(--text);
 }
+.tb-logo__sub {
+  font-size: 0.6rem; font-weight: 500; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-muted); margin-left: -4px;
+  display: none;
+}
+@media (min-width: 900px) { .tb-logo__sub { display: block; } }
 .tb-nav { display: flex; gap: 0; margin-left: auto; }
 .tb-nav__link {
-  background: none; border: none; font-family: var(--font-accent); font-size: 0.875rem;
-  font-weight: 500; padding: 8px 18px;
-  border-radius: 0; cursor: pointer; transition: color 0.2s; text-decoration: none;
+  background: none; border: none; font-family: var(--font-body); font-size: 1rem;
+  font-weight: 500; color: var(--text-secondary); padding: 10px 18px;
+  cursor: pointer; transition: color 0.2s; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 4px;
 }
-.tb-header__actions { display: flex; gap: 8px; margin-left: 16px; }
-.tb-mobile-toggle { display: none; background: none; border: none; cursor: pointer; padding: 8px; transition: color 0.3s; }
+.tb-nav__link:hover { color: var(--text); }
+.tb-nav__item { position: relative; }
+.tb-nav__dropdown {
+  position: absolute; top: 100%; left: 0; padding-top: 8px; z-index: 200;
+  animation: fadeIn 0.15s ease;
+}
+.tb-nav__dropdown::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 8px;
+}
+.tb-nav__dropdown-item {
+  display: flex; flex-direction: column; gap: 2px; width: 280px;
+  padding: 12px 16px; background: #fff; border: none;
+  font-family: var(--font-body); text-align: left; cursor: pointer;
+  text-decoration: none; color: var(--text); transition: background 0.1s;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.tb-nav__dropdown-item:first-child { border-top: 2px solid var(--blue); }
+.tb-nav__dropdown-item:last-child { border-bottom: none; }
+.tb-nav__dropdown-item:hover { background: var(--bg-subtle); }
+.tb-nav__dropdown-label { font-size: 0.875rem; font-weight: 600; color: var(--text); }
+.tb-nav__dropdown-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; }
+.tb-nav__dropdown { background: #fff; border: 1px solid var(--border); box-shadow: var(--shadow-md); }
+.tb-header__actions { display: flex; gap: 12px; margin-left: 16px; align-items: center; }
+
+/* Demo button — outlined like OpenMRS */
+.tb-btn--demo {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 24px; border: 2px solid var(--blue); border-radius: 100px;
+  font-family: var(--font-body); font-size: 0.875rem; font-weight: 600;
+  color: var(--blue); background: transparent; cursor: pointer;
+  transition: all 0.2s; text-decoration: none;
+}
+.tb-btn--demo:hover { background: var(--blue); color: #fff; }
+
+/* Language Selector */
+.tb-lang {
+  position: relative; display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px;
+  cursor: pointer; font-size: 0.8rem; font-weight: 500; color: var(--text);
+  background: #fff; transition: border-color 0.2s; user-select: none;
+}
+.tb-lang:hover { border-color: var(--blue); }
+.tb-lang__flag { font-size: 1rem; }
+.tb-lang__code { font-weight: 600; }
+.tb-lang__dropdown {
+  position: absolute; top: calc(100% + 8px); right: 0;
+  background: #fff; border: 1px solid var(--border); border-radius: 0;
+  box-shadow: var(--shadow-md); min-width: 260px; z-index: 200;
+  max-height: 360px; overflow-y: auto;
+  animation: fadeIn 0.15s ease;
+}
+.tb-lang__option {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 10px 16px; border: none; background: transparent;
+  font-family: var(--font-body); font-size: 0.85rem; color: var(--text);
+  cursor: pointer; text-align: left; transition: background 0.1s;
+}
+.tb-lang__option:hover { background: var(--bg-subtle); }
+.tb-lang__option--active { background: var(--blue-light); color: var(--blue); font-weight: 600; }
+.tb-lang__native { margin-left: auto; color: var(--text-muted); font-size: 0.8rem; }
+.tb-lang__region { font-size: 0.7rem; color: var(--text-muted); opacity: 0.7; }
+
+.tb-mobile-toggle { display: none; background: none; border: none; cursor: pointer; padding: 8px; color: var(--text); margin-left: auto; }
 .tb-mobile-nav {
-  display: flex; flex-direction: column; gap: 4px; padding: 16px 32px 24px;
+  display: flex; flex-direction: column; gap: 4px; padding: 16px 30px 24px;
   background: #fff; border-top: 1px solid var(--border-subtle);
 }
 .tb-mobile-nav__link {
-  background: none; border: none; font-family: var(--font-body); font-size: 16px;
+  background: none; border: none; font-family: var(--font-body); font-size: 1rem;
   font-weight: 500; color: var(--text); padding: 14px 0; cursor: pointer;
-  text-align: left; border-bottom: 1px solid var(--border-subtle);
+  text-align: left; border-bottom: 1px solid var(--border-subtle); text-decoration: none; display: block;
 }
+.tb-mobile-nav__group {
+  font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--text-muted); padding: 16px 0 4px;
+}
+.tb-mobile-nav__sub { padding-left: 12px; }
+.tb-mobile-nav__sublink {
+  display: block; background: none; border: none; font-family: var(--font-body);
+  font-size: 0.9rem; color: var(--text-secondary); padding: 8px 0; cursor: pointer;
+  text-align: left; text-decoration: none; width: 100%;
+}
+.tb-mobile-nav__sublink:hover { color: var(--blue); }
 @media (max-width: 768px) {
   .tb-nav, .tb-header__actions { display: none; }
-  .tb-mobile-toggle { display: block; margin-left: auto; }
+  .tb-mobile-toggle { display: block; }
 }
 
-/* ── Hero ── */
+/* ── Hero — OpenMRS-inspired centered layout ── */
 .tb-hero {
-  position: relative; min-height: 100vh; display: flex; align-items: center;
-  padding: 140px 0 100px; overflow: hidden;
-  background: var(--blue);
+  position: relative; padding: 120px 0 40px; overflow: hidden;
+  background: var(--bg);
 }
-.tb-hero__mesh {
-  position: absolute; inset: 0;
-  background: linear-gradient(160deg, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.1) 100%);
-}
-.tb-hero__layout {
-  position: relative; z-index: 2;
-  display: grid; grid-template-columns: 1fr 1.2fr; gap: 48px; align-items: center;
-}
-.tb-hero__content {
-  display: flex; flex-direction: column; justify-content: center; gap: 0;
+.tb-hero__shape { display: none; }
+.tb-hero__centered {
+  position: relative; z-index: 2; text-align: center;
+  max-width: 800px; margin: 0 auto; padding: 0 30px;
 }
 .tb-hero__title {
-  font-family: var(--font-display); font-size: clamp(2.25rem, 5vw, 3.5rem);
-  font-weight: 700; line-height: 1.25; color: #fff;
-  letter-spacing: -0.01em; margin-bottom: 18px;
+  font-family: var(--font-display); font-size: clamp(2.75rem, 6vw, 5rem);
+  font-weight: 300; line-height: 1.15; color: var(--text);
+  letter-spacing: -0.02em; margin-bottom: 24px;
   animation: heroFade 0.8s ease 0.1s both;
 }
-.tb-hero__title--gradient {
-  color: rgba(255,255,255,0.6);
-  font-weight: 400;
+.tb-hero__title strong { font-weight: 700; }
+.tb-hero__title--accent {
+  color: var(--blue); font-weight: 400;
 }
 .tb-hero__subtitle {
-  font-size: 16px; line-height: 1.7; color: rgba(255,255,255,0.7);
-  margin-bottom: 28px; max-width: 480px;
+  font-size: 1.25rem; line-height: 1.6; color: var(--text-secondary);
+  margin-bottom: 36px; max-width: 650px; margin-left: auto; margin-right: auto;
   animation: heroFade 0.8s ease 0.2s both;
 }
 .tb-hero__ctas {
-  display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 0;
+  display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
   animation: heroFade 0.8s ease 0.3s both;
+  margin-bottom: 0;
 }
-.tb-hero__stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 24px;
-  animation: heroFade 0.8s ease 0.25s both;
+.tb-btn--hero {
+  background: var(--blue); color: #fff; border-color: var(--blue);
+  padding: 16px 40px; font-size: 1.1rem; border-radius: 100px;
 }
-.tb-hero__stat-card {
-  background: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 14px 16px;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.tb-btn--hero:hover { background: var(--blue-hover); border-color: var(--blue-hover); }
+.tb-btn--hero-outline-dark {
+  background: transparent; color: var(--text); padding: 16px 40px; font-size: 1.1rem;
+  border: 2px solid var(--border); border-radius: 100px;
 }
-.tb-hero__stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
-.tb-hero__stat-icon {
-  color: var(--blue);
-  width: 28px;
-  height: 28px;
-  flex-shrink: 0;
-}
-.tb-hero__stat-value {
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 800;
-  line-height: 1;
-  color: var(--blue);
-  margin-bottom: 2px;
-}
-.tb-hero__stat-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #1D1D1D;
-  line-height: 1.3;
-}
-.tb-hero__trust { margin-top: 32px; animation: heroFade 0.8s ease 0.5s both; }
-.tb-hero__trust-logos { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.tb-trust-item { opacity: 0.85; transition: opacity 0.2s; }
-.tb-trust-item:hover { opacity: 1; }
-.tb-trust-item--badge {
-  font-size: 11px; font-weight: 700; color: #fff;
-  padding: 5px 12px; border: 1px solid rgba(255,255,255,0.35);
-  border-radius: 4px; background: rgba(255,255,255,0.15);
-}
+.tb-btn--hero-outline-dark:hover { border-color: var(--text); }
 
-/* Hero Visual — right column */
-.tb-hero__visual {
-  position: relative;
-  animation: heroFloat 1s ease 0.2s both;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Photo Collage */
+.tb-hero__collage {
+  padding: 48px 0 0; overflow: hidden;
 }
-.tb-hero__dashboard {
-  width: 110%;
-  border-radius: 12px; overflow: hidden;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.25), 0 8px 20px rgba(0,0,0,0.12);
-  border: 1px solid rgba(255,255,255,0.1);
-  background: #fff;
-  position: relative;
-  transform-origin: center left;
+.tb-hero__collage-inner {
+  display: flex; justify-content: center; align-items: flex-end;
+  gap: 16px; max-width: 1000px; margin: 0 auto; padding: 0 30px;
+  animation: heroFade 0.8s ease 0.5s both;
 }
-.tb-hero__dashboard::after { display: none; }
-.tb-hero__dashboard-img { width: 100%; display: block; }
-
-@media (max-width: 1024px) {
-  .tb-hero__layout { grid-template-columns: 1fr; gap: 40px; }
-  .tb-hero__visual { max-width: 560px; margin: 0 auto; }
-  .tb-hero__dashboard { width: 100%; }
-  .tb-hero__content { max-width: 100%; text-align: center; align-items: center; }
-  .tb-hero__stats { max-width: 480px; margin-left: auto; margin-right: auto; }
-  .tb-hero__ctas { justify-content: center; }
-  .tb-hero__trust-logos { justify-content: center; }
+.tb-hero__collage-item {
+  border-radius: 8px; overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
 }
-@media (max-width: 700px) {
-  .tb-hero { padding: 120px 0 72px; }
-  .tb-hero__stats { grid-template-columns: 1fr; max-width: 320px; }
-  .tb-hero__title { font-size: clamp(28px, 7vw, 40px); }
+.tb-hero__collage-item:hover { transform: translateY(-4px); }
+.tb-hero__collage-item img {
+  display: block; width: 100%; height: 100%; object-fit: cover;
+}
+.tb-hero__collage-item--1 { width: 160px; height: 200px; align-self: center; }
+.tb-hero__collage-item--2 { width: 220px; height: 280px; }
+.tb-hero__collage-item--3 { width: 180px; height: 240px; align-self: flex-start; margin-top: 40px; }
+.tb-hero__collage-item--4 { width: 160px; height: 200px; align-self: center; }
+.tb-hero__collage-item--5 { width: 180px; height: 220px; align-self: flex-end; }
+@media (max-width: 768px) {
+  .tb-hero__shape { width: 140px; height: 140px; top: 60px; left: -40px; }
+  .tb-hero__collage-inner { gap: 8px; flex-wrap: wrap; }
+  .tb-hero__collage-item { width: 30% !important; height: 140px !important; flex-shrink: 0; }
+  .tb-hero__collage-item--4, .tb-hero__collage-item--5 { display: none; }
 }
 
 /* ── Social Proof Ticker ── */
@@ -1287,20 +1382,11 @@ a { color: inherit; text-decoration: none; }
 .tb-problem__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
 .tb-stat-card {
   background: #fff; border-radius: var(--radius-lg); padding: 28px 24px;
-  border: 1px solid var(--border); transition: all 0.25s ease;
-  position: relative; overflow: hidden;
+  border: 1px solid var(--border); transition: box-shadow 0.25s ease;
   box-shadow: var(--shadow-xs);
 }
-.tb-stat-card::before {
-  content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%;
-  background: var(--border);
-  transition: background 0.25s;
-}
-.tb-stat-card:hover { box-shadow: var(--shadow-md); }
-.tb-stat-card:hover::before { background: var(--blue); }
-.tb-stat-card__top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
-.tb-stat-card__number { font-family: var(--font-display); font-size: 2.25rem; font-weight: 700; line-height: 1; letter-spacing: -0.01em; }
-.tb-stat-card__dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 8px; }
+.tb-stat-card:hover { box-shadow: var(--shadow-sm); }
+.tb-stat-card__number { font-family: var(--font-display); font-size: 2.25rem; font-weight: 700; line-height: 1; letter-spacing: -0.01em; margin-bottom: 10px; }
 .tb-stat-card__label { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.04em; }
 .tb-stat-card__desc { font-size: 14px; color: var(--text-secondary); line-height: 1.65; }
 @media (max-width: 900px) { .tb-problem__grid { grid-template-columns: repeat(2, 1fr); } }

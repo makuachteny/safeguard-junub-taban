@@ -4,9 +4,6 @@ import { createToken } from '@/lib/auth-token';
 // Rate limiting: track failed attempts in memory
 const failedAttempts: Record<string, { count: number; lockedUntil: number }> = {};
 
-// Dummy hash for constant-time comparison when user is not found (prevents timing attacks)
-const DUMMY_HASH = '$2a$12$LJ3m4ys3Lg3JqC0fP4R3xOVTgFGAEuOMBlas3ShOaJqQufTO7HNxK';
-
 // Periodic cleanup of expired rate-limit entries to prevent memory leaks
 const CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 minutes
 let lastCleanup = Date.now();
@@ -54,27 +51,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Account temporarily locked. Try again in ${remainingMinutes} minutes.` }, { status: 429 });
     }
 
-    // Dynamic imports for browser-only modules (PouchDB, bcryptjs)
-    const { usersDB } = await import('@/lib/db');
-    const { verifyPassword } = await import('@/lib/auth');
-    const { logAudit } = await import('@/lib/services/audit-service');
-    type UserDoc = import('@/lib/db-types').UserDoc;
+    // Server-safe user authentication (no PouchDB — uses static user registry)
+    const { authenticateUser } = await import('@/lib/server-users');
 
-    // Look up user
-    const db = usersDB();
-    let user: UserDoc | null = null;
-    try {
-      user = await db.get(`user-${sanitizedUsername}`) as UserDoc;
-    } catch {
-      // User not found — will still run bcrypt below for constant-time behavior
-    }
+    const user = await authenticateUser(sanitizedUsername, password);
 
-    // Always run password verification to prevent timing-based username enumeration
-    const hashToCompare = user?.passwordHash || DUMMY_HASH;
-    const valid = await verifyPassword(password, hashToCompare);
-
-    // If user not found, the password check result doesn't matter
-    if (!user || !valid) {
+    if (!user) {
       // Track failed attempt
       if (!failedAttempts[sanitizedUsername]) {
         failedAttempts[sanitizedUsername] = { count: 0, lockedUntil: 0 };
@@ -83,20 +65,12 @@ export async function POST(request: NextRequest) {
       if (failedAttempts[sanitizedUsername].count >= 5) {
         failedAttempts[sanitizedUsername].lockedUntil = Date.now() + 15 * 60 * 1000;
       }
-      await logAudit('login_failed', user?._id, sanitizedUsername, 'Invalid credentials', false);
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
-    }
-
-    // Check if account is active — use same generic error message
-    if (!user.isActive) {
-      await logAudit('login_failed', user._id, sanitizedUsername, 'Account disabled', false);
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
     // Check hospital assignment — super_admin, org_admin, government bypass
     const ROLES_WITHOUT_HOSPITAL = ['super_admin', 'org_admin', 'government'];
     if (!ROLES_WITHOUT_HOSPITAL.includes(user.role) && hospitalId && user.hospitalId && user.hospitalId !== hospitalId) {
-      await logAudit('login_failed', user._id, sanitizedUsername, 'Hospital mismatch', false);
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
@@ -112,8 +86,6 @@ export async function POST(request: NextRequest) {
       hospitalId: user.hospitalId,
       orgId: user.orgId,
     });
-
-    await logAudit('login_success', user._id, user.username, 'Login successful', true);
 
     const response = NextResponse.json({
       user: {
