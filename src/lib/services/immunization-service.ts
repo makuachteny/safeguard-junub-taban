@@ -218,6 +218,63 @@ export async function getDefaulterStats() {
   };
 }
 
+/**
+ * Coverage broken down by age cohort. Returns one row per (vaccine × cohort)
+ * with the number of children in that cohort who have received the vaccine
+ * and the percentage of the cohort. Used by the immunizations dashboard to
+ * show whether coverage is concentrated in older children (catching up) or
+ * spread evenly through the EPI schedule.
+ */
+export async function getCoverageByAgeCohort(scope?: DataScope) {
+  const all = await getAllImmunizations(scope);
+  const completed = all.filter(i => i.status === 'completed');
+
+  // Group children by age cohort based on their most recent dateOfBirth in
+  // the records — we treat each unique patientId as a distinct child.
+  const childMeta = new Map<string, { dob: string }>();
+  for (const r of all) {
+    if (!childMeta.has(r.patientId) && r.dateOfBirth) {
+      childMeta.set(r.patientId, { dob: r.dateOfBirth });
+    }
+  }
+
+  const now = Date.now();
+  const COHORTS = [
+    { key: '<6mo', minMonths: 0, maxMonths: 6 },
+    { key: '6-12mo', minMonths: 6, maxMonths: 12 },
+    { key: '1-2y', minMonths: 12, maxMonths: 24 },
+    { key: '2-5y', minMonths: 24, maxMonths: 60 },
+    { key: '5y+', minMonths: 60, maxMonths: Infinity },
+  ] as const;
+
+  // Bucket children into cohorts
+  const cohortMembers: Record<string, Set<string>> = {};
+  for (const c of COHORTS) cohortMembers[c.key] = new Set();
+  for (const [patientId, meta] of childMeta.entries()) {
+    const ageMonths = (now - new Date(meta.dob).getTime()) / (30.44 * 86400000);
+    const cohort = COHORTS.find(c => ageMonths >= c.minMonths && ageMonths < c.maxMonths);
+    if (cohort) cohortMembers[cohort.key].add(patientId);
+  }
+
+  const VACCINES = ['BCG', 'OPV', 'Penta', 'PCV', 'Rota', 'Measles', 'Yellow Fever', 'Vitamin A'];
+  const rows: Array<{ vaccine: string; cohort: string; covered: number; total: number; percentage: number }> = [];
+  for (const vaccine of VACCINES) {
+    const recipients = new Set(completed.filter(i => i.vaccine === vaccine).map(i => i.patientId));
+    for (const c of COHORTS) {
+      const total = cohortMembers[c.key].size;
+      const covered = Array.from(recipients).filter(id => cohortMembers[c.key].has(id)).length;
+      rows.push({
+        vaccine,
+        cohort: c.key,
+        covered,
+        total,
+        percentage: total > 0 ? Math.round((covered / total) * 100) : 0,
+      });
+    }
+  }
+  return rows;
+}
+
 export async function getVaccineCoverage(scope?: DataScope) {
   const all = await getAllImmunizations(scope);
   const completed = all.filter(i => i.status === 'completed');

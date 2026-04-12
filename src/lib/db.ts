@@ -80,6 +80,8 @@ export const organizationsDB = () => getDB('taban_organizations');
 export const platformConfigDB = () => getDB('taban_platform_config');
 export const appointmentsDB = () => getDB('taban_appointments');
 export const telehealthDB = () => getDB('taban_telehealth');
+export const pharmacyInventoryDB = () => getDB('taban_pharmacy_inventory');
+export const triageDB = () => getDB('taban_triage');
 
 // Bump this version to force a re-seed (destroys all data and re-creates)
 export const SEED_VERSION = 23;
@@ -123,7 +125,8 @@ export async function resetAllDatabases(): Promise<void> {
     'taban_births', 'taban_deaths', 'taban_facility_assessments',
     'taban_immunizations', 'taban_anc', 'taban_boma_visits', 'taban_follow_ups',
     'taban_organizations', 'taban_platform_config',
-    'taban_appointments', 'taban_telehealth',
+    'taban_appointments', 'taban_telehealth', 'taban_pharmacy_inventory',
+    'taban_triage',
     'taban_meta'
   ];
   for (const name of dbNames) {

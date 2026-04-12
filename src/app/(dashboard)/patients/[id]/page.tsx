@@ -21,7 +21,12 @@ import { useImmunizations } from '@/lib/hooks/useImmunizations';
 import { Package, Clock, Building2 as Building2Icon } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n/useTranslation';
 import VitalsTrends from '@/components/VitalsTrends';
+import PatientTimeline from '@/components/PatientTimeline';
 import { formatDateTime } from '@/lib/format-utils';
+import { usePatientAppointments } from '@/lib/hooks/useAppointments';
+import { usePrescriptions } from '@/lib/hooks/usePrescriptions';
+import { useTriage } from '@/lib/hooks/useTriage';
+import { usePermissions } from '@/lib/hooks/usePermissions';
 
 export default function PatientDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;
@@ -29,6 +34,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [activeTab, setActiveTab] = useState('overview');
   const [expandedAI, setExpandedAI] = useState<Set<string>>(new Set());
   const [showMessageModal, setShowMessageModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   // Full History filters & expansion
   const [historySearch, setHistorySearch] = useState('');
@@ -37,7 +43,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [expandedEncounters, setExpandedEncounters] = useState<Set<string>>(new Set());
 
   const { t } = useTranslation();
-  const { patients, loading } = usePatients();
+  const { patients, loading, update: updatePatient } = usePatients();
   const { hospitals } = useHospitals();
 
   const patient = patients.find(p => p._id === id);
@@ -45,6 +51,64 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const { referrals: patientReferrals } = usePatientReferrals(patient?._id);
   const { results: allLabResults } = useLabResults();
   const { immunizations: allImmunizations } = useImmunizations();
+  const { appointments: patientAppointments } = usePatientAppointments(patient?._id);
+  const { prescriptions: allPrescriptions } = usePrescriptions();
+  const { triages: patientTriages } = useTriage(patient?._id);
+  const { canConsult } = usePermissions();
+
+  // Edit form state — initialised when modal opens
+  const [editForm, setEditForm] = useState({
+    firstName: '',
+    middleName: '',
+    surname: '',
+    phone: '',
+    state: '',
+    county: '',
+    dateOfBirth: '',
+    gender: 'Male' as 'Male' | 'Female',
+  });
+  const [editSubmitting, setEditSubmitting] = useState(false);
+
+  const openEditModal = () => {
+    if (!patient) return;
+    setEditForm({
+      firstName: patient.firstName || '',
+      middleName: patient.middleName || '',
+      surname: patient.surname || '',
+      phone: patient.phone || '',
+      state: patient.state || '',
+      county: patient.county || '',
+      dateOfBirth: patient.dateOfBirth || '',
+      gender: (patient.gender as 'Male' | 'Female') || 'Male',
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditSubmit = async () => {
+    if (!patient) return;
+    try {
+      setEditSubmitting(true);
+      await updatePatient(patient._id, {
+        firstName: editForm.firstName.trim(),
+        middleName: editForm.middleName.trim(),
+        surname: editForm.surname.trim(),
+        phone: editForm.phone.trim(),
+        state: editForm.state.trim(),
+        county: editForm.county.trim(),
+        dateOfBirth: editForm.dateOfBirth,
+        gender: editForm.gender,
+      });
+      const { logAudit } = await import('@/lib/services/audit-service');
+      await logAudit('PATIENT_EDIT', undefined, undefined,
+        `Updated demographics for ${patient.hospitalNumber} (${editForm.firstName} ${editForm.surname})`
+      ).catch(() => {});
+      setShowEditModal(false);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
 
   // ── Filtered Full History ──────────────────────────────────────────────
   const filteredHistory = useMemo(() => {
@@ -106,6 +170,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
 
   const tabs = [
     { id: 'overview', label: t('tab.overview'), icon: Heart },
+    { id: 'timeline', label: 'Timeline', icon: ClipboardList },
     { id: 'trends', label: 'Trends', icon: TrendingUpIcon },
     { id: 'history', label: 'Full History', icon: FileText },
     { id: 'vitals', label: t('tab.vitals'), icon: Activity },
@@ -213,14 +278,19 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 </div>
               </div>
               <div className="flex gap-2 flex-shrink-0 no-print">
-                <button onClick={() => router.push(`/consultation?patientId=${patient._id}`)} className="btn btn-primary btn-sm">
-                  <Stethoscope className="w-4 h-4" /> {t('action.newConsultation')}
-                </button>
+                {canConsult && (
+                  <button onClick={() => router.push(`/consultation?patientId=${patient._id}`)} className="btn btn-primary btn-sm">
+                    <Stethoscope className="w-4 h-4" /> {t('action.newConsultation')}
+                  </button>
+                )}
                 <button onClick={() => setShowMessageModal(true)} className="btn btn-secondary btn-sm">
                   <MessageSquare className="w-4 h-4" /> {t('action.sendMessage')}
                 </button>
                 <button onClick={() => router.push('/referrals')} className="btn btn-secondary btn-sm">
                   <ArrowRightLeft className="w-4 h-4" /> {t('action.refer')}
+                </button>
+                <button onClick={openEditModal} className="btn btn-secondary btn-sm" title="Edit demographics">
+                  <UserIcon className="w-4 h-4" /> Edit
                 </button>
                 <button
                   onClick={() => { if (typeof window !== 'undefined') window.print(); }}
@@ -249,6 +319,56 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
           {activeTab === 'overview' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
               <div className="lg:col-span-2 space-y-5">
+                {/* Active triage banner — shows at top whenever a nurse has
+                    triaged this patient recently (within 24h). Visible to
+                    every role (nurse, doctor, med supt, etc.) so there is a
+                    single source of truth for current triage priority. */}
+                {patientTriages.length > 0 && (() => {
+                  const latest = patientTriages[0];
+                  const hoursOld = (Date.now() - new Date(latest.triagedAt).getTime()) / 3600000;
+                  if (hoursOld > 24 && latest.status !== 'pending') return null;
+                  const bg = latest.priority === 'RED' ? 'rgba(229,46,66,0.14)' : latest.priority === 'YELLOW' ? 'rgba(252,211,77,0.14)' : 'rgba(16,185,129,0.12)';
+                  const color = latest.priority === 'RED' ? 'var(--color-danger)' : latest.priority === 'YELLOW' ? 'var(--color-warning)' : 'var(--color-success)';
+                  const label = latest.priority === 'RED' ? 'Emergency — immediate care' : latest.priority === 'YELLOW' ? 'Priority — see soon' : 'Non-urgent';
+                  return (
+                    <div className="card-elevated p-4 flex items-center gap-4" style={{ background: bg, border: `1px solid ${color}40` }}>
+                      <div className="flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center" style={{ background: color, color: '#fff' }}>
+                        <span className="text-base font-black">{latest.priority}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color }}>
+                            ETAT Triage · {label}
+                          </span>
+                          <span className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>
+                            {new Date(latest.triagedAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                        {latest.chiefComplaint && (
+                          <p className="text-sm font-semibold mt-0.5" style={{ color: 'var(--text-primary)' }}>{latest.chiefComplaint}</p>
+                        )}
+                        <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                          A: {latest.airway} · B: {latest.breathing} · C: {latest.circulation} · AVPU: {latest.consciousness.toUpperCase()[0]}
+                          {' · by '}
+                          <span className="font-medium">{latest.triagedByName}</span>
+                        </p>
+                        {(latest.temperature || latest.pulse || latest.oxygenSaturation || latest.systolic) && (
+                          <p className="text-[11px] font-mono mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                            {latest.temperature && `T ${latest.temperature}°C  `}
+                            {latest.pulse && `HR ${latest.pulse}  `}
+                            {latest.respiratoryRate && `RR ${latest.respiratoryRate}  `}
+                            {latest.oxygenSaturation && `SpO₂ ${latest.oxygenSaturation}%  `}
+                            {(latest.systolic && latest.diastolic) && `BP ${latest.systolic}/${latest.diastolic}`}
+                          </p>
+                        )}
+                      </div>
+                      <span className="text-[10px] font-bold uppercase px-2 py-1 rounded-full flex-shrink-0" style={{ background: 'var(--bg-card-solid)', color }}>
+                        {latest.status}
+                      </span>
+                    </div>
+                  );
+                })()}
+
                 {/* Most Recent Record — hero card, first thing the doctor sees */}
                 <div
                   className="card-elevated overflow-hidden relative"
@@ -727,6 +847,19 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                 </div>
               </div>
             </div>
+          )}
+
+          {/* Timeline Tab */}
+          {activeTab === 'timeline' && patient && (
+            <PatientTimeline
+              medicalRecords={records}
+              labResults={(allLabResults || []).filter(l => l.patientId === patient._id)}
+              prescriptions={(allPrescriptions || []).filter(r => r.patientId === patient._id)}
+              immunizations={(allImmunizations || []).filter(i => i.patientId === patient._id)}
+              referrals={patientReferrals}
+              appointments={patientAppointments}
+              triages={patientTriages}
+            />
           )}
 
           {/* Trends Tab */}
@@ -1356,6 +1489,69 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
         onClose={() => setShowMessageModal(false)}
         patient={patient ? { _id: patient._id, firstName: patient.firstName, middleName: patient.middleName, surname: patient.surname, phone: patient.phone } : null}
       />
+
+      {/* Edit Demographics Modal */}
+      {showEditModal && patient && (
+        <div className="modal-backdrop" onClick={() => !editSubmitting && setShowEditModal(false)}>
+          <div className="modal-content card-elevated p-6 max-w-lg w-full" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-semibold">Edit Patient Demographics</h3>
+              <button onClick={() => setShowEditModal(false)} className="p-1.5 rounded-lg" style={{ background: 'var(--overlay-subtle)' }}>
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-[10px] font-semibold uppercase tracking-wider mb-1 block" style={{ color: 'var(--text-muted)' }}>First Name</label>
+                  <input type="text" value={editForm.firstName} onChange={e => setEditForm({ ...editForm, firstName: e.target.value })} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-semibold uppercase tracking-wider mb-1 block" style={{ color: 'var(--text-muted)' }}>Middle Name</label>
+                  <input type="text" value={editForm.middleName} onChange={e => setEditForm({ ...editForm, middleName: e.target.value })} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-semibold uppercase tracking-wider mb-1 block" style={{ color: 'var(--text-muted)' }}>Surname</label>
+                  <input type="text" value={editForm.surname} onChange={e => setEditForm({ ...editForm, surname: e.target.value })} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] font-semibold uppercase tracking-wider mb-1 block" style={{ color: 'var(--text-muted)' }}>Date of Birth</label>
+                  <input type="date" value={editForm.dateOfBirth} onChange={e => setEditForm({ ...editForm, dateOfBirth: e.target.value })} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-semibold uppercase tracking-wider mb-1 block" style={{ color: 'var(--text-muted)' }}>Gender</label>
+                  <select value={editForm.gender} onChange={e => setEditForm({ ...editForm, gender: e.target.value as 'Male' | 'Female' })}>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold uppercase tracking-wider mb-1 block" style={{ color: 'var(--text-muted)' }}>Phone</label>
+                <input type="tel" value={editForm.phone} onChange={e => setEditForm({ ...editForm, phone: e.target.value })} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] font-semibold uppercase tracking-wider mb-1 block" style={{ color: 'var(--text-muted)' }}>State</label>
+                  <input type="text" value={editForm.state} onChange={e => setEditForm({ ...editForm, state: e.target.value })} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-semibold uppercase tracking-wider mb-1 block" style={{ color: 'var(--text-muted)' }}>County</label>
+                  <input type="text" value={editForm.county} onChange={e => setEditForm({ ...editForm, county: e.target.value })} />
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-5">
+              <button onClick={() => setShowEditModal(false)} className="btn btn-secondary flex-1" disabled={editSubmitting}>Cancel</button>
+              <button onClick={handleEditSubmit} className="btn btn-primary flex-1" disabled={editSubmitting}>
+                {editSubmitting ? 'Saving…' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

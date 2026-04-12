@@ -65,10 +65,14 @@ export interface LabResultDoc extends BaseDoc {
   hospitalId?: string;
   hospitalName?: string;
   orgId?: string;
+  /** Optional clinical notes from the ordering clinician (symptoms, suspected Dx) */
+  clinicalNotes?: string;
 }
 
 export interface DiseaseAlertDoc extends BaseDoc, Omit<DiseaseAlert, 'id'> {
   type: 'disease_alert';
+  orgId?: string;
+  reportedBy?: string;
 }
 
 export interface PrescriptionDoc extends BaseDoc {
@@ -332,6 +336,67 @@ export interface BomaVisitDoc extends BaseDoc {
   county: string;
   payam: string;
   boma: string;
+  orgId?: string;
+}
+
+// ===== Triage (ETAT — Emergency Triage Assessment & Treatment) =====
+// Captures the WHO ETAT ABCC assessment plus vitals taken at triage.
+// One record per triage encounter; a patient may have many over time.
+export type TriagePriority = 'RED' | 'YELLOW' | 'GREEN';
+
+export interface TriageDoc extends BaseDoc {
+  type: 'triage';
+  patientId: string;
+  patientName: string;
+  hospitalNumber?: string;
+  // ETAT ABCC
+  airway: 'clear' | 'obstructed';
+  breathing: 'normal' | 'distressed' | 'absent';
+  circulation: 'normal' | 'impaired' | 'absent';
+  consciousness: 'alert' | 'verbal' | 'pain' | 'unresponsive';
+  priority: TriagePriority;
+  // Vitals captured at triage (optional — string for partial entry)
+  temperature?: string;
+  pulse?: string;
+  respiratoryRate?: string;
+  systolic?: string;
+  diastolic?: string;
+  oxygenSaturation?: string;
+  weight?: string;
+  // Context
+  chiefComplaint?: string;
+  notes?: string;
+  // Audit
+  triagedBy: string;       // user id
+  triagedByName: string;   // display name at time of triage
+  triagedAt: string;       // ISO datetime (distinct from createdAt to allow backfill)
+  facilityId?: string;
+  facilityName?: string;
+  orgId?: string;
+  // Follow-through
+  status: 'pending' | 'seen' | 'admitted' | 'discharged' | 'referred';
+  handoffTo?: string;      // clinician id who took over
+  handoffToName?: string;
+  handoffAt?: string;
+}
+
+// ===== Pharmacy Inventory =====
+// One row per SKU per facility. The stock level decrements when a
+// prescription is dispensed and increments when a receipt is recorded.
+export interface PharmacyInventoryDoc extends BaseDoc {
+  type: 'pharmacy_inventory';
+  hospitalId: string;
+  hospitalName: string;
+  medicationName: string;
+  category: string;
+  stockLevel: number;
+  unit: string;                      // tablets, vials, bottles, sachets, tubes
+  reorderLevel: number;              // when to reorder
+  batchNumber: string;
+  expiryDate: string;                // YYYY-MM-DD
+  lastReceived?: string;             // ISO datetime of last stock-in
+  lastDispensed?: string;            // ISO datetime of last decrement
+  dispensedToday: number;
   orgId?: string;
 }
 

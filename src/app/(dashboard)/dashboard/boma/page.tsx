@@ -67,7 +67,44 @@ export default function BomaDashboardPage() {
   const { currentUser, isOnline } = useApp();
   const workerId = currentUser?._id || '';
   const { todaysVisits, stats, loading, createVisit } = useBomaVisits(workerId);
-  const { followUps, updateFollowUp, loading: followUpsLoading } = useFollowUps(workerId);
+  const { followUps, updateFollowUp, createFollowUp, loading: followUpsLoading } = useFollowUps(workerId);
+  const [showFuModal, setShowFuModal] = useState(false);
+  const [fuForm, setFuForm] = useState({
+    patientName: '',
+    geocodeId: '',
+    condition: 'Maternal',
+    scheduledDate: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10),
+    notes: '',
+  });
+  const [fuSubmitting, setFuSubmitting] = useState(false);
+
+  const handleCreateFollowUp = async () => {
+    if (!fuForm.patientName.trim()) return;
+    try {
+      setFuSubmitting(true);
+      await createFollowUp({
+        patientId: `boma-${Date.now().toString(36)}`,
+        patientName: fuForm.patientName.trim(),
+        geocodeId: fuForm.geocodeId.trim() || undefined,
+        assignedWorker: workerId,
+        assignedWorkerName: currentUser?.name || 'BHW',
+        status: 'active',
+        condition: fuForm.condition,
+        facilityLevel: 'boma',
+        scheduledDate: fuForm.scheduledDate,
+        notes: fuForm.notes.trim() || undefined,
+        state: currentUser?.hospitalName || 'Unknown',
+        county: 'Unknown',
+        orgId: currentUser?.orgId,
+      });
+      setShowFuModal(false);
+      setFuForm({ patientName: '', geocodeId: '', condition: 'Maternal', scheduledDate: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10), notes: '' });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setFuSubmitting(false);
+    }
+  };
   const router = useRouter();
   const { hospitals } = useHospitals();
   const payamFacilities = hospitals.filter(h => h.facilityType === 'phcu');
@@ -637,6 +674,7 @@ export default function BomaDashboardPage() {
           <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', boxShadow: 'var(--card-shadow)' }}>
             <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: 'var(--border-light)' }}>
               <div className="flex items-center gap-2"><Clock className="w-4 h-4" style={{ color: 'var(--color-warning)' }} /><span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Follow-Up Queue</span><span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: '#F59E0B20', color: 'var(--color-warning)' }}>{followUpsLoading ? '\u2014' : pendingFollowUps.length}</span></div>
+              <button onClick={() => setShowFuModal(true)} className="text-[10px] font-bold px-2.5 py-1 rounded-md flex items-center gap-1" style={{ background: 'var(--accent-light)', color: 'var(--accent-primary)' }}>+ Schedule</button>
             </div>
             <div className="p-3 space-y-2">
               {!followUpsLoading && pendingFollowUps.length === 0 && (<div className="text-center py-6"><CheckCircle2 className="w-10 h-10 mx-auto mb-2" style={{ color: 'var(--accent-primary)', opacity: 0.5 }} /><p className="text-sm" style={{ color: 'var(--text-muted)' }}>All follow-ups complete</p></div>)}
@@ -656,6 +694,58 @@ export default function BomaDashboardPage() {
               ))}
             </div>
           </div>
+
+          {/* SCHEDULE FOLLOW-UP MODAL */}
+          {showFuModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.5)' }} onClick={() => !fuSubmitting && setShowFuModal(false)}>
+              <div className="card-elevated p-5 w-full max-w-md" style={{ margin: '20px' }} onClick={e => e.stopPropagation()}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-base font-semibold flex items-center gap-2"><Clock className="w-4 h-4" style={{ color: 'var(--color-warning)' }} /> Schedule Follow-Up</h3>
+                  <button onClick={() => setShowFuModal(false)} className="p-1 rounded-lg" style={{ background: 'var(--overlay-subtle)' }}><X className="w-4 h-4" /></button>
+                </div>
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--text-muted)' }}>Patient name</label>
+                    <input type="text" value={fuForm.patientName} onChange={e => setFuForm({ ...fuForm, patientName: e.target.value })} placeholder="Full name" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--text-muted)' }}>Geocode (optional)</label>
+                    <input type="text" value={fuForm.geocodeId} onChange={e => setFuForm({ ...fuForm, geocodeId: e.target.value })} placeholder="GPS / household ID" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--text-muted)' }}>Condition</label>
+                      <select value={fuForm.condition} onChange={e => setFuForm({ ...fuForm, condition: e.target.value })}>
+                        <option value="Maternal">Maternal (ANC)</option>
+                        <option value="Immunization">Immunization</option>
+                        <option value="Malaria">Malaria</option>
+                        <option value="Malnutrition">Malnutrition</option>
+                        <option value="TB">Tuberculosis</option>
+                        <option value="HIV">HIV/AIDS</option>
+                        <option value="Newborn">Newborn care</option>
+                        <option value="Wound">Wound / injury</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--text-muted)' }}>Visit date</label>
+                      <input type="date" value={fuForm.scheduledDate} onChange={e => setFuForm({ ...fuForm, scheduledDate: e.target.value })} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--text-muted)' }}>Notes</label>
+                    <textarea rows={2} value={fuForm.notes} onChange={e => setFuForm({ ...fuForm, notes: e.target.value })} placeholder="Reason for follow-up..." />
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <button onClick={() => setShowFuModal(false)} className="btn btn-secondary flex-1" disabled={fuSubmitting}>Cancel</button>
+                  <button onClick={handleCreateFollowUp} className="btn btn-primary flex-1" disabled={fuSubmitting || !fuForm.patientName.trim()}>
+                    {fuSubmitting ? 'Saving…' : 'Schedule'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* TODAY'S VISITS LOG */}
           <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', boxShadow: 'var(--card-shadow)' }}>

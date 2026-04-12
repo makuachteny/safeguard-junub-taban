@@ -1,8 +1,9 @@
-import { ancDB } from '../db';
-import type { ANCVisitDoc } from '../db-types';
+import { ancDB, messagesDB } from '../db';
+import type { ANCVisitDoc, MessageDoc } from '../db-types';
 import { v4 as uuidv4 } from 'uuid';
 import type { DataScope } from './data-scope';
 import { filterByScope } from './data-scope';
+import { logAudit } from './audit-service';
 
 export async function getAllANCVisits(scope?: DataScope): Promise<ANCVisitDoc[]> {
   const db = ancDB();
@@ -37,6 +38,42 @@ export async function createANCVisit(data: Omit<ANCVisitDoc, '_id' | '_rev' | 't
   };
   const resp = await db.put(doc);
   doc._rev = resp.rev;
+
+  // Auto-trigger a clinical alert message if the mother is high-risk so the
+  // facility's clinical team is notified immediately. The message lands in
+  // the same Messages PouchDB so it shows up in the messages tab without
+  // any extra wiring.
+  if (data.riskLevel === 'high') {
+    try {
+      const msgs = messagesDB();
+      const factors = (data.riskFactors || []).join(', ') || 'unspecified';
+      const alertDoc: MessageDoc = {
+        _id: `msg-${uuidv4().slice(0, 8)}`,
+        type: 'message',
+        patientId: data.motherId || '',
+        patientName: data.motherName || 'Unknown mother',
+        patientPhone: '',
+        fromDoctorId: 'system',
+        fromDoctorName: 'ANC High-Risk Alert',
+        fromHospitalName: data.facilityName || '',
+        subject: `HIGH-RISK PREGNANCY: ${data.motherName || 'patient'}`,
+        body: `${data.motherName || 'patient'} (ANC visit ${data.visitNumber}) flagged HIGH-RISK. Risk factors: ${factors}. Schedule prompt obstetric review.`,
+        channel: 'app',
+        status: 'sent',
+        sentAt: now,
+        orgId: data.orgId,
+        createdAt: now,
+        updatedAt: now,
+      };
+      await msgs.put(alertDoc);
+      logAudit('ANC_HIGH_RISK_ALERT', undefined, undefined,
+        `Auto-alert: ${data.motherName} (ANC visit ${data.visitNumber}) — risk factors: ${factors}`
+      ).catch(() => {});
+    } catch (err) {
+      console.warn('[ANC] failed to push high-risk alert message', err);
+    }
+  }
+
   return doc;
 }
 
@@ -75,6 +112,19 @@ export async function getANCStats(scope?: DataScope) {
   // ANC1 coverage (mothers with at least 1 visit)
   const anc1 = totalMothers;
 
+  // Continuum funnel: count mothers by their highest visit number reached
+  // (1, 2, 3, 4, 5+) so we can plot a drop-off curve.
+  const continuum = { anc1: 0, anc2: 0, anc3: 0, anc4: 0, anc5plus: 0 };
+  for (const motherId of motherIds) {
+    const visits = all.filter(v => v.motherId === motherId);
+    const max = Math.max(0, ...visits.map(v => v.visitNumber));
+    continuum.anc1 += max >= 1 ? 1 : 0;
+    continuum.anc2 += max >= 2 ? 1 : 0;
+    continuum.anc3 += max >= 3 ? 1 : 0;
+    continuum.anc4 += max >= 4 ? 1 : 0;
+    continuum.anc5plus += max >= 5 ? 1 : 0;
+  }
+
   return {
     totalMothers,
     anc1,
@@ -84,6 +134,7 @@ export async function getANCStats(scope?: DataScope) {
     thisMonthVisits,
     totalVisits: all.length,
     byState,
+    continuum,
   };
 }
 

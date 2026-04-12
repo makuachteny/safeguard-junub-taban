@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import TopBar from '@/components/TopBar';
 import PageHeader from '@/components/PageHeader';
@@ -9,6 +9,7 @@ import { useImmunizations } from '@/lib/hooks/useImmunizations';
 import { usePatients } from '@/lib/hooks/usePatients';
 import { useApp } from '@/lib/context';
 import { usePermissions } from '@/lib/hooks/usePermissions';
+import type { ImmunizationDefaulter } from '@/lib/services/immunization-service';
 import {
   Syringe, Search, Plus, X, CheckCircle2, Clock, AlertTriangle,
   XCircle, ChevronDown, ChevronUp, Users, ExternalLink,
@@ -33,6 +34,42 @@ export default function ImmunizationsPage() {
   const [showModal, setShowModal] = useState(false);
   const [expandedChild, setExpandedChild] = useState<string | null>(null);
   const [patientLookup, setPatientLookup] = useState('');
+  const [activeTab, setActiveTab] = useState<'records' | 'defaulters'>('records');
+  const [defaulters, setDefaulters] = useState<ImmunizationDefaulter[]>([]);
+  const [defaulterStats, setDefaulterStats] = useState<{ totalDefaulters: number; uniqueChildren: number; critical: number; high: number; medium: number; byVaccine: Record<string, number> } | null>(null);
+  const [defaulterFilter, setDefaulterFilter] = useState<'all' | 'critical' | 'high' | 'medium'>('all');
+  const [cohortRows, setCohortRows] = useState<Array<{ vaccine: string; cohort: string; covered: number; total: number; percentage: number }>>([]);
+
+  // Load defaulter list + cohort coverage whenever immunization data changes
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const svc = await import('@/lib/services/immunization-service');
+        const [list, s, cohort] = await Promise.all([
+          svc.getDefaulters(),
+          svc.getDefaulterStats(),
+          svc.getCoverageByAgeCohort(),
+        ]);
+        if (cancelled) return;
+        setDefaulters(list);
+        setDefaulterStats(s);
+        setCohortRows(cohort);
+      } catch { /* swallow */ }
+    })();
+    return () => { cancelled = true; };
+  }, [immunizations]);
+
+  // Build a {vaccine -> {cohort -> percentage}} grid for the heatmap
+  const cohortGrid = useMemo(() => {
+    const grid: Record<string, Record<string, { pct: number; covered: number; total: number }>> = {};
+    for (const r of cohortRows) {
+      if (!grid[r.vaccine]) grid[r.vaccine] = {};
+      grid[r.vaccine][r.cohort] = { pct: r.percentage, covered: r.covered, total: r.total };
+    }
+    return grid;
+  }, [cohortRows]);
+  const cohortKeys = ['<6mo', '6-12mo', '1-2y', '2-5y', '5y+'];
 
   // Form state
   const [form, setForm] = useState({
@@ -168,8 +205,27 @@ export default function ImmunizationsPage() {
           </div>
         )}
 
+        {/* Tab switcher */}
+        <div className="flex gap-0 border-b mb-5" style={{ borderColor: 'var(--border-light)' }}>
+          <button onClick={() => setActiveTab('records')}
+            className={`px-4 py-3 text-sm font-medium ${activeTab === 'records' ? 'tab-active' : ''}`}
+            style={{ color: activeTab === 'records' ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
+            Records ({stats?.totalChildren || 0})
+          </button>
+          <button onClick={() => setActiveTab('defaulters')}
+            className={`px-4 py-3 text-sm font-medium flex items-center gap-2 ${activeTab === 'defaulters' ? 'tab-active' : ''}`}
+            style={{ color: activeTab === 'defaulters' ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
+            Defaulters ({defaulterStats?.uniqueChildren || 0})
+            {defaulterStats && defaulterStats.critical > 0 && (
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(229,46,66,0.15)', color: 'var(--color-danger)' }}>
+                {defaulterStats.critical} critical
+              </span>
+            )}
+          </button>
+        </div>
+
         {/* Coverage by Antigen */}
-        {coverage && (
+        {activeTab === 'records' && coverage && (
           <div className="card-elevated p-5 mb-6">
             <h3 className="font-semibold text-sm mb-4 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
               <Syringe className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
@@ -199,7 +255,55 @@ export default function ImmunizationsPage() {
           </div>
         )}
 
+        {/* Coverage by Age Cohort heatmap */}
+        {activeTab === 'records' && cohortRows.length > 0 && (
+          <div className="card-elevated p-5 mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Syringe className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
+                <h3 className="font-semibold text-sm">Coverage by Age Cohort</h3>
+              </div>
+              <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'var(--text-muted)' }}>EPI schedule alignment</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr>
+                    <th className="text-left p-2" style={{ color: 'var(--text-muted)' }}>Vaccine</th>
+                    {cohortKeys.map(c => (
+                      <th key={c} className="text-center p-2" style={{ color: 'var(--text-muted)' }}>{c}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.keys(cohortGrid).map(vaccine => (
+                    <tr key={vaccine}>
+                      <td className="font-semibold p-2" style={{ color: 'var(--text-primary)' }}>{vaccine}</td>
+                      {cohortKeys.map(c => {
+                        const cell = cohortGrid[vaccine]?.[c];
+                        if (!cell || cell.total === 0) {
+                          return <td key={c} className="text-center p-2 text-[10px]" style={{ color: 'var(--text-muted)' }}>—</td>;
+                        }
+                        const bg = cell.pct >= 90 ? 'rgba(5,150,105,0.85)' : cell.pct >= 70 ? 'rgba(13,148,136,0.65)' : cell.pct >= 50 ? 'rgba(252,211,77,0.55)' : cell.pct >= 25 ? 'rgba(245,158,11,0.5)' : 'rgba(229,46,66,0.45)';
+                        const fg = cell.pct >= 50 ? '#fff' : 'var(--text-primary)';
+                        return (
+                          <td key={c} className="p-1">
+                            <div className="rounded-md text-center font-bold" style={{ background: bg, color: fg, padding: '6px 4px' }} title={`${cell.covered}/${cell.total}`}>
+                              {cell.pct}%
+                            </div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         {/* Search */}
+        {activeTab === 'records' && (
         <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-muted)' }} />
           <input
@@ -210,8 +314,92 @@ export default function ImmunizationsPage() {
             onChange={e => setSearch(e.target.value)}
           />
         </div>
+        )}
+
+        {/* Defaulters Panel */}
+        {activeTab === 'defaulters' && (
+          <>
+            {defaulterStats && (
+              <div className="kpi-grid mb-4">
+                {[
+                  { label: 'Critical (>30 days)', value: defaulterStats.critical, bg: 'rgba(229,46,66,0.12)', color: 'var(--color-danger)', filter: 'critical' as const },
+                  { label: 'High (>14 days)', value: defaulterStats.high, bg: 'rgba(252,211,77,0.12)', color: 'var(--color-warning)', filter: 'high' as const },
+                  { label: 'Medium (>0 days)', value: defaulterStats.medium, bg: 'rgba(43,111,224,0.12)', color: 'var(--accent-primary)', filter: 'medium' as const },
+                  { label: 'Unique Children', value: defaulterStats.uniqueChildren, bg: 'rgba(43,111,224,0.08)', color: 'var(--accent-primary)', filter: 'all' as const },
+                ].map(k => (
+                  <div key={k.label} className="kpi cursor-pointer" onClick={() => setDefaulterFilter(k.filter)}>
+                    <div className="kpi__icon" style={{ background: k.bg }}>
+                      <AlertTriangle style={{ color: k.color }} />
+                    </div>
+                    <div className="kpi__body">
+                      <div className="kpi__value">{k.value}</div>
+                      <div className="kpi__label">{k.label}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="card-elevated overflow-hidden">
+              <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-light)' }}>
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4" style={{ color: 'var(--color-danger)' }} />
+                  <h3 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
+                    Immunization Defaulters {defaulterFilter !== 'all' && `· ${defaulterFilter}`}
+                  </h3>
+                </div>
+                {defaulterFilter !== 'all' && (
+                  <button onClick={() => setDefaulterFilter('all')} className="text-xs font-medium" style={{ color: 'var(--accent-primary)' }}>Clear filter</button>
+                )}
+              </div>
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Child</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Overdue Vaccine</th>
+                    <th>Dose</th>
+                    <th>Due Date</th>
+                    <th>Days Overdue</th>
+                    <th>Facility</th>
+                    <th>Urgency</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {defaulters.filter(d => defaulterFilter === 'all' || d.urgency === defaulterFilter).length === 0 ? (
+                    <tr><td colSpan={9} className="text-center py-8 text-sm" style={{ color: 'var(--text-muted)' }}>
+                      No defaulters in this category — all children are up to date.
+                    </td></tr>
+                  ) : defaulters.filter(d => defaulterFilter === 'all' || d.urgency === defaulterFilter).map((d, i) => {
+                    const urgencyColor = d.urgency === 'critical' ? 'var(--color-danger)' : d.urgency === 'high' ? 'var(--color-warning)' : 'var(--accent-primary)';
+                    const urgencyBg = d.urgency === 'critical' ? 'rgba(229,46,66,0.10)' : d.urgency === 'high' ? 'rgba(252,211,77,0.10)' : 'rgba(43,111,224,0.10)';
+                    return (
+                      <tr key={`${d.patientId}-${d.vaccine}-${i}`} className="cursor-pointer" onClick={() => window.location.href = `/patients/${d.patientId}`}>
+                        <td className="font-medium text-sm" style={{ color: 'var(--accent-primary)' }}>{d.patientName}</td>
+                        <td className="text-xs">{Math.floor(d.ageMonths / 12)}y {d.ageMonths % 12}m</td>
+                        <td className="text-xs">{d.gender}</td>
+                        <td className="text-sm font-medium">{d.vaccine}</td>
+                        <td className="text-xs">#{d.doseNumber}</td>
+                        <td className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>{d.dueDate}</td>
+                        <td className="text-sm font-bold" style={{ color: urgencyColor }}>{d.daysOverdue}d</td>
+                        <td className="text-xs" style={{ color: 'var(--text-secondary)' }}>{d.facilityName}</td>
+                        <td>
+                          <span className="text-[10px] font-bold uppercase px-2 py-1 rounded-full" style={{ background: urgencyBg, color: urgencyColor }}>
+                            {d.urgency}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
 
         {/* Vaccine Schedule Table — Grouped by Child */}
+        {activeTab === 'records' && (
         <div className="card-elevated overflow-hidden">
           <div className="p-4 border-b flex items-center gap-2" style={{ borderColor: 'var(--border-light)' }}>
             <Syringe className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
@@ -312,6 +500,7 @@ export default function ImmunizationsPage() {
             />
           )}
         </div>
+        )}
 
         {/* Registration Modal */}
         {showModal && (

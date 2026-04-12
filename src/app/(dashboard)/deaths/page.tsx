@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import TopBar from '@/components/TopBar';
 import PageHeader from '@/components/PageHeader';
 import { useDeaths } from '@/lib/hooks/useDeaths';
@@ -43,6 +43,20 @@ export default function DeathsPage() {
         (p.hospitalNumber || '').toLowerCase().includes(q)
       ))
       .slice(0, 6);
+  }, [patientLookup, patients]);
+
+  // Auto-link if the user types an EXACT hospital number — saves a click in
+  // the typical CRVS workflow where the death is recorded immediately after
+  // the patient's last vital sign and the hospital number is known.
+  useEffect(() => {
+    if (linkedPatientId || !patientLookup || patientLookup.length < 4) return;
+    const exact = (patients || []).find(p =>
+      !p.isDeceased && (p.hospitalNumber || '').toLowerCase() === patientLookup.trim().toLowerCase()
+    );
+    if (exact) {
+      selectLinkedPatient(exact._id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patientLookup, patients]);
 
   const filtered = (deaths || []).filter(d =>

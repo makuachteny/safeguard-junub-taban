@@ -6,11 +6,14 @@ import PageHeader from '@/components/PageHeader';
 import {
   AlertTriangle, Shield, Eye, Bell, TrendingUp, TrendingDown,
   Minus, MapPin, Activity, FileText, Calendar, ChevronRight,
-  Download,
+  Download, Plus, X,
 } from 'lucide-react';
-import { weeklyDiseaseData, casesByState } from '@/data/mock';
+import { weeklyDiseaseData, casesByState, states } from '@/data/mock';
 import { useSurveillance } from '@/lib/hooks/useSurveillance';
 import { useHospitals } from '@/lib/hooks/useHospitals';
+import { useApp } from '@/lib/context';
+import { usePermissions } from '@/lib/hooks/usePermissions';
+import { useToast } from '@/components/Toast';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, LineChart, Line, Legend
@@ -94,12 +97,67 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
   );
 }
 
+const REPORTABLE_DISEASES = [
+  'Malaria', 'Cholera', 'Measles', 'Meningitis', 'Pneumonia', 'Tuberculosis',
+  'HIV/AIDS', 'Hepatitis E', 'Kala-azar', 'Yellow Fever', 'Ebola', 'Lassa Fever',
+  'Acute Watery Diarrhea', 'Polio (AFP)', 'Neonatal Tetanus', 'Rabies',
+  'Typhoid Fever', 'COVID-19', 'Dengue', 'Anthrax',
+];
+
 export default function SurveillancePage() {
   const [hoveredHospital, setHoveredHospital] = useState<string | null>(null);
   const [selectedDisease, setSelectedDisease] = useState<string>('all');
+  const [showNewAlert, setShowNewAlert] = useState(false);
+  const [alertForm, setAlertForm] = useState({
+    disease: '',
+    state: '',
+    county: '',
+    cases: 0,
+    deaths: 0,
+    alertLevel: 'watch' as 'normal' | 'watch' | 'warning' | 'emergency',
+    trend: 'increasing' as 'increasing' | 'stable' | 'decreasing',
+  });
+  const [alertSubmitting, setAlertSubmitting] = useState(false);
 
-  const { alerts: diseaseAlerts } = useSurveillance();
+  const { currentUser } = useApp();
+  const { canRecordVitalEvents, isGovernment, isSuperAdmin } = usePermissions();
+  const canReportAlert = canRecordVitalEvents || isGovernment || isSuperAdmin;
+  const { showToast } = useToast();
+  const { alerts: diseaseAlerts, create: createAlert } = useSurveillance();
   const { hospitals } = useHospitals();
+
+  const handleCreateAlert = async () => {
+    if (!alertForm.disease || !alertForm.state || alertForm.cases <= 0) {
+      showToast('Disease, state, and cases are required', 'error');
+      return;
+    }
+    try {
+      setAlertSubmitting(true);
+      await createAlert({
+        disease: alertForm.disease,
+        state: alertForm.state,
+        county: alertForm.county || 'Unknown',
+        cases: alertForm.cases,
+        deaths: alertForm.deaths,
+        alertLevel: alertForm.alertLevel,
+        reportDate: new Date().toISOString().slice(0, 10),
+        trend: alertForm.trend,
+        orgId: currentUser?.orgId,
+      });
+      const { logAudit } = await import('@/lib/services/audit-service');
+      await logAudit('DISEASE_ALERT_REPORTED', currentUser?._id, currentUser?.username,
+        `${alertForm.alertLevel.toUpperCase()}: ${alertForm.disease} in ${alertForm.state} — ${alertForm.cases} cases, ${alertForm.deaths} deaths`
+      ).catch(() => {});
+      showToast('Disease alert reported', 'success');
+      setShowNewAlert(false);
+      setAlertForm({ disease: '', state: '', county: '', cases: 0, deaths: 0, alertLevel: 'watch', trend: 'increasing' });
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to create alert', 'error');
+    } finally {
+      setAlertSubmitting(false);
+    }
+  };
 
   function getHospitalAlertLevel(hospitalState: string): string {
     const stateAlerts = (diseaseAlerts || []).filter(a => a.state === hospitalState);
@@ -162,10 +220,18 @@ export default function SurveillancePage() {
             title="Disease Surveillance Dashboard"
             subtitle={`IDSR Reporting Week: ${reportingWeek} · Ministry of Health, Republic of South Sudan`}
             actions={
-              <button className="btn btn-primary btn-sm" onClick={handleExport}>
-                <Download className="w-4 h-4" />
-                Export Report
-              </button>
+              <>
+                {canReportAlert && (
+                  <button className="btn btn-primary btn-sm" onClick={() => setShowNewAlert(true)}>
+                    <Plus className="w-4 h-4" />
+                    Report Alert
+                  </button>
+                )}
+                <button className="btn btn-secondary btn-sm" onClick={handleExport}>
+                  <Download className="w-4 h-4" />
+                  Export Report
+                </button>
+              </>
             }
           />
 
@@ -592,6 +658,80 @@ export default function SurveillancePage() {
               </div>
             </div>
           </div>
+
+          {/* Report Disease Alert Modal */}
+          {showNewAlert && (
+            <div className="modal-backdrop" onClick={() => !alertSubmitting && setShowNewAlert(false)}>
+              <div className="modal-content card-elevated p-6 max-w-lg w-full" onClick={e => e.stopPropagation()}>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5" style={{ color: 'var(--color-danger)' }} />
+                    <h3 className="text-base font-semibold">Report Disease Alert</h3>
+                  </div>
+                  <button onClick={() => setShowNewAlert(false)} className="p-1.5 rounded-lg" style={{ background: 'var(--overlay-subtle)' }}>
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider mb-1 block" style={{ color: 'var(--text-muted)' }}>Disease</label>
+                    <select value={alertForm.disease} onChange={e => setAlertForm({ ...alertForm, disease: e.target.value })}>
+                      <option value="">Select disease...</option>
+                      {REPORTABLE_DISEASES.map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-semibold uppercase tracking-wider mb-1 block" style={{ color: 'var(--text-muted)' }}>State</label>
+                      <select value={alertForm.state} onChange={e => setAlertForm({ ...alertForm, state: e.target.value })}>
+                        <option value="">Select...</option>
+                        {states.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold uppercase tracking-wider mb-1 block" style={{ color: 'var(--text-muted)' }}>County</label>
+                      <input type="text" value={alertForm.county} onChange={e => setAlertForm({ ...alertForm, county: e.target.value })} placeholder="County name" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-semibold uppercase tracking-wider mb-1 block" style={{ color: 'var(--text-muted)' }}>Suspected Cases</label>
+                      <input type="number" min={0} value={alertForm.cases || ''} onChange={e => setAlertForm({ ...alertForm, cases: parseInt(e.target.value) || 0 })} />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold uppercase tracking-wider mb-1 block" style={{ color: 'var(--text-muted)' }}>Deaths</label>
+                      <input type="number" min={0} value={alertForm.deaths || ''} onChange={e => setAlertForm({ ...alertForm, deaths: parseInt(e.target.value) || 0 })} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-semibold uppercase tracking-wider mb-1 block" style={{ color: 'var(--text-muted)' }}>Alert Level</label>
+                      <select value={alertForm.alertLevel} onChange={e => setAlertForm({ ...alertForm, alertLevel: e.target.value as typeof alertForm.alertLevel })}>
+                        <option value="watch">Watch</option>
+                        <option value="warning">Warning</option>
+                        <option value="emergency">Emergency</option>
+                        <option value="normal">Normal (monitoring)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold uppercase tracking-wider mb-1 block" style={{ color: 'var(--text-muted)' }}>Trend</label>
+                      <select value={alertForm.trend} onChange={e => setAlertForm({ ...alertForm, trend: e.target.value as typeof alertForm.trend })}>
+                        <option value="increasing">Increasing</option>
+                        <option value="stable">Stable</option>
+                        <option value="decreasing">Decreasing</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-5">
+                  <button onClick={() => setShowNewAlert(false)} className="btn btn-secondary flex-1" disabled={alertSubmitting}>Cancel</button>
+                  <button onClick={handleCreateAlert} className="btn btn-primary flex-1" disabled={alertSubmitting}>
+                    {alertSubmitting ? 'Submitting…' : 'Submit Alert'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
       </main>
     </>
   );

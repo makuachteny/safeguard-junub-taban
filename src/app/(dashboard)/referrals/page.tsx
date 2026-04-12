@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import TopBar from '@/components/TopBar';
 import EmptyState from '@/components/EmptyState';
 import {
@@ -80,6 +80,34 @@ export default function ReferralsPage() {
   const incomingReferrals = referrals.filter(r => r.toHospitalId === OUR_HOSPITAL_ID);
   const outgoingReferrals = referrals.filter(r => r.fromHospitalId === OUR_HOSPITAL_ID);
   const activeReferrals = activeTab === 'incoming' ? incomingReferrals : outgoingReferrals;
+
+  // Referral network analytics: top destinations + acceptance rate.
+  // For each receiving facility, count how many referrals we sent there
+  // and what fraction were accepted (status sent → received → seen → completed).
+  const networkStats = useMemo(() => {
+    const out = outgoingReferrals;
+    const byDestination: Record<string, { name: string; sent: number; accepted: number; completed: number; declined: number }> = {};
+    for (const r of out) {
+      const key = r.toHospitalId || r.toHospital || 'unknown';
+      if (!byDestination[key]) byDestination[key] = { name: r.toHospital || 'Unknown', sent: 0, accepted: 0, completed: 0, declined: 0 };
+      byDestination[key].sent++;
+      if (r.status === 'received' || r.status === 'seen' || r.status === 'completed') byDestination[key].accepted++;
+      if (r.status === 'completed') byDestination[key].completed++;
+      if (r.status === 'cancelled') byDestination[key].declined++;
+    }
+    const top = Object.values(byDestination).sort((a, b) => b.sent - a.sent).slice(0, 5);
+    const totalOut = out.length;
+    const totalAccepted = out.filter(r => r.status === 'received' || r.status === 'seen' || r.status === 'completed').length;
+    const totalCompleted = out.filter(r => r.status === 'completed').length;
+    const totalCancelled = out.filter(r => r.status === 'cancelled').length;
+    return {
+      top,
+      totalOut,
+      acceptanceRate: totalOut > 0 ? Math.round((totalAccepted / totalOut) * 100) : 0,
+      completionRate: totalOut > 0 ? Math.round((totalCompleted / totalOut) * 100) : 0,
+      cancellationRate: totalOut > 0 ? Math.round((totalCancelled / totalOut) * 100) : 0,
+    };
+  }, [outgoingReferrals]);
 
   // New incoming referrals (status 'sent') for notification badge
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -555,6 +583,45 @@ export default function ReferralsPage() {
               </div>
             ))}
           </div>
+
+          {/* Referral Network Analytics */}
+          {networkStats.totalOut > 0 && (
+            <div className="card-elevated p-5 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <ArrowRightLeft className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
+                  <h3 className="font-semibold text-sm">Referral Network</h3>
+                </div>
+                <div className="flex items-center gap-3 text-[11px]">
+                  <span><span className="font-bold" style={{ color: 'var(--color-success)' }}>{networkStats.acceptanceRate}%</span> accepted</span>
+                  <span><span className="font-bold" style={{ color: 'var(--accent-primary)' }}>{networkStats.completionRate}%</span> completed</span>
+                  <span><span className="font-bold" style={{ color: 'var(--color-danger)' }}>{networkStats.cancellationRate}%</span> cancelled</span>
+                </div>
+              </div>
+              <p className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Top destinations (outgoing)</p>
+              <div className="space-y-2">
+                {networkStats.top.map(d => {
+                  const acceptRate = d.sent > 0 ? Math.round((d.accepted / d.sent) * 100) : 0;
+                  const completeRate = d.sent > 0 ? Math.round((d.completed / d.sent) * 100) : 0;
+                  const barColor = acceptRate >= 80 ? '#0D9488' : acceptRate >= 50 ? 'var(--accent-primary)' : acceptRate >= 25 ? 'var(--color-warning)' : 'var(--color-danger)';
+                  return (
+                    <div key={d.name} className="flex items-center gap-3">
+                      <span className="text-xs font-medium w-44 truncate text-right" style={{ color: 'var(--text-secondary)' }} title={d.name}>{d.name}</span>
+                      <div className="flex-1 h-6 rounded-md overflow-hidden" style={{ background: 'var(--overlay-light)' }}>
+                        <div className="h-full rounded-md flex items-center justify-end pr-2 transition-all duration-700"
+                          style={{ width: `${Math.max(acceptRate, 6)}%`, background: barColor }}>
+                          <span className="text-[9px] font-bold text-white">{d.accepted}/{d.sent}</span>
+                        </div>
+                      </div>
+                      <span className="text-[10px] w-24 text-right" style={{ color: 'var(--text-muted)' }}>
+                        {acceptRate}% accept · {completeRate}% done
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* New Referral Form */}
           {showNewReferral && (

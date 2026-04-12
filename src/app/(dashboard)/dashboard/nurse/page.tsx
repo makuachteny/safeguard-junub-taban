@@ -9,6 +9,8 @@ import { useImmunizations } from '@/lib/hooks/useImmunizations';
 import { useANC } from '@/lib/hooks/useANC';
 import { useBirths } from '@/lib/hooks/useBirths';
 import { useLabResults } from '@/lib/hooks/useLabResults';
+import { useTriage } from '@/lib/hooks/useTriage';
+import { useToast } from '@/components/Toast';
 import {
   Activity, HeartPulse, Syringe, Baby, Pill, Clock,
   Radio, Wifi, ChevronRight, Clipboard, Thermometer,
@@ -177,7 +179,88 @@ export default function NurseDashboardPage() {
   const [triageData, setTriageData] = useState<TriageResult>({
     airway: '', breathing: '', circulation: '', consciousness: '', priority: '',
   });
-  const [triagePatientName, setTriagePatientName] = useState('');
+  // Triage is now tied to a real patient, not a free-text name.
+  const [triagePatientId, setTriagePatientId] = useState('');
+  const [triagePatientSearch, setTriagePatientSearch] = useState('');
+  const [triageVitals, setTriageVitals] = useState({
+    temperature: '', pulse: '', respiratoryRate: '', systolic: '', diastolic: '',
+    oxygenSaturation: '', weight: '',
+  });
+  const [triageComplaint, setTriageComplaint] = useState('');
+  const [triageNotes, setTriageNotes] = useState('');
+  const [triageSubmitting, setTriageSubmitting] = useState(false);
+
+  // Persistent triage queue + history from PouchDB
+  const { triages: triageHistory, create: createTriageRecord } = useTriage();
+  const { showToast } = useToast();
+
+  const triagePatientMatches = useMemo(() => {
+    const q = triagePatientSearch.trim().toLowerCase();
+    if (q.length < 2 || triagePatientId) return [];
+    return patients.filter(p =>
+      `${p.firstName} ${p.surname}`.toLowerCase().includes(q) ||
+      (p.hospitalNumber || '').toLowerCase().includes(q)
+    ).slice(0, 6);
+  }, [triagePatientSearch, patients, triagePatientId]);
+
+  const selectedTriagePatient = useMemo(
+    () => patients.find(p => p._id === triagePatientId) || null,
+    [triagePatientId, patients]
+  );
+
+  const handleSubmitTriage = async () => {
+    if (!selectedTriagePatient) {
+      showToast('Select a patient first', 'error');
+      return;
+    }
+    if (!triageData.priority) {
+      showToast('Complete the ABCC assessment', 'error');
+      return;
+    }
+    try {
+      setTriageSubmitting(true);
+      const now = new Date().toISOString();
+      await createTriageRecord({
+        patientId: selectedTriagePatient._id,
+        patientName: `${selectedTriagePatient.firstName} ${selectedTriagePatient.surname}`,
+        hospitalNumber: selectedTriagePatient.hospitalNumber,
+        airway: triageData.airway as 'clear' | 'obstructed',
+        breathing: triageData.breathing as 'normal' | 'distressed' | 'absent',
+        circulation: triageData.circulation as 'normal' | 'impaired' | 'absent',
+        consciousness: triageData.consciousness as 'alert' | 'verbal' | 'pain' | 'unresponsive',
+        priority: triageData.priority as 'RED' | 'YELLOW' | 'GREEN',
+        temperature: triageVitals.temperature || undefined,
+        pulse: triageVitals.pulse || undefined,
+        respiratoryRate: triageVitals.respiratoryRate || undefined,
+        systolic: triageVitals.systolic || undefined,
+        diastolic: triageVitals.diastolic || undefined,
+        oxygenSaturation: triageVitals.oxygenSaturation || undefined,
+        weight: triageVitals.weight || undefined,
+        chiefComplaint: triageComplaint || undefined,
+        notes: triageNotes || undefined,
+        triagedBy: currentUser?._id || '',
+        triagedByName: currentUser?.name || 'Unknown Nurse',
+        triagedAt: now,
+        facilityId: currentUser?.hospitalId,
+        facilityName: currentUser?.hospitalName,
+        orgId: currentUser?.orgId,
+        status: 'pending',
+      });
+      showToast(`${triageData.priority} triage saved for ${selectedTriagePatient.firstName} ${selectedTriagePatient.surname}`, 'success');
+      // Reset form
+      setTriageData({ airway: '', breathing: '', circulation: '', consciousness: '', priority: '' });
+      setTriagePatientId('');
+      setTriagePatientSearch('');
+      setTriageVitals({ temperature: '', pulse: '', respiratoryRate: '', systolic: '', diastolic: '', oxygenSaturation: '', weight: '' });
+      setTriageComplaint('');
+      setTriageNotes('');
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to save triage', 'error');
+    } finally {
+      setTriageSubmitting(false);
+    }
+  };
 
   // Sort mode for task prioritization
   const [sortByUrgency, setSortByUrgency] = useState(true);
@@ -655,22 +738,71 @@ export default function NurseDashboardPage() {
                   <AlertTriangle className="w-4 h-4" style={{ color: '#FB923C' }} />
                   <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>ETAT Triage Assessment</span>
                 </div>
+                <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                  Today: {triageHistory.filter(t => (t.triagedAt || '').startsWith(new Date().toISOString().slice(0, 10))).length} · RED active: {triageHistory.filter(t => t.priority === 'RED' && t.status === 'pending').length}
+                </span>
               </div>
               <div className="p-4 space-y-4">
-                {/* Patient name */}
+                {/* Patient picker — links triage to a real patient record */}
+                <div className="relative">
+                  <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--text-muted)' }}>Patient</label>
+                  {selectedTriagePatient ? (
+                    <div className="flex items-center justify-between px-3 py-2.5 rounded-xl" style={{ background: 'var(--accent-light)', border: '1px solid var(--accent-border, rgba(43,111,224,0.25))' }}>
+                      <div>
+                        <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                          {selectedTriagePatient.firstName} {selectedTriagePatient.surname}
+                        </p>
+                        <p className="text-[11px] font-mono" style={{ color: 'var(--text-muted)' }}>
+                          {selectedTriagePatient.hospitalNumber} · {selectedTriagePatient.gender} · {selectedTriagePatient.estimatedAge || (selectedTriagePatient.dateOfBirth ? new Date().getFullYear() - new Date(selectedTriagePatient.dateOfBirth).getFullYear() : '?')}y
+                        </p>
+                      </div>
+                      <button onClick={() => { setTriagePatientId(''); setTriagePatientSearch(''); }} className="p-1.5 rounded-lg" style={{ background: 'var(--overlay-subtle)' }}>
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <input
+                        type="text"
+                        value={triagePatientSearch}
+                        onChange={e => setTriagePatientSearch(e.target.value)}
+                        placeholder="Search by name or hospital number…"
+                        className="w-full px-3 py-2 rounded-xl text-sm"
+                        style={{
+                          background: 'var(--overlay-subtle)',
+                          border: '1px solid var(--border-light)',
+                          color: 'var(--text-primary)',
+                        }}
+                      />
+                      {triagePatientMatches.length > 0 && (
+                        <div className="absolute left-0 right-0 mt-1 rounded-xl overflow-hidden z-10" style={{ background: 'var(--bg-card-solid)', border: '1px solid var(--border-medium)', boxShadow: 'var(--card-shadow-lg)' }}>
+                          {triagePatientMatches.map(p => (
+                            <button
+                              key={p._id}
+                              onClick={() => { setTriagePatientId(p._id); setTriagePatientSearch(''); }}
+                              className="w-full text-left px-3 py-2 text-xs hover:bg-[var(--overlay-subtle)]"
+                              style={{ borderBottom: '1px solid var(--border-light)' }}
+                            >
+                              <div className="font-semibold" style={{ color: 'var(--text-primary)' }}>{p.firstName} {p.surname}</div>
+                              <div className="font-mono text-[10px]" style={{ color: 'var(--text-muted)' }}>{p.hospitalNumber} · {p.gender}</div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {/* Chief complaint */}
                 <div>
-                  <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--text-muted)' }}>Patient Name</label>
+                  <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--text-muted)' }}>Chief Complaint</label>
                   <input
                     type="text"
-                    value={triagePatientName}
-                    onChange={e => setTriagePatientName(e.target.value)}
-                    placeholder="Enter patient name"
+                    value={triageComplaint}
+                    onChange={e => setTriageComplaint(e.target.value)}
+                    placeholder="e.g. fever 3 days, difficulty breathing"
                     className="w-full px-3 py-2 rounded-xl text-sm"
-                    style={{
-                      background: 'var(--overlay-subtle)',
-                      border: '1px solid var(--border-light)',
-                      color: 'var(--text-primary)',
-                    }}
+                    style={{ background: 'var(--overlay-subtle)', border: '1px solid var(--border-light)', color: 'var(--text-primary)' }}
                   />
                 </div>
 
@@ -813,27 +945,140 @@ export default function NurseDashboardPage() {
                   >
                     <p className="text-3xl font-black mb-1">{triageData.priority}</p>
                     <p className="text-sm font-semibold">{triagePriorityColor(triageData.priority).label}</p>
-                    {triagePatientName && (
-                      <p className="text-xs mt-1 opacity-80">Patient: {triagePatientName}</p>
+                    {selectedTriagePatient && (
+                      <p className="text-xs mt-1 opacity-80">Patient: {selectedTriagePatient.firstName} {selectedTriagePatient.surname}</p>
                     )}
                   </div>
                 )}
 
-                {/* Reset */}
-                <button
-                  onClick={() => {
-                    setTriageData({ airway: '', breathing: '', circulation: '', consciousness: '', priority: '' });
-                    setTriagePatientName('');
-                  }}
-                  className="w-full py-2 rounded-xl text-xs font-semibold transition-all"
-                  style={{
-                    background: 'var(--overlay-subtle)',
-                    color: 'var(--text-secondary)',
-                    border: '1px solid var(--border-light)',
-                  }}
-                >
-                  Reset Assessment
-                </button>
+                {/* Vitals captured at triage */}
+                <div className="p-3 rounded-xl" style={{ background: 'var(--overlay-subtle)', border: '1px solid var(--border-light)' }}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Activity className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
+                    <span className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>Vitals (captured at triage)</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <div>
+                      <label className="text-[9px] font-semibold uppercase tracking-wider block" style={{ color: 'var(--text-muted)' }}>Temp (°C)</label>
+                      <input type="text" inputMode="decimal" value={triageVitals.temperature} onChange={e => setTriageVitals({ ...triageVitals, temperature: e.target.value })} placeholder="37.0" style={{ width: '100%', padding: '5px 8px', borderRadius: 6, fontSize: 12 }} />
+                    </div>
+                    <div>
+                      <label className="text-[9px] font-semibold uppercase tracking-wider block" style={{ color: 'var(--text-muted)' }}>Pulse</label>
+                      <input type="text" inputMode="numeric" value={triageVitals.pulse} onChange={e => setTriageVitals({ ...triageVitals, pulse: e.target.value })} placeholder="80" style={{ width: '100%', padding: '5px 8px', borderRadius: 6, fontSize: 12 }} />
+                    </div>
+                    <div>
+                      <label className="text-[9px] font-semibold uppercase tracking-wider block" style={{ color: 'var(--text-muted)' }}>RR</label>
+                      <input type="text" inputMode="numeric" value={triageVitals.respiratoryRate} onChange={e => setTriageVitals({ ...triageVitals, respiratoryRate: e.target.value })} placeholder="18" style={{ width: '100%', padding: '5px 8px', borderRadius: 6, fontSize: 12 }} />
+                    </div>
+                    <div>
+                      <label className="text-[9px] font-semibold uppercase tracking-wider block" style={{ color: 'var(--text-muted)' }}>SpO₂ %</label>
+                      <input type="text" inputMode="numeric" value={triageVitals.oxygenSaturation} onChange={e => setTriageVitals({ ...triageVitals, oxygenSaturation: e.target.value })} placeholder="98" style={{ width: '100%', padding: '5px 8px', borderRadius: 6, fontSize: 12 }} />
+                    </div>
+                    <div>
+                      <label className="text-[9px] font-semibold uppercase tracking-wider block" style={{ color: 'var(--text-muted)' }}>Sys BP</label>
+                      <input type="text" inputMode="numeric" value={triageVitals.systolic} onChange={e => setTriageVitals({ ...triageVitals, systolic: e.target.value })} placeholder="120" style={{ width: '100%', padding: '5px 8px', borderRadius: 6, fontSize: 12 }} />
+                    </div>
+                    <div>
+                      <label className="text-[9px] font-semibold uppercase tracking-wider block" style={{ color: 'var(--text-muted)' }}>Dia BP</label>
+                      <input type="text" inputMode="numeric" value={triageVitals.diastolic} onChange={e => setTriageVitals({ ...triageVitals, diastolic: e.target.value })} placeholder="80" style={{ width: '100%', padding: '5px 8px', borderRadius: 6, fontSize: 12 }} />
+                    </div>
+                    <div>
+                      <label className="text-[9px] font-semibold uppercase tracking-wider block" style={{ color: 'var(--text-muted)' }}>Weight kg</label>
+                      <input type="text" inputMode="decimal" value={triageVitals.weight} onChange={e => setTriageVitals({ ...triageVitals, weight: e.target.value })} placeholder="65" style={{ width: '100%', padding: '5px 8px', borderRadius: 6, fontSize: 12 }} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Notes */}
+                <div>
+                  <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1" style={{ color: 'var(--text-muted)' }}>Notes (optional)</label>
+                  <textarea
+                    rows={2}
+                    value={triageNotes}
+                    onChange={e => setTriageNotes(e.target.value)}
+                    placeholder="Additional observations..."
+                    className="w-full px-3 py-2 rounded-xl text-sm"
+                    style={{ background: 'var(--overlay-subtle)', border: '1px solid var(--border-light)', color: 'var(--text-primary)' }}
+                  />
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setTriageData({ airway: '', breathing: '', circulation: '', consciousness: '', priority: '' });
+                      setTriagePatientId('');
+                      setTriagePatientSearch('');
+                      setTriageVitals({ temperature: '', pulse: '', respiratoryRate: '', systolic: '', diastolic: '', oxygenSaturation: '', weight: '' });
+                      setTriageComplaint('');
+                      setTriageNotes('');
+                    }}
+                    className="flex-1 py-2 rounded-xl text-xs font-semibold transition-all"
+                    style={{
+                      background: 'var(--overlay-subtle)',
+                      color: 'var(--text-secondary)',
+                      border: '1px solid var(--border-light)',
+                    }}
+                    disabled={triageSubmitting}
+                  >
+                    Reset
+                  </button>
+                  <button
+                    onClick={handleSubmitTriage}
+                    disabled={triageSubmitting || !triageData.priority || !selectedTriagePatient}
+                    className="flex-1 py-2 rounded-xl text-xs font-semibold transition-all btn btn-primary"
+                  >
+                    {triageSubmitting ? 'Saving…' : 'Save Triage'}
+                  </button>
+                </div>
+
+                {/* Recent triage queue */}
+                <div className="mt-2 pt-3 border-t" style={{ borderColor: 'var(--border-light)' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Recent triages</span>
+                    <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{triageHistory.length} total</span>
+                  </div>
+                  {triageHistory.length === 0 ? (
+                    <p className="text-center text-xs py-4" style={{ color: 'var(--text-muted)' }}>No triages recorded yet.</p>
+                  ) : (
+                    <div className="space-y-1.5 max-h-64 overflow-y-auto">
+                      {triageHistory.slice(0, 8).map(t => {
+                        const c = triagePriorityColor(t.priority);
+                        const timeAgo = (() => {
+                          try {
+                            const mins = Math.floor((Date.now() - new Date(t.triagedAt).getTime()) / 60000);
+                            if (mins < 1) return 'just now';
+                            if (mins < 60) return `${mins}m ago`;
+                            const hrs = Math.floor(mins / 60);
+                            if (hrs < 24) return `${hrs}h ago`;
+                            return `${Math.floor(hrs / 24)}d ago`;
+                          } catch { return ''; }
+                        })();
+                        return (
+                          <div
+                            key={t._id}
+                            className="flex items-center gap-2 p-2 rounded-xl cursor-pointer"
+                            style={{ background: 'var(--overlay-subtle)', border: '1px solid var(--border-light)' }}
+                            onClick={() => router.push(`/patients/${t.patientId}`)}
+                          >
+                            <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: c.bg, color: c.text }}>
+                              <span className="text-[10px] font-black">{t.priority}</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{t.patientName}</p>
+                              <p className="text-[10px] truncate" style={{ color: 'var(--text-muted)' }}>
+                                {t.chiefComplaint || 'ABCC assessment'} · by {t.triagedByName} · {timeAgo}
+                              </p>
+                            </div>
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: t.status === 'pending' ? 'rgba(252,211,77,0.12)' : 'rgba(16,185,129,0.12)', color: t.status === 'pending' ? 'var(--color-warning)' : 'var(--color-success)' }}>
+                              {t.status}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}

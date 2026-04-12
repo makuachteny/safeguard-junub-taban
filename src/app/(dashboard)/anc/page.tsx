@@ -209,6 +209,55 @@ export default function ANCPage() {
           </div>
         )}
 
+        {/* Continuum funnel */}
+        {stats && stats.continuum && stats.totalMothers > 0 && (
+          <div className="card-elevated p-5 mb-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <HeartPulse className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
+                <h3 className="font-semibold text-sm">ANC Continuum of Care</h3>
+              </div>
+              <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'var(--text-muted)' }}>
+                WHO 8-contact model
+              </span>
+            </div>
+            <div className="space-y-2">
+              {([
+                { key: 'anc1', label: 'ANC1 (≥1 visit)', count: stats.continuum.anc1 },
+                { key: 'anc2', label: 'ANC2 (≥2 visits)', count: stats.continuum.anc2 },
+                { key: 'anc3', label: 'ANC3 (≥3 visits)', count: stats.continuum.anc3 },
+                { key: 'anc4', label: 'ANC4+ (≥4 visits) ★ WHO target', count: stats.continuum.anc4 },
+                { key: 'anc5plus', label: 'ANC5+ (≥5 visits)', count: stats.continuum.anc5plus },
+              ] as const).map((step, i) => {
+                const pct = stats.totalMothers > 0 ? Math.round((step.count / stats.totalMothers) * 100) : 0;
+                const dropoff = i > 0 ? Math.max(0, ([stats.continuum.anc1, stats.continuum.anc2, stats.continuum.anc3, stats.continuum.anc4, stats.continuum.anc5plus][i - 1]) - step.count) : 0;
+                const barColor = step.key === 'anc4' ? 'var(--accent-primary)' : pct >= 50 ? '#0D9488' : pct >= 25 ? 'var(--color-warning)' : 'var(--color-danger)';
+                return (
+                  <div key={step.key} className="flex items-center gap-3">
+                    <span className="text-xs font-medium w-44 text-right" style={{ color: 'var(--text-secondary)' }}>{step.label}</span>
+                    <div className="flex-1 h-7 rounded-md overflow-hidden" style={{ background: 'var(--overlay-light)' }}>
+                      <div
+                        className="h-full rounded-md flex items-center justify-end pr-2 transition-all duration-700"
+                        style={{ width: `${Math.max(pct, 4)}%`, background: barColor }}
+                      >
+                        <span className="text-[10px] font-bold text-white">{step.count} ({pct}%)</span>
+                      </div>
+                    </div>
+                    {i > 0 && dropoff > 0 ? (
+                      <span className="text-[10px] font-mono w-16 text-right" style={{ color: 'var(--color-danger)' }}>−{dropoff} drop</span>
+                    ) : (
+                      <span className="text-[10px] w-16" />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-[10px] mt-3 pt-3 border-t" style={{ color: 'var(--text-muted)', borderColor: 'var(--border-light)' }}>
+              Tracks how many enrolled mothers progress through each ANC contact. Drop-off between ANC1 and ANC4 highlights where intervention is needed to reach the WHO ≥4 contacts target.
+            </p>
+          </div>
+        )}
+
         {/* Search & Filter */}
         <div className="flex gap-3 mb-4">
           <div className="relative flex-1">

@@ -1,0 +1,107 @@
+import { triageDB } from '../db';
+import type { TriageDoc, TriagePriority } from '../db-types';
+import { v4 as uuidv4 } from 'uuid';
+import type { DataScope } from './data-scope';
+import { filterByScope } from './data-scope';
+import { logAudit } from './audit-service';
+
+/**
+ * ETAT priority calculator — encodes the WHO decision tree.
+ * Returns the priority string or '' if the assessment is incomplete.
+ */
+export function calculatePriority(data: {
+  airway: TriageDoc['airway'] | '';
+  breathing: TriageDoc['breathing'] | '';
+  circulation: TriageDoc['circulation'] | '';
+  consciousness: TriageDoc['consciousness'] | '';
+}): TriagePriority | '' {
+  if (!data.airway || !data.breathing || !data.circulation || !data.consciousness) return '';
+  // RED — any life-threatening sign
+  if (
+    data.airway === 'obstructed' ||
+    data.breathing === 'absent' ||
+    data.circulation === 'absent' ||
+    data.consciousness === 'unresponsive'
+  ) return 'RED';
+  // YELLOW — any priority sign
+  if (
+    data.breathing === 'distressed' ||
+    data.circulation === 'impaired' ||
+    data.consciousness === 'pain' ||
+    data.consciousness === 'verbal'
+  ) return 'YELLOW';
+  return 'GREEN';
+}
+
+export async function getAllTriage(scope?: DataScope): Promise<TriageDoc[]> {
+  const db = triageDB();
+  const result = await db.allDocs({ include_docs: true });
+  const all = result.rows
+    .map(r => r.doc as TriageDoc)
+    .filter(d => d && d.type === 'triage')
+    .sort((a, b) => (b.triagedAt || '').localeCompare(a.triagedAt || ''));
+  return scope ? filterByScope(all, scope) : all;
+}
+
+/** Triages for a specific patient, newest first. */
+export async function getTriageByPatient(patientId: string): Promise<TriageDoc[]> {
+  const all = await getAllTriage();
+  return all.filter(t => t.patientId === patientId);
+}
+
+/** Active (pending) triages for the current facility — feeds the nurse queue. */
+export async function getActiveTriage(scope?: DataScope): Promise<TriageDoc[]> {
+  const all = await getAllTriage(scope);
+  return all.filter(t => t.status === 'pending');
+}
+
+export async function createTriage(
+  data: Omit<TriageDoc, '_id' | '_rev' | 'type' | 'createdAt' | 'updatedAt'>
+): Promise<TriageDoc> {
+  const db = triageDB();
+  const now = new Date().toISOString();
+  const doc: TriageDoc = {
+    _id: `triage-${uuidv4().slice(0, 8)}`,
+    type: 'triage',
+    ...data,
+    createdAt: now,
+    updatedAt: now,
+  };
+  const resp = await db.put(doc);
+  doc._rev = resp.rev;
+  logAudit('TRIAGE_RECORDED', data.triagedBy, data.triagedByName,
+    `${data.priority} triage for ${data.patientName} (${data.patientId})`
+  ).catch(() => {});
+  return doc;
+}
+
+export async function updateTriage(
+  id: string,
+  updates: Partial<TriageDoc>
+): Promise<TriageDoc | null> {
+  const db = triageDB();
+  try {
+    const existing = await db.get(id) as TriageDoc;
+    const updated: TriageDoc = { ...existing, ...updates, updatedAt: new Date().toISOString() };
+    const resp = await db.put(updated);
+    updated._rev = resp.rev;
+    return updated;
+  } catch {
+    return null;
+  }
+}
+
+/** Stats for the nurse dashboard header (active reds, today's totals). */
+export async function getTriageStats(scope?: DataScope) {
+  const all = await getAllTriage(scope);
+  const today = new Date().toISOString().slice(0, 10);
+  const todays = all.filter(t => (t.triagedAt || '').startsWith(today));
+  return {
+    total: all.length,
+    todayTotal: todays.length,
+    todayRed: todays.filter(t => t.priority === 'RED').length,
+    todayYellow: todays.filter(t => t.priority === 'YELLOW').length,
+    todayGreen: todays.filter(t => t.priority === 'GREEN').length,
+    pending: all.filter(t => t.status === 'pending').length,
+  };
+}

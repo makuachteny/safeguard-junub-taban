@@ -45,5 +45,14 @@ export function useSurveillance() {
     };
   }, [loadAlerts]);
 
-  return { alerts, loading, error, reload: loadAlerts };
+  const create = useCallback(async (
+    data: Omit<DiseaseAlertDoc, '_id' | '_rev' | 'type' | 'createdAt' | 'updatedAt'>
+  ) => {
+    const { createAlert } = await import('../services/surveillance-service');
+    const alert = await createAlert(data);
+    await loadAlerts();
+    return alert;
+  }, [loadAlerts]);
+
+  return { alerts, loading, error, create, reload: loadAlerts };
 }
