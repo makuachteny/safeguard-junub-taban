@@ -39,6 +39,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { checkRateLimit } = await import('@/lib/api-security');
+    const rateLimitResponse = checkRateLimit(request, 'users:write', 20);
+    if (rateLimitResponse) return rateLimitResponse;
+
     const auth = await getAuthPayload(request);
     if (!auth) return unauthorized();
     if (!hasRole(auth, WRITE_ROLES)) return forbidden();

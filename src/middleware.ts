@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from './lib/auth-token';
+import { isTokenRevoked } from './lib/token-blacklist';
 
 // Edge-compatible route map (no lucide imports)
 const ROLE_ROUTES: Record<string, { allowed: string[]; defaultDashboard: string }> = {
@@ -88,7 +89,47 @@ function isPathAllowed(role: string, pathname: string): boolean {
   );
 }
 
+/**
+ * Structured request logging for operational visibility and audit trails.
+ * Logs: timestamp, method, path, user (if authenticated), status, duration.
+ * In production, this would feed into a log aggregation service (e.g. ELK, Loki).
+ */
+function logRequest(
+  request: NextRequest,
+  response: NextResponse,
+  userId?: string,
+  role?: string,
+  durationMs?: number,
+) {
+  // Skip noisy static asset requests
+  const path = request.nextUrl.pathname;
+  if (path.startsWith('/_next') || path === '/favicon.ico') return;
+
+  const logEntry = {
+    timestamp: new Date().toISOString(),
+    method: request.method,
+    path,
+    status: response.status || 200,
+    userId: userId || 'anonymous',
+    role: role || 'none',
+    ip: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      || request.headers.get('x-real-ip')
+      || 'unknown',
+    userAgent: request.headers.get('user-agent')?.slice(0, 100) || '',
+    durationMs: durationMs || 0,
+  };
+
+  // Use structured JSON logging for machine-parseable logs
+  if (process.env.NODE_ENV === 'production') {
+    console.log(JSON.stringify(logEntry));
+  } else if (request.method !== 'GET' || path.startsWith('/api/')) {
+    // In dev, only log API calls and state-changing requests to reduce noise
+    console.log(`[REQ] ${logEntry.method} ${logEntry.path} → ${logEntry.status} (${logEntry.userId}/${logEntry.role}) ${logEntry.durationMs}ms`);
+  }
+}
+
 export async function middleware(request: NextRequest) {
+  const startTime = Date.now();
   const { pathname } = request.nextUrl;
 
   // Static assets — always public
@@ -152,30 +193,40 @@ export async function middleware(request: NextRequest) {
   // All other routes require authentication
   const token = request.cookies.get('taban-token')?.value;
 
-  if (!token) {
+  if (!token || isTokenRevoked(token)) {
     // API routes return 401, page routes redirect to login
     if (pathname.startsWith('/api/')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const resp = NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      logRequest(request, resp, undefined, undefined, Date.now() - startTime);
+      return resp;
     }
-    return NextResponse.redirect(new URL('/login', request.url));
+    const resp = NextResponse.redirect(new URL('/login', request.url));
+    logRequest(request, resp, undefined, undefined, Date.now() - startTime);
+    return resp;
   }
 
   const payload = await verifyToken(token);
   if (!payload) {
     const response = NextResponse.redirect(new URL('/login', request.url));
     response.cookies.set('taban-token', '', { maxAge: 0, path: '/' });
+    logRequest(request, response, undefined, undefined, Date.now() - startTime);
     return response;
   }
 
   // Role-based route enforcement
   const role = payload.role;
+  const userId = payload.sub;
   const config = ROLE_ROUTES[role];
 
   if (config && !isPathAllowed(role, pathname)) {
-    return NextResponse.redirect(new URL(config.defaultDashboard, request.url));
+    const resp = NextResponse.redirect(new URL(config.defaultDashboard, request.url));
+    logRequest(request, resp, userId, role, Date.now() - startTime);
+    return resp;
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  logRequest(request, response, userId, role, Date.now() - startTime);
+  return response;
 }
 
 export const config = {

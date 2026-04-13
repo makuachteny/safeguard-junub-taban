@@ -132,7 +132,7 @@ describe('Integration: patient journey', () => {
 
     // === STEP 5: Prescription ===
     // Note: Penicillin allergy — doctor prescribes Artemether-Lumefantrine instead
-    const prescription = await createPrescription({
+    const rxResult = await createPrescription({
       patientId: patient._id,
       patientName: `${patient.firstName} ${patient.surname}`,
       medication: 'Artemether-Lumefantrine (ACT)',
@@ -143,6 +143,7 @@ describe('Integration: patient journey', () => {
       prescribedBy: 'Dr. Wani',
       status: 'pending',
     });
+    const prescription = rxResult.prescription;
 
     expect(prescription.medication).toBe('Artemether-Lumefantrine (ACT)');
 

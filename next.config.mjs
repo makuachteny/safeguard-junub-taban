@@ -17,6 +17,15 @@ const scriptSrc = isProd
 
 const nextConfig = {
   webpack: (config, { isServer }) => {
+    // Filter managed paths that don't contain a package.json to avoid noisy
+    // webpack cache warnings from empty optional dependency stubs.
+    // Suppress noisy webpack cache warnings for platform-specific optional
+    // dependency stubs (e.g. @next/swc-linux-x64-gnu on macOS).
+    config.infrastructureLogging = {
+      ...config.infrastructureLogging,
+      level: 'error',
+    };
+
     if (!isServer) {
       // PouchDB needs these Node.js polyfills disabled in browser
       config.resolve.fallback = {

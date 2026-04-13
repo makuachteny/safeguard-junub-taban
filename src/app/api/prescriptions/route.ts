@@ -47,6 +47,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { checkRateLimit } = await import('@/lib/api-security');
+    const rateLimitResponse = checkRateLimit(request, 'prescriptions:write', 30);
+    if (rateLimitResponse) return rateLimitResponse;
+
     const auth = await getAuthPayload(request);
     if (!auth) return unauthorized();
     if (!hasRole(auth, CREATE_ROLES)) return forbidden();
@@ -65,9 +69,12 @@ export async function POST(request: NextRequest) {
     if (!body.orgId && auth.orgId) body.orgId = auth.orgId;
 
     const { createPrescription } = await import('@/lib/services/prescription-service');
-    const prescription = await createPrescription(body as Parameters<typeof createPrescription>[0]);
+    const result = await createPrescription(body as Parameters<typeof createPrescription>[0]);
 
-    return NextResponse.json({ prescription }, { status: 201 });
+    return NextResponse.json({
+      prescription: result.prescription,
+      interactionWarnings: result.interactionWarnings,
+    }, { status: 201 });
   } catch (err: unknown) {
     if (err instanceof Error && err.name === 'ValidationError') {
       const ve = err as Error & { fields: Record<string, string> };

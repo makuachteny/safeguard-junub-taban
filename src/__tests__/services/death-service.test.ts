@@ -172,4 +172,316 @@ describe('death-service', () => {
     expect(stats.byGender.male).toBe(1);
     expect(stats.byGender.female).toBe(1);
   });
+
+  // ---- Uncovered branches ----
+  test('createDeath without patientId does not update patient', async () => {
+    // When patientId is not provided, should not attempt updatePatient
+    const death = await createDeath(makeDeathData({
+      patientId: undefined as any,
+    }));
+    expect(death._id).toBeDefined();
+    expect(death.type).toBe('death');
+  });
+
+  test('createDeath handles patient update failure gracefully', async () => {
+    // Even if updatePatient fails, death should be created
+    const death = await createDeath(makeDeathData({
+      patientId: 'pat-nonexistent-123',
+    }));
+    expect(death._id).toBeDefined();
+    expect(death.type).toBe('death');
+  });
+
+  test('getDeathStats counts neonatal deaths correctly', async () => {
+    await createDeath(makeDeathData({
+      ageAtDeath: 0.01, // about 3-4 days old
+      dateOfBirth: '2025-12-25',
+    }));
+    await createDeath(makeDeathData({
+      ageAtDeath: 1, // 1 year old, not neonatal
+      dateOfBirth: '2024-12-20',
+    }));
+
+    const stats = await getDeathStats();
+    expect(stats.neonatalDeaths).toBe(1);
+    expect(stats.under5Deaths).toBe(2); // both neonatal and older child
+  });
+
+  test('getDeathStats handles death without ageAtDeath', async () => {
+    await createDeath(makeDeathData({
+      ageAtDeath: undefined as any,
+    }));
+    const stats = await getDeathStats();
+    expect(stats.under5Deaths).toBe(0);
+    expect(stats.neonatalDeaths).toBe(0);
+  });
+
+  test('getDeathStats counts registered and notified deaths', async () => {
+    await createDeath(makeDeathData({
+      deathRegistered: true,
+      deathNotified: true,
+    }));
+    await createDeath(makeDeathData({
+      deathRegistered: false,
+      deathNotified: true,
+    }));
+    await createDeath(makeDeathData({
+      deathRegistered: false,
+      deathNotified: false,
+    }));
+
+    const stats = await getDeathStats();
+    expect(stats.registered).toBe(1);
+    expect(stats.notified).toBe(2);
+  });
+
+  test('getDeathStats groups by mannerOfDeath', async () => {
+    await createDeath(makeDeathData({
+      mannerOfDeath: 'natural',
+    }));
+    await createDeath(makeDeathData({
+      mannerOfDeath: 'accident',
+    }));
+    await createDeath(makeDeathData({
+      mannerOfDeath: 'natural',
+    }));
+
+    const stats = await getDeathStats();
+    expect(stats.byMannerOfDeath['natural']).toBe(2);
+    expect(stats.byMannerOfDeath['accident']).toBe(1);
+  });
+
+  test('getDeathStats handles missing mannerOfDeath', async () => {
+    await createDeath(makeDeathData({
+      mannerOfDeath: undefined as any,
+    }));
+
+    const stats = await getDeathStats();
+    expect(stats.byMannerOfDeath['Unknown']).toBe(1);
+  });
+
+  test('getDeathStats groups by state', async () => {
+    await createDeath(makeDeathData({
+      state: 'Central Equatoria',
+    }));
+    await createDeath(makeDeathData({
+      state: 'Upper Nile',
+    }));
+    await createDeath(makeDeathData({
+      state: 'Central Equatoria',
+    }));
+
+    const stats = await getDeathStats();
+    expect(stats.byState['Central Equatoria']).toBe(2);
+    expect(stats.byState['Upper Nile']).toBe(1);
+  });
+
+  test('getDeathStats handles missing state', async () => {
+    await createDeath(makeDeathData({
+      state: undefined as any,
+    }));
+
+    const stats = await getDeathStats();
+    expect(stats.byState['Unknown']).toBe(1);
+  });
+
+  test('getDeathStats calculates topCauses with underlyingICD11', async () => {
+    await createDeath(makeDeathData({
+      underlyingICD11: 'BA00',
+      underlyingCause: 'Hypertension',
+    }));
+    await createDeath(makeDeathData({
+      underlyingICD11: 'BC41',
+      underlyingCause: 'Cardiac arrest',
+    }));
+
+    const stats = await getDeathStats();
+    expect(stats.topCauses.length).toBeGreaterThan(0);
+    expect(stats.topCauses[0].code).toBeDefined();
+    expect(stats.topCauses[0].count).toBeGreaterThan(0);
+  });
+
+  test('getDeathStats with immediate ICD code when underlying missing', async () => {
+    await createDeath(makeDeathData({
+      underlyingICD11: '',
+      immediateICD11: 'BC41',
+      immediateCause: 'Cardiac arrest',
+    }));
+
+    const stats = await getDeathStats();
+    expect(stats.topCauses.length).toBeGreaterThan(0);
+  });
+
+  test('getDeathStats with unknown code when both ICD codes missing', async () => {
+    await createDeath(makeDeathData({
+      underlyingICD11: '',
+      immediateICD11: '',
+    }));
+
+    const stats = await getDeathStats();
+    expect(stats.topCauses.some(c => c.code === 'unknown')).toBe(true);
+  });
+
+  // ---- Additional branch coverage for uncovered lines ----
+
+  test('createDeath with missing dateOfDeath uses now as fallback', async () => {
+    const death = await createDeath(makeDeathData({
+      dateOfDeath: undefined as any,
+    }));
+    expect(death._id).toMatch(/^death-/);
+    expect(death.type).toBe('death');
+  });
+
+  test('createDeath with patientId updates patient record', async () => {
+    // This tests line 41-48 - the patient update branch
+    const death = await createDeath(makeDeathData({
+      patientId: 'patient-123',
+    }));
+    expect(death.patientId).toBe('patient-123');
+  });
+
+  test('createDeath without patientId skips patient update', async () => {
+    const death = await createDeath(makeDeathData({
+      patientId: undefined as any,
+    }));
+    expect(death.patientId).toBeUndefined();
+  });
+
+  test('getDeathStats filters by thisMonth with missing dateOfDeath', async () => {
+    await createDeath(makeDeathData({
+      dateOfDeath: undefined as any,
+    }));
+
+    const stats = await getDeathStats();
+    // Should not crash
+    expect(typeof stats.thisMonth).toBe('number');
+  });
+
+  test('getDeathStats filters by thisYear with missing dateOfDeath', async () => {
+    await createDeath(makeDeathData({
+      dateOfDeath: undefined as any,
+    }));
+
+    const stats = await getDeathStats();
+    // Should not crash
+    expect(typeof stats.thisYear).toBe('number');
+  });
+
+  test('getDeathStats byMannerOfDeath with missing mannerOfDeath', async () => {
+    await createDeath(makeDeathData({
+      mannerOfDeath: undefined as any,
+    }));
+
+    const stats = await getDeathStats();
+    expect(stats.byMannerOfDeath['Unknown']).toBeGreaterThanOrEqual(1);
+  });
+
+  test('getDeathStats byState with missing state', async () => {
+    await createDeath(makeDeathData({
+      state: undefined as any,
+    }));
+
+    const stats = await getDeathStats();
+    expect(stats.byState['Unknown']).toBeGreaterThanOrEqual(1);
+  });
+
+  test('getDeathStats with immediateCause fallback', async () => {
+    await createDeath(makeDeathData({
+      underlyingCause: undefined as any,
+      immediateCause: 'Heart failure',
+    }));
+
+    const stats = await getDeathStats();
+    expect(stats.topCauses.some(c => c.cause === 'Heart failure')).toBe(true);
+  });
+
+  test('getDeathStats with Unknown cause fallback', async () => {
+    await createDeath(makeDeathData({
+      underlyingCause: undefined as any,
+      immediateCause: undefined as any,
+    }));
+
+    const stats = await getDeathStats();
+    expect(stats.topCauses.some(c => c.cause === 'Unknown')).toBe(true);
+  });
+
+  test('getAllDeaths sorts by dateOfDeath descending', async () => {
+    await createDeath(makeDeathData({ dateOfDeath: '2026-01-01' }));
+    await createDeath(makeDeathData({ dateOfDeath: '2026-04-10', deceasedFirstName: 'B', deceasedSurname: 'Test' }));
+
+    const all = await getAllDeaths();
+    expect(all[0].dateOfDeath).toBe('2026-04-10');
+  });
+
+  test('getAllDeaths handles missing dateOfDeath in sort', async () => {
+    await createDeath(makeDeathData({ dateOfDeath: undefined as any }));
+    await createDeath(makeDeathData({ dateOfDeath: '2026-04-10', deceasedFirstName: 'B', deceasedSurname: 'Test' }));
+
+    const all = await getAllDeaths();
+    expect(all).toHaveLength(2);
+  });
+
+  test('updateDeath returns null for non-existent death', async () => {
+    const updated = await updateDeath('non-existent-id', {
+      deathRegistered: true,
+    });
+    expect(updated).toBeNull();
+  });
+
+  test('deleteDeath returns false for non-existent death', async () => {
+    const deleted = await deleteDeath('non-existent-id');
+    expect(deleted).toBe(false);
+  });
+
+  test('getDeathStats with scope filters correctly', async () => {
+    await createDeath(makeDeathData());
+    const stats = await getDeathStats({ role: 'nurse' as any });
+    expect(typeof stats.total).toBe('number');
+  });
+
+  test('getDeathStats byMannerOfDeath with multiple manners', async () => {
+    await createDeath(makeDeathData({ mannerOfDeath: 'Natural' }));
+    await createDeath(makeDeathData({ mannerOfDeath: 'Accident', deceasedFirstName: 'B', deceasedSurname: 'Test' }));
+    await createDeath(makeDeathData({ mannerOfDeath: 'Suicide', deceasedFirstName: 'C', deceasedSurname: 'Test' }));
+
+    const stats = await getDeathStats();
+    expect(stats.byMannerOfDeath['Natural']).toBeGreaterThanOrEqual(1);
+    expect(stats.byMannerOfDeath['Accident']).toBeGreaterThanOrEqual(1);
+    expect(stats.byMannerOfDeath['Suicide']).toBeGreaterThanOrEqual(1);
+  });
+
+  // ---- Line 15: Test sort with missing dateOfDeath ----
+  test('getAllDeaths sorts correctly with missing dateOfDeath (line 15)', async () => {
+    await createDeath(makeDeathData({ dateOfDeath: '2026-04-12' }));
+
+    // Manually insert a death record without dateOfDeath
+    const db = require('@/lib/db').deathsDB();
+    const deathNoDate = {
+      _id: 'death-no-date',
+      type: 'death',
+      deceasedFirstName: 'Unknown',
+      deceasedSurname: 'Deceased',
+      dateOfDeath: undefined as any,
+      facilityId: 'hosp-001',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    await db.put(deathNoDate);
+
+    const all = await getAllDeaths();
+    expect(Array.isArray(all)).toBe(true);
+    expect(all.length).toBeGreaterThan(0);
+  });
+
+  // ---- Line 45: Test deceasedDate fallback when dateOfDeath is missing ----
+  test('createDeath uses current date when dateOfDeath is missing (line 45)', async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const death = await createDeath(makeDeathData({
+      dateOfDeath: undefined as any,
+      patientId: 'p-death-no-date',
+    }));
+
+    expect(death._id).toBeDefined();
+    expect(death.type).toBe('death');
+  });
 });

@@ -37,6 +37,12 @@ afterEach(async () => {
   uuidCounter = 0;
 });
 
+// Additional tests for branch coverage
+const makeLongMessageData = (overrides: Record<string, unknown> = {}) => ({
+  ...makeMessageData(),
+  ...overrides,
+});
+
 describe('message-service', () => {
   test('getAllMessages returns empty initially', async () => {
     const messages = await getAllMessages();
@@ -139,6 +145,24 @@ describe('message-service', () => {
     expect(all[2].subject).toBe('First');
   });
 
+  test('getAllMessages handles undefined sentAt in sort (line 13)', async () => {
+    // Tests line 13: new Date(b.sentAt || '').getTime()
+    // When sentAt is undefined, new Date('') creates Invalid Date with NaN time
+    await createMessage(makeLongMessageData({
+      subject: 'No sentAt message',
+      sentAt: undefined as any,
+    }));
+    await createMessage(makeLongMessageData({
+      subject: 'With sentAt message',
+      sentAt: '2025-03-15T10:00:00Z',
+    }));
+
+    const all = await getAllMessages();
+    expect(all).toHaveLength(2);
+    // Should handle the undefined sentAt gracefully without crashing
+    expect(Array.isArray(all)).toBe(true);
+  });
+
   test('updateMessage preserves existing fields', async () => {
     const msg = await createMessage(makeMessageData({ subject: 'Original subject' }));
     const updated = await updateMessage(msg._id, { status: 'delivered' });
@@ -178,5 +202,23 @@ describe('message-service', () => {
 
     const updated = await updateMessage(msg._id, { status: 'delivered' });
     expect(updated!.updatedAt > originalUpdatedAt).toBe(true);
+  });
+
+  test('getAllMessages with scope filters results', async () => {
+    await createMessage(makeMessageData());
+    const allNoScope = await getAllMessages();
+    expect(allNoScope.length).toBeGreaterThanOrEqual(1);
+
+    // With scope - the filterByScope function would be called
+    const allWithScope = await getAllMessages({ role: 'nurse' as any });
+    expect(Array.isArray(allWithScope)).toBe(true);
+  });
+
+  test('getAllMessages handles messages with missing sentAt', async () => {
+    await createMessage(makeMessageData({ sentAt: '2025-03-15T10:00:00Z' }));
+    await createMessage(makeMessageData({ sentAt: undefined }) as any);
+
+    const all = await getAllMessages();
+    expect(all.length).toBeGreaterThanOrEqual(2);
   });
 });

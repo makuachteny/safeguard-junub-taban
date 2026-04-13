@@ -97,6 +97,24 @@ describe('facility-assessment-service', () => {
     expect(updated!.facilityId).toBe('hosp-001');
   });
 
+  test('getAllAssessments with scope filters by data scope (line 14)', async () => {
+    // Tests line 14: return scope ? filterByScope(all, scope) : all;
+    await createAssessment(makeAssessmentData({ facilityId: 'hosp-001', orgId: 'org-001' }));
+    await createAssessment(makeAssessmentData({
+      facilityId: 'hosp-002',
+      facilityName: 'County Hospital',
+      orgId: 'org-002',
+    }));
+
+    // Get all without scope
+    const allAssessments = await getAllAssessments();
+    expect(allAssessments.length).toBeGreaterThanOrEqual(2);
+
+    // Get with scope filter
+    const scopedAssessments = await getAllAssessments({ role: 'nurse' as any, orgId: 'org-001' });
+    expect(scopedAssessments).toBeDefined();
+  });
+
   test('updateAssessment returns null for non-existent id', async () => {
     const result = await updateAssessment('assess-nonexistent', { overallScore: 90 });
     expect(result).toBeNull();

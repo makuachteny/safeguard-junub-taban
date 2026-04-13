@@ -165,4 +165,48 @@ describe('Pharmacy Inventory Service', () => {
       } as PharmacyInventoryDoc)).toBe('expired');
     });
   });
+
+  test('getAllInventory with scope', async () => {
+    await createInventoryItem(validItem() as any);
+    const all = await getAllInventory({ role: 'nurse' as any });
+    expect(Array.isArray(all)).toBe(true);
+  });
+
+  test('decrementStock with undefined hospitalId uses first match', async () => {
+    await createInventoryItem(validItem({ hospitalId: 'hosp-001', stockLevel: 100 }) as any);
+    await decrementStock('Artesunate 60mg', undefined, 10);
+
+    const all = await getAllInventory();
+    expect(all[0].stockLevel).toBe(90);
+  });
+
+  test('decrementStock with no medication match is no-op', async () => {
+    await createInventoryItem(validItem({ medicationName: 'Different Drug' }) as any);
+    await decrementStock('Artesunate 60mg', 'hosp-001', 5);
+
+    const all = await getAllInventory();
+    expect(all[0].stockLevel).toBe(500); // unchanged
+  });
+
+  test('decrementStock defaults quantity to 1', async () => {
+    const item = await createInventoryItem(validItem() as any);
+    await decrementStock('Artesunate 60mg', 'hosp-001');
+
+    const all = await getAllInventory();
+    const updated = all.find(i => i._id === item._id)!;
+    expect(updated.stockLevel).toBe(499);
+    expect(updated.dispensedToday).toBe(1);
+  });
+
+  test('classifyStockStatus with no expiry date', () => {
+    expect(classifyStockStatus({
+      stockLevel: 200, reorderLevel: 100, expiryDate: undefined,
+    } as unknown as PharmacyInventoryDoc)).toBe('adequate');
+  });
+
+  test('classifyStockStatus with expired and zero stock', () => {
+    expect(classifyStockStatus({
+      stockLevel: 0, reorderLevel: 100, expiryDate: '2020-01-01',
+    } as PharmacyInventoryDoc)).toBe('expired');
+  });
 });

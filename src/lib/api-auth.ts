@@ -5,6 +5,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from './auth-token';
+import { isTokenRevoked } from './token-blacklist';
 import type { UserRole } from './db-types';
 
 export interface AuthPayload {
@@ -23,6 +24,10 @@ export interface AuthPayload {
 export async function getAuthPayload(request: NextRequest): Promise<AuthPayload | null> {
   const token = request.cookies.get('taban-token')?.value;
   if (!token) return null;
+
+  // Reject tokens that have been explicitly revoked (logout)
+  if (isTokenRevoked(token)) return null;
+
   const payload = await verifyToken(token);
   if (!payload) return null;
   return payload as AuthPayload;

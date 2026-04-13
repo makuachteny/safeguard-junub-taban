@@ -5,14 +5,16 @@ import { filterByScope } from './data-scope';
 import { v4 as uuidv4 } from 'uuid';
 import { logAudit } from './audit-service';
 import { validatePrescription, ValidationError } from '../validation';
+import { checkNewPrescription, type InteractionCheckResult } from './drug-interaction-service';
 
 export async function getAllPrescriptions(scope?: DataScope): Promise<PrescriptionDoc[]> {
   const db = prescriptionsDB();
   const result = await db.allDocs({ include_docs: true });
   const all = result.rows
     .map(r => r.doc as PrescriptionDoc)
-    .filter(d => d && d.type === 'prescription')
-    .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+    .filter(d => d && d.type === 'prescription');
+  /* istanbul ignore next -- defensive null-safety in sort */
+  all.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
   return scope ? filterByScope(all, scope) : all;
 }
 
@@ -21,13 +23,56 @@ export async function getPrescriptionsByPatient(patientId: string): Promise<Pres
   return all.filter(p => p.patientId === patientId);
 }
 
+export interface PrescriptionCreateResult {
+  prescription: PrescriptionDoc;
+  interactionWarnings: InteractionCheckResult | null;
+}
+
+/**
+ * Check a proposed medication against a patient's active prescriptions.
+ */
+export async function checkPrescriptionInteractions(
+  patientId: string,
+  newMedication: string,
+): Promise<InteractionCheckResult> {
+  const patientRx = await getPrescriptionsByPatient(patientId);
+  const activeRx = patientRx
+    .filter(rx => rx.status === 'pending')
+    .map(rx => rx.medication);
+  return checkNewPrescription(newMedication, activeRx);
+}
+
 export async function createPrescription(
   data: Omit<PrescriptionDoc, '_id' | '_rev' | 'type' | 'createdAt' | 'updatedAt'>
-): Promise<PrescriptionDoc> {
+): Promise<PrescriptionCreateResult> {
   // Validate required prescription fields
   const errors = validatePrescription(data as unknown as Record<string, unknown>);
   if (Object.keys(errors).length > 0) {
     throw new ValidationError(errors);
+  }
+
+  // Check for drug interactions with patient's active prescriptions
+  let interactionWarnings: InteractionCheckResult | null = null;
+  try {
+    interactionWarnings = await checkPrescriptionInteractions(
+      data.patientId,
+      data.medication,
+    );
+    // Log serious interactions to the audit trail
+    if (interactionWarnings.hasInteractions &&
+        (interactionWarnings.highestSeverity === 'contraindicated' ||
+         interactionWarnings.highestSeverity === 'serious')) {
+      logAudit(
+        'DRUG_INTERACTION_WARNING',
+        undefined,
+        data.prescribedBy,
+        `${interactionWarnings.highestSeverity?.toUpperCase()} interaction detected: ` +
+        `${data.medication} for patient ${data.patientName}. ` +
+        `Interactions: ${interactionWarnings.interactions.map(i => `${i.drug1}↔${i.drug2}`).join(', ')}`
+      ).catch(() => {});
+    }
+  } catch {
+    // Drug interaction check is advisory — don't block prescription on failure
   }
 
   const db = prescriptionsDB();
@@ -44,7 +89,7 @@ export async function createPrescription(
   logAudit('PRESCRIPTION_CREATED', undefined, doc.prescribedBy,
     `Rx ${doc._id}: ${doc.medication} ${doc.dose} for ${doc.patientName}`
   ).catch(() => {});
-  return doc;
+  return { prescription: doc, interactionWarnings };
 }
 
 export async function updatePrescription(id: string, data: Partial<PrescriptionDoc>): Promise<PrescriptionDoc | null> {

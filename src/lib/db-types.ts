@@ -537,6 +537,56 @@ export interface PlatformConfigDoc extends BaseDoc {
   defaultSecondaryColor: string;
 }
 
+// ===== Staff Scheduling =====
+export interface StaffScheduleDoc extends BaseDoc {
+  type: 'staff_schedule';
+  userId: string;
+  userName: string;
+  role: string;
+  facilityId: string;
+  facilityName: string;
+  shiftType: 'morning' | 'afternoon' | 'night' | 'on_call';
+  shiftDate: string; // YYYY-MM-DD
+  startTime: string; // HH:MM
+  endTime: string; // HH:MM
+  department?: string;
+  isOnCall: boolean;
+  notes?: string;
+  status: 'scheduled' | 'confirmed' | 'completed' | 'absent' | 'swapped';
+  swappedWith?: string; // userId of swap partner
+  orgId?: string;
+}
+
+// ===== Blood Bank Management =====
+export interface BloodBankDoc extends BaseDoc {
+  type: 'blood_bank';
+  unitId: string;
+  bloodGroup: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
+  component: 'whole_blood' | 'packed_rbc' | 'platelets' | 'ffp' | 'cryoprecipitate';
+  volume: number; // ml
+  collectionDate: string;
+  expiryDate: string;
+  donorId?: string;
+  donorName?: string;
+  status: 'available' | 'reserved' | 'crossmatched' | 'transfused' | 'expired' | 'discarded';
+  facilityId: string;
+  facilityName: string;
+  reservedForPatient?: string;
+  crossmatchResult?: 'compatible' | 'incompatible' | 'pending';
+  transfusedTo?: string;
+  transfusedAt?: string;
+  transfusedBy?: string;
+  screeningResults?: {
+    hiv: boolean;
+    hepatitisB: boolean;
+    hepatitisC: boolean;
+    syphilis: boolean;
+    malaria: boolean;
+  };
+  notes?: string;
+  orgId?: string;
+}
+
 // ===== Appointment Booking (Payam Level & Above) =====
 export type AppointmentStatus = 'scheduled' | 'confirmed' | 'checked_in' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
 export type AppointmentType = 'general' | 'follow_up' | 'specialist' | 'anc' | 'immunization' | 'lab' | 'telehealth' | 'surgical' | 'dental' | 'mental_health' | 'walk_in';
@@ -650,6 +700,52 @@ export interface TelehealthSessionDoc extends BaseDoc {
   cancelledBy?: string;
   state: string;
   county?: string;
+  orgId?: string;
+}
+
+// ===== Emergency Preparedness =====
+export type EmergencyType = 'disease_outbreak' | 'flood' | 'conflict' | 'famine' | 'cholera_outbreak' | 'measles_outbreak' | 'ebola' | 'mass_casualty' | 'infrastructure_failure';
+export type EmergencyPhase = 'preparedness' | 'alert' | 'response' | 'recovery' | 'closed';
+export type EmergencySeverity = 'level_1' | 'level_2' | 'level_3'; // WHO scale: 1=watch, 2=mobilize, 3=full activation
+
+export interface EmergencyPlanDoc extends BaseDoc {
+  type: 'emergency_plan';
+  planName: string;
+  emergencyType: EmergencyType;
+  phase: EmergencyPhase;
+  severity: EmergencySeverity;
+  description: string;
+  facilityId: string;
+  facilityName: string;
+  // Activation
+  activatedAt?: string;
+  activatedBy?: string;
+  deactivatedAt?: string;
+  // Resource readiness
+  resources: {
+    surgeBeds: number;
+    availableSurgeBeds: number;
+    emergencyKits: number;
+    oralRehydrationSachets: number;
+    choleraCots: number;
+    ppe: number; // sets
+    emergencyMedications: string[];
+  };
+  // Communication chain
+  incidentCommander: string;
+  incidentCommanderPhone: string;
+  contactChain: { name: string; role: string; phone: string; order: number }[];
+  // Capacity
+  estimatedCapacity: number; // patients per day
+  currentLoad: number;
+  // Geographic scope
+  state: string;
+  county?: string;
+  affectedAreas?: string[];
+  // Tracking
+  totalCasesManaged: number;
+  totalDeaths: number;
+  totalReferralsOut: number;
   orgId?: string;
 }
 

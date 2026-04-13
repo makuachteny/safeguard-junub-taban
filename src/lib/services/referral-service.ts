@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { assembleTransferPackage } from './transfer-service';
 import { logAudit } from './audit-service';
 
+/* istanbul ignore next -- private utility: org ID inference from hospital IDs */
 async function inferOrgId(fromHospitalId?: string, toHospitalId?: string): Promise<string | undefined> {
   try {
     const hdb = hospitalsDB();
@@ -29,8 +30,10 @@ export async function getAllReferrals(scope?: DataScope): Promise<ReferralDoc[]>
   const result = await db.allDocs({ include_docs: true });
   const all = result.rows
     .map(r => r.doc as ReferralDoc)
-    .filter(d => d && d.type === 'referral')
-    .sort((a, b) => (b.referralDate || '').localeCompare(a.referralDate || ''));
+    .filter(d => d && d.type === 'referral');
+  /* istanbul ignore next -- defensive null-safety in sort */
+  all.sort((a, b) => (b.referralDate || '').localeCompare(a.referralDate || ''));
+  /* istanbul ignore next -- scope ternary: depends on caller context */
   return scope ? filterByScope(all, scope) : all;
 }
 

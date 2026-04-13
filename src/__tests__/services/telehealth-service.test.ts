@@ -315,4 +315,55 @@ describe('Telehealth Service', () => {
     expect(session.referralRequired).toBe(true);
     expect(session.referralFacility).toBe('Juba Teaching Hospital');
   });
+
+  test('getUpcomingSessions sorts by date and time ascending', async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+
+    // Create sessions out of order
+    await createSession(validSession({
+      scheduledDate: tomorrow,
+      scheduledTime: '15:00',
+      patientId: 'pat-001',
+    }) as any);
+
+    await createSession(validSession({
+      scheduledDate: tomorrow,
+      scheduledTime: '09:00',
+      patientId: 'pat-002',
+      patientName: 'Another Patient',
+    }) as any);
+
+    const upcoming = await getUpcomingSessions();
+    // Should be sorted by date+time ascending
+    expect(upcoming[0].scheduledTime).toBe('09:00');
+    expect(upcoming[1].scheduledTime).toBe('15:00');
+  });
+
+  test('updateSession returns null for nonexistent session', async () => {
+    const result = await updateSession('tele-nonexistent', { sessionQuality: 'good' });
+    expect(result).toBeNull();
+  });
+
+  test('getUpcomingSessions with scope parameter', async () => {
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+    await createSession(validSession({
+      scheduledDate: tomorrow,
+      status: 'scheduled',
+    }) as any);
+
+    const upcoming = await getUpcomingSessions({ role: 'nurse' as any });
+    expect(Array.isArray(upcoming)).toBe(true);
+  });
+
+  test('getTelehealthStats includes failed sessions', async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    await createSession(validSession({
+      scheduledDate: today,
+      status: 'failed',
+    }) as any);
+
+    const stats = await getTelehealthStats();
+    expect(stats.failedTotal).toBe(1);
+  });
 });

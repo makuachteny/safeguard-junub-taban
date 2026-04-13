@@ -45,7 +45,7 @@ describe('Pharmacy Dispensing Integration', () => {
       hospitalId: 'hosp-001',
       hospitalName: 'Taban Hospital',
     } as any);
-    expect(rx.status).toBe('pending');
+    expect(rx.prescription.status).toBe('pending');
 
     // Step 3: Pharmacist checks pending prescriptions for the patient
     const pending = await getPrescriptionsByPatient('patient-001');
@@ -53,7 +53,7 @@ describe('Pharmacy Dispensing Integration', () => {
     expect(pending[0].status).toBe('pending');
 
     // Step 4: Pharmacist dispenses the medication
-    const dispensed = await dispensePrescription(rx._id, 'pharmacist-001');
+    const dispensed = await dispensePrescription(rx.prescription._id, 'pharmacist-001');
     expect(dispensed).not.toBeNull();
     expect(dispensed!.status).toBe('dispensed');
     expect(dispensed!.dispensedAt).toBeDefined();
@@ -128,9 +128,9 @@ describe('Pharmacy Dispensing Integration', () => {
     } as any);
 
     // Dispense both
-    await dispensePrescription(rx1._id, 'pharmacist-001');
+    await dispensePrescription(rx1.prescription._id, 'pharmacist-001');
     await decrementStock('Paracetamol 500mg', 'hosp-001', 30); // 2x3x5=30
-    await dispensePrescription(rx2._id, 'pharmacist-001');
+    await dispensePrescription(rx2.prescription._id, 'pharmacist-001');
     await decrementStock('Paracetamol 500mg', 'hosp-001', 12); // 1x4x3=12
 
     const inventory = await getAllInventory();

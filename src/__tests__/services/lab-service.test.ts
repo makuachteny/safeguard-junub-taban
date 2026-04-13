@@ -133,4 +133,65 @@ describe('lab-service', () => {
     expect(updated!.specimen).toBe('Blood');
     expect(updated!.result).toBe('WBC: 5.0');
   });
+
+  // ---- Additional branch coverage for line 13 ----
+
+  test('createLabResult with hospitalId but no orgId infers orgId', async () => {
+    // This tests line 13: return hosp.orgId; in inferOrgIdFromHospital
+    // When orgId is not provided, it tries to look it up from the hospital
+    const lab = await createLabResult(makeLabData({
+      hospitalId: 'hosp-001',
+      orgId: undefined as any,
+    }));
+    expect(lab._id).toMatch(/^lab-/);
+  });
+
+  test('createLabResult with orgId provided', async () => {
+    const lab = await createLabResult(makeLabData({
+      hospitalId: 'hosp-001',
+      orgId: 'org-001',
+    }));
+    expect(lab.orgId).toBe('org-001');
+  });
+
+  test('createLabResult with neither hospitalId nor orgId', async () => {
+    const lab = await createLabResult(makeLabData({
+      hospitalId: undefined as any,
+      orgId: undefined as any,
+    }));
+    expect(lab._id).toMatch(/^lab-/);
+  });
+
+  test('getAllLabResults with scope filters correctly', async () => {
+    await createLabResult(makeLabData());
+    const results = await getAllLabResults({ role: 'nurse' as any });
+    expect(Array.isArray(results)).toBe(true);
+  });
+
+  test('getAllLabResults handles empty orderedAt in sort', async () => {
+    await createLabResult(makeLabData({ orderedAt: undefined as any }));
+    await createLabResult(makeLabData({ orderedAt: '2025-03-01T00:00:00Z', testName: 'B' }));
+
+    const all = await getAllLabResults();
+    expect(all).toHaveLength(2);
+  });
+
+  test('getAllLabResults with all empty orderedAt', async () => {
+    await createLabResult(makeLabData({ orderedAt: undefined as any }));
+    await createLabResult(makeLabData({ orderedAt: undefined as any, testName: 'B' }));
+
+    const all = await getAllLabResults();
+    expect(all).toHaveLength(2);
+  });
+
+  test('getPendingLabResults with scope', async () => {
+    await createLabResult(makeLabData({ status: 'pending' }));
+    const pending = await getPendingLabResults();
+    expect(Array.isArray(pending)).toBe(true);
+  });
+
+  test('getLabResultsByPatient with no results', async () => {
+    const results = await getLabResultsByPatient('pat-nonexistent');
+    expect(results).toEqual([]);
+  });
 });

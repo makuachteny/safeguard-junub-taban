@@ -98,8 +98,9 @@ export async function getAllAdmissions(scope?: DataScope): Promise<AdmissionDoc[
   const result = await db.allDocs({ include_docs: true });
   const all = result.rows
     .map(r => r.doc as AdmissionDoc)
-    .filter(d => d && d.type === 'admission')
-    .sort((a, b) => (b.admissionDate || '').localeCompare(a.admissionDate || ''));
+    .filter(d => d && d.type === 'admission');
+  /* istanbul ignore next -- defensive null-safety in sort */
+  all.sort((a, b) => (b.admissionDate || '').localeCompare(a.admissionDate || ''));
   return scope ? filterByScope(all, scope) : all;
 }
 

@@ -92,4 +92,31 @@ describe('buildScopeFromAuth', () => {
     expect(scope.orgId).toBeUndefined();
     expect(scope.hospitalId).toBeUndefined();
   });
+
+  test('nurse can see docs with no hospital fields (line 37 fallback)', () => {
+    // Tests line 37: return matches || (!d.hospitalId && !d.registrationHospital && !d.facilityId);
+    // Docs without any hospital fields should be visible to scoped users
+    const docWithoutHospital = { _id: 'generic-001', orgId: 'org-001', name: 'Generic doc' };
+    const testDocs = [docWithoutHospital];
+
+    const scope: DataScope = { role: 'nurse', orgId: 'org-001', hospitalId: 'hosp-001' };
+    const filtered = filterByScope(testDocs, scope);
+
+    // Should include docs without hospital fields
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0]._id).toBe('generic-001');
+  });
+
+  test('hospital-scoped filter correctly excludes docs from different hospital', () => {
+    // Verify that docs with different hospital ID are excluded
+    const scope: DataScope = { role: 'nurse', orgId: 'org-001', hospitalId: 'hosp-001' };
+    const testDocs = [
+      { _id: '1', orgId: 'org-001', hospitalId: 'hosp-002', name: 'Different hospital' },
+      { _id: '2', orgId: 'org-001', hospitalId: 'hosp-001', name: 'Same hospital' },
+    ];
+
+    const filtered = filterByScope(testDocs, scope);
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0].hospitalId).toBe('hosp-001');
+  });
 });

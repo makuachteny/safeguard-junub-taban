@@ -83,4 +83,87 @@ describe('Audit Service', () => {
       logAudit('TEST', undefined, undefined, 'test event')
     ).resolves.toBeUndefined();
   });
+
+  test('getRecentAuditLogs handles empty database', async () => {
+    const logs = await getRecentAuditLogs();
+    expect(logs).toEqual([]);
+  });
+
+  test('getRecentAuditLogs sorts by createdAt with localeCompare', async () => {
+    await logAudit('EVENT_1', 'u1', 'user1', 'Event 1');
+    await new Promise(r => setTimeout(r, 5));
+    await logAudit('EVENT_2', 'u1', 'user1', 'Event 2');
+
+    const logs = await getRecentAuditLogs();
+    expect(logs.length).toBeGreaterThanOrEqual(2);
+    // Most recent should be first
+    expect(logs[0].action).toBe('EVENT_2');
+  });
+
+  test('logAudit with undefined userId and username', async () => {
+    await logAudit('TEST_ACTION', undefined, undefined, 'Test details');
+    const logs = await getRecentAuditLogs();
+    expect(logs).toHaveLength(1);
+    expect(logs[0].userId).toBeUndefined();
+    expect(logs[0].username).toBeUndefined();
+  });
+
+  test('getRecentAuditLogs handles logs with missing createdAt', async () => {
+    await logAudit('EVENT_A', 'u1', 'user1', 'Event A');
+    const logs = await getRecentAuditLogs();
+    expect(logs).toHaveLength(1);
+    expect(logs[0].createdAt).toBeDefined();
+  });
+
+  test('logDataAccess with DELETE action', async () => {
+    await logDataAccess('user-001', 'admin', 'RECORDS', 'rec-123', 'DELETE');
+    const logs = await getRecentAuditLogs();
+    expect(logs).toHaveLength(1);
+    expect(logs[0].action).toBe('DATA_DELETE');
+    expect(logs[0].details).toContain('DELETE');
+  });
+
+  test('logAudit catches and logs DB errors gracefully (line 29 catch branch)', async () => {
+    // Mock the database to throw an error
+    const { auditLogDB } = require('@/lib/db');
+    const mockDb = auditLogDB();
+    const originalPut = mockDb.put;
+    mockDb.put = jest.fn().mockRejectedValueOnce(new Error('DB write failed'));
+
+    // This should not throw despite the DB error
+    await expect(
+      logAudit('TEST_ACTION', 'user-001', 'testuser', 'Test details')
+    ).resolves.toBeUndefined();
+
+    // Restore original
+    mockDb.put = originalPut;
+  });
+
+  test('getRecentAuditLogs with missing createdAt - tests || fallback (line 55)', async () => {
+    // Directly test the sort line: (b.createdAt || '').localeCompare(a.createdAt || '')
+    // When createdAt is undefined/null, it should use empty string in comparison
+    const db = require('@/lib/db').auditLogDB();
+
+    // Manually insert a log without createdAt
+    await db.put({
+      _id: 'test-1',
+      type: 'audit_log',
+      action: 'TEST_NO_DATE',
+      createdAt: undefined,
+      success: true,
+    });
+    await db.put({
+      _id: 'test-2',
+      type: 'audit_log',
+      action: 'TEST_WITH_DATE',
+      createdAt: '2026-04-13T12:00:00Z',
+      success: true,
+    });
+
+    const logs = await getRecentAuditLogs();
+    expect(logs.length).toBeGreaterThanOrEqual(2);
+    // Both should be returned despite missing createdAt on one
+    expect(logs.filter(l => l.action === 'TEST_NO_DATE').length).toBe(1);
+    expect(logs.filter(l => l.action === 'TEST_WITH_DATE').length).toBe(1);
+  });
 });

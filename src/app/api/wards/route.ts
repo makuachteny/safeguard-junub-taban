@@ -39,6 +39,74 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(stats);
     }
 
+    // Census view: system-wide bed occupancy across all facilities
+    if (view === 'census') {
+      const scope = buildScopeFromAuth(auth);
+      const allWards = await getAllWards(scope);
+      const admissions = await getActiveAdmissions(scope);
+
+      // Group by facility
+      const facilityMap = new Map<string, {
+        facilityId: string;
+        totalBeds: number;
+        occupiedBeds: number;
+        availableBeds: number;
+        occupancyRate: number;
+        wards: { wardId: string; wardName: string; totalBeds: number; occupiedBeds: number }[];
+      }>();
+
+      for (const ward of allWards) {
+        const fid = ward.facilityId || 'unknown';
+        if (!facilityMap.has(fid)) {
+          facilityMap.set(fid, {
+            facilityId: fid,
+            totalBeds: 0,
+            occupiedBeds: 0,
+            availableBeds: 0,
+            occupancyRate: 0,
+            wards: [],
+          });
+        }
+        const f = facilityMap.get(fid)!;
+        const total = ward.totalBeds || 0;
+        const occupied = ward.occupiedBeds || 0;
+        f.totalBeds += total;
+        f.occupiedBeds += occupied;
+        f.wards.push({
+          wardId: ward._id,
+          wardName: ward.name,
+          totalBeds: total,
+          occupiedBeds: occupied,
+        });
+      }
+
+      for (const f of facilityMap.values()) {
+        f.availableBeds = f.totalBeds - f.occupiedBeds;
+        f.occupancyRate = f.totalBeds > 0
+          ? Math.round((f.occupiedBeds / f.totalBeds) * 100)
+          : 0;
+      }
+
+      const facilities = Array.from(facilityMap.values())
+        .sort((a, b) => b.occupancyRate - a.occupancyRate);
+
+      const systemTotal = facilities.reduce((acc, f) => acc + f.totalBeds, 0);
+      const systemOccupied = facilities.reduce((acc, f) => acc + f.occupiedBeds, 0);
+
+      return NextResponse.json({
+        census: {
+          systemTotalBeds: systemTotal,
+          systemOccupiedBeds: systemOccupied,
+          systemAvailableBeds: systemTotal - systemOccupied,
+          systemOccupancyRate: systemTotal > 0
+            ? Math.round((systemOccupied / systemTotal) * 100)
+            : 0,
+          totalActiveAdmissions: admissions.length,
+          facilities,
+        },
+      });
+    }
+
     if (view === 'admissions') {
       const scope = buildScopeFromAuth(auth);
       const admissions = await getActiveAdmissions(scope);

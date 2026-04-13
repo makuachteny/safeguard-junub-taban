@@ -194,4 +194,58 @@ describe('User Service', () => {
     const updated = await getUserById(user._id);
     expect(updated!.isActive).toBe(false);
   });
+
+  // ---- Line 68: Test database error handling in createUser ----
+  test('createUser handles DB error with non-404 status (line 68)', async () => {
+    // First create a user successfully
+    const user1 = await createUser({
+      username: 'unique-user',
+      password: 'Pass!',
+      name: 'Unique',
+      role: 'doctor',
+      hospitalId: 'hosp-001',
+      hospitalName: 'Hospital',
+    });
+    expect(user1).toBeDefined();
+
+    // Now try to create another with same username
+    await expect(
+      createUser({
+        username: 'unique-user',
+        password: 'Pass!',
+        name: 'Different',
+        role: 'nurse',
+        hospitalId: 'hosp-001',
+        hospitalName: 'Hospital',
+      })
+    ).rejects.toThrow(/already exists/i);
+  });
+
+  test('createUser re-throws error when status !== 404 and message does not include "already exists" (line 67-68)', async () => {
+    const { usersDB } = require('@/lib/db');
+    const db = usersDB();
+
+    // Mock the get method to throw an error with status !== 404
+    const originalGet = db.get.bind(db);
+    db.get = jest.fn().mockImplementationOnce(() => {
+      const err = new Error('Database connection timeout');
+      (err as any).status = 500;
+      throw err;
+    });
+
+    // Try to create a user — should fail with the DB error
+    await expect(
+      createUser({
+        username: 'newuser',
+        password: 'Pass!',
+        name: 'New User',
+        role: 'doctor',
+        hospitalId: 'hosp-001',
+        hospitalName: 'Hospital',
+      })
+    ).rejects.toThrow(/Database connection timeout/);
+
+    // Restore original get
+    db.get = originalGet;
+  });
 });

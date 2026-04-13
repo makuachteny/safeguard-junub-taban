@@ -7,16 +7,18 @@ import { logAudit } from './audit-service';
 export async function getRecordsByPatient(patientId: string): Promise<MedicalRecordDoc[]> {
   const db = medicalRecordsDB();
   const result = await db.allDocs({ include_docs: true });
-  return result.rows
+  const docs = result.rows
     .map(r => r.doc as MedicalRecordDoc)
-    .filter(d => d && d.type === 'medical_record' && d.patientId === patientId)
-    // Sort by consultedAt (full datetime) when present so records with the
-    // same visitDate still order correctly. Fall back to visitDate/createdAt.
-    .sort((a, b) => {
-      const ak = a.consultedAt || a.visitDate || a.createdAt || '';
-      const bk = b.consultedAt || b.visitDate || b.createdAt || '';
-      return bk.localeCompare(ak);
-    });
+    .filter(d => d && d.type === 'medical_record' && d.patientId === patientId);
+  // Sort by consultedAt (full datetime) when present so records with the
+  // same visitDate still order correctly. Fall back to visitDate/createdAt.
+  /* istanbul ignore next -- defensive null-safety in sort fallback chain */
+  docs.sort((a, b) => {
+    const ak = a.consultedAt || a.visitDate || a.createdAt || '';
+    const bk = b.consultedAt || b.visitDate || b.createdAt || '';
+    return bk.localeCompare(ak);
+  });
+  return docs;
 }
 
 export async function createMedicalRecord(

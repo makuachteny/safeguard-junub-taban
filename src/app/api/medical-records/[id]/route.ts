@@ -63,6 +63,10 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { checkRateLimit } = await import('@/lib/api-security');
+    const rateLimitResponse = checkRateLimit(request, 'medical-records:delete', 10);
+    if (rateLimitResponse) return rateLimitResponse;
+
     const auth = await getAuthPayload(request);
     if (!auth) return unauthorized();
     if (!hasRole(auth, ['super_admin', 'medical_superintendent'])) return forbidden();

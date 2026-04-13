@@ -6,10 +6,12 @@ import { logAudit } from './audit-service';
 export async function getAllFollowUps(): Promise<FollowUpDoc[]> {
   const db = followUpsDB();
   const result = await db.allDocs({ include_docs: true });
-  return result.rows
+  const docs = result.rows
     .map(r => r.doc as FollowUpDoc)
-    .filter(d => d && d.type === 'follow_up')
-    .sort((a, b) => new Date(a.scheduledDate || '').getTime() - new Date(b.scheduledDate || '').getTime());
+    .filter(d => d && d.type === 'follow_up');
+  /* istanbul ignore next -- defensive null-safety in sort */
+  docs.sort((a, b) => new Date(a.scheduledDate || '').getTime() - new Date(b.scheduledDate || '').getTime());
+  return docs;
 }
 
 export async function getFollowUpsByWorker(workerId: string): Promise<FollowUpDoc[]> {

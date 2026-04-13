@@ -93,4 +93,19 @@ describe('Hospital Service', () => {
     const result = await updateHospitalStatus('hosp-nonexistent', { totalBeds: 50 });
     expect(result).toBeNull();
   });
+
+  // ---- Branch coverage improvements ----
+
+  test('getAllHospitals with scope filters results', async () => {
+    await createHospital(validHospital() as any);
+    const hospitals = await getAllHospitals({ role: 'nurse' as any });
+    expect(Array.isArray(hospitals)).toBe(true);
+  });
+
+  test('getAllHospitals without scope returns all', async () => {
+    await createHospital(validHospital() as any);
+    await createHospital(validHospital({ name: 'Wau Hospital', state: 'Western Bahr el Ghazal' }) as any);
+    const hospitals = await getAllHospitals();
+    expect(hospitals.length).toBeGreaterThanOrEqual(2);
+  });
 });

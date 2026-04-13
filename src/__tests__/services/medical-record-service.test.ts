@@ -132,4 +132,167 @@ describe('Medical Record Service', () => {
     const recent = await getRecentRecords(3);
     expect(recent).toHaveLength(3);
   });
+
+  test('getRecentRecords uses default limit when not specified', async () => {
+    for (let i = 0; i < 25; i++) {
+      await createMedicalRecord(validRecord({
+        patientId: `patient-${i}`,
+        visitDate: `2026-04-${String(i + 1).padStart(2, '0')}`,
+        chiefComplaint: `Complaint ${i}`,
+      }) as any);
+    }
+
+    const recent = await getRecentRecords();
+    expect(recent).toHaveLength(20);
+  });
+
+  test('sorts by visitDate when consultedAt is missing', async () => {
+    await createMedicalRecord(validRecord({
+      patientId: 'patient-001',
+      consultedAt: undefined,
+      visitDate: '2026-04-05',
+      chiefComplaint: 'Record with visitDate only',
+    }) as any);
+    await createMedicalRecord(validRecord({
+      patientId: 'patient-001',
+      consultedAt: undefined,
+      visitDate: '2026-04-03',
+      chiefComplaint: 'Earlier record',
+    }) as any);
+
+    const records = await getRecordsByPatient('patient-001');
+    expect(records).toHaveLength(2);
+    expect(records[0].chiefComplaint).toBe('Record with visitDate only');
+    expect(records[1].chiefComplaint).toBe('Earlier record');
+  });
+
+  test('falls back to createdAt in sort when both consultedAt and visitDate missing', async () => {
+    await createMedicalRecord(validRecord({
+      patientId: 'patient-001',
+      consultedAt: undefined,
+      visitDate: undefined,
+      chiefComplaint: 'Record without consultedAt or visitDate',
+    }) as any);
+
+    const records = await getRecordsByPatient('patient-001');
+    expect(records).toHaveLength(1);
+    expect(records[0].chiefComplaint).toBe('Record without consultedAt or visitDate');
+  });
+
+  test('getRecentRecords falls back to empty string for missing visitDate in sort (line 81)', async () => {
+    // Test line 81: .sort((a, b) => (b.visitDate || '').localeCompare(a.visitDate || ''))
+    await createMedicalRecord(validRecord({
+      patientId: 'patient-001',
+      visitDate: undefined,
+      consultedAt: '2026-04-05T10:00:00Z',
+      chiefComplaint: 'Record without visitDate',
+    }) as any);
+    await createMedicalRecord(validRecord({
+      patientId: 'patient-002',
+      visitDate: '2026-04-10',
+      consultedAt: '2026-04-10T10:00:00Z',
+      chiefComplaint: 'Record with visitDate',
+    }) as any);
+
+    const recent = await getRecentRecords(5);
+    expect(recent).toHaveLength(2);
+  });
+
+  test('handles getRecentRecords with records missing visitDate', async () => {
+    await createMedicalRecord(validRecord({
+      patientId: 'patient-001',
+      visitDate: '2026-04-05',
+      chiefComplaint: 'Record 1',
+    }) as any);
+    await createMedicalRecord(validRecord({
+      patientId: 'patient-002',
+      visitDate: undefined,
+      chiefComplaint: 'Record without visitDate',
+    }) as any);
+
+    const recent = await getRecentRecords(10);
+    expect(recent.length).toBeGreaterThan(0);
+  });
+
+  test('sorts by empty string when all date fields missing', async () => {
+    const rec1 = await createMedicalRecord(validRecord({
+      patientId: 'patient-001',
+      consultedAt: undefined,
+      visitDate: undefined,
+      chiefComplaint: 'Record A',
+    }) as any);
+    const rec2 = await createMedicalRecord(validRecord({
+      patientId: 'patient-001',
+      consultedAt: undefined,
+      visitDate: undefined,
+      chiefComplaint: 'Record B',
+    }) as any);
+
+    const records = await getRecordsByPatient('patient-001');
+    expect(records).toHaveLength(2);
+    expect(records[0]).toBeDefined();
+    expect(records[1]).toBeDefined();
+  });
+
+  test('getRecentRecords sorts correctly with empty visitDate', async () => {
+    await createMedicalRecord(validRecord({
+      patientId: 'patient-001',
+      visitDate: '2026-04-10',
+      chiefComplaint: 'More recent',
+    }) as any);
+    await createMedicalRecord(validRecord({
+      patientId: 'patient-002',
+      visitDate: '',
+      chiefComplaint: 'Empty date',
+    }) as any);
+
+    const recent = await getRecentRecords(10);
+    expect(recent.length).toBeGreaterThanOrEqual(2);
+  });
+
+  // ---- Lines 16-17: Test all branches of the || chain fallback ----
+  test('getRecordsByPatient handles all fallback branches in sort (lines 16-17)', async () => {
+    // Record with consultedAt
+    await createMedicalRecord(validRecord({
+      patientId: 'patient-001',
+      consultedAt: '2026-04-11T10:00:00Z',
+      visitDate: '2026-04-11',
+      chiefComplaint: 'With consultedAt',
+    }) as any);
+
+    // Record with visitDate but no consultedAt
+    await createMedicalRecord(validRecord({
+      patientId: 'patient-001',
+      consultedAt: undefined,
+      visitDate: '2026-04-10',
+      chiefComplaint: 'Only visitDate',
+    }) as any);
+
+    // Record with only createdAt
+    const now = new Date().toISOString();
+    await createMedicalRecord(validRecord({
+      patientId: 'patient-001',
+      consultedAt: undefined,
+      visitDate: undefined,
+      chiefComplaint: 'Only createdAt',
+    }) as any);
+
+    // Record with all falsy dates (should use empty string)
+    const db = require('@/lib/db').medicalRecordsDB();
+    const recNoDate = {
+      _id: 'mrec-no-date',
+      type: 'medical_record',
+      patientId: 'patient-001',
+      consultedAt: undefined,
+      visitDate: undefined,
+      createdAt: undefined,
+      chiefComplaint: 'No dates',
+      createdBy: 'test',
+      updatedAt: new Date().toISOString(),
+    };
+    await db.put(recNoDate);
+
+    const records = await getRecordsByPatient('patient-001');
+    expect(records.length).toBeGreaterThanOrEqual(3);
+  });
 });

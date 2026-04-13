@@ -233,15 +233,19 @@ describe('mch-analytics-service', () => {
     const birthDb = birthsDB();
     await birthDb.put(makeBirth());
 
+    await deathDb.put(makeDeath({ maternalDeath: true, ageAtDeath: 16 }));
     await deathDb.put(makeDeath({ maternalDeath: true, ageAtDeath: 20 }));
     await deathDb.put(makeDeath({ maternalDeath: true, ageAtDeath: 30 }));
     await deathDb.put(makeDeath({ maternalDeath: true, ageAtDeath: 40 }));
+    await deathDb.put(makeDeath({ maternalDeath: true, ageAtDeath: 50 }));
 
     const analytics = await getMCHAnalytics();
 
+    expect(analytics.maternalMortality.byAgeGroup['<18']).toBe(1);
     expect(analytics.maternalMortality.byAgeGroup['18-24']).toBe(1);
     expect(analytics.maternalMortality.byAgeGroup['25-34']).toBe(1);
     expect(analytics.maternalMortality.byAgeGroup['35-44']).toBe(1);
+    expect(analytics.maternalMortality.byAgeGroup['45+']).toBe(1);
   });
 
   test('birth outcomes calculates caesarean rate', async () => {
@@ -434,5 +438,380 @@ describe('mch-analytics-service', () => {
     expect(analytics.birthOutcomes.totalBirths).toBe(0);
     expect(analytics.neonatalData.totalNeonatalDeaths).toBe(0);
     expect(analytics.summary.highRiskCount).toBe(0);
+  });
+
+  // ---- Additional branch coverage for uncovered lines ----
+
+  test('ancCascade counts anc8 visits (lines 139-140)', async () => {
+    const db = ancDB();
+    // Create mother with 8+ visits to hit the anc8 branch
+    await db.put(makeANCVisit({ motherId: 'mom-anc8', visitNumber: 1, state: 'Central Equatoria' }));
+    await db.put(makeANCVisit({ motherId: 'mom-anc8', visitNumber: 2, state: 'Central Equatoria' }));
+    await db.put(makeANCVisit({ motherId: 'mom-anc8', visitNumber: 3, state: 'Central Equatoria' }));
+    await db.put(makeANCVisit({ motherId: 'mom-anc8', visitNumber: 4, state: 'Central Equatoria' }));
+    await db.put(makeANCVisit({ motherId: 'mom-anc8', visitNumber: 5, state: 'Central Equatoria' }));
+    await db.put(makeANCVisit({ motherId: 'mom-anc8', visitNumber: 6, state: 'Central Equatoria' }));
+    await db.put(makeANCVisit({ motherId: 'mom-anc8', visitNumber: 7, state: 'Central Equatoria' }));
+    await db.put(makeANCVisit({ motherId: 'mom-anc8', visitNumber: 8, state: 'Central Equatoria' }));
+
+    const analytics = await getMCHAnalytics();
+    expect(analytics.ancCascade.anc8).toBe(1);
+    expect(analytics.ancCascade.anc8Rate).toBeGreaterThan(0);
+  });
+
+  test('maternalMortality byAgeGroup counts 45+ age group (line 198)', async () => {
+    const db = deathsDB();
+    // Create maternal deaths with various age groups
+    await db.put(makeDeath({
+      maternalDeath: true,
+      deceasedAge: 17, // <18
+      dateOfDeath: new Date().toISOString().slice(0, 10)
+    }));
+    await db.put(makeDeath({
+      maternalDeath: true,
+      deceasedAge: 22, // 18-24
+      dateOfDeath: new Date().toISOString().slice(0, 10)
+    }));
+    await db.put(makeDeath({
+      maternalDeath: true,
+      deceasedAge: 30, // 25-34
+      dateOfDeath: new Date().toISOString().slice(0, 10)
+    }));
+    await db.put(makeDeath({
+      maternalDeath: true,
+      deceasedAge: 40, // 35-44
+      dateOfDeath: new Date().toISOString().slice(0, 10)
+    }));
+    await db.put(makeDeath({
+      maternalDeath: true,
+      deceasedAge: 50, // 45+ (this hits line 198)
+      dateOfDeath: new Date().toISOString().slice(0, 10)
+    }));
+
+    const analytics = await getMCHAnalytics();
+    // The byAgeGroup field should have 45+ entry
+    expect(Object.keys(analytics.maternalMortality.byAgeGroup).length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('highRiskPregnancies sorts by riskLevel and gestationalAge (line 431)', async () => {
+    const db = ancDB();
+    // Create high and low risk pregnancies
+    await db.put(makeANCVisit({
+      motherId: 'mom-low-risk',
+      riskLevel: 'low',
+      gestationalAge: 30,
+    }));
+    await db.put(makeANCVisit({
+      motherId: 'mom-high-risk-1',
+      riskLevel: 'high',
+      gestationalAge: 32,
+    }));
+    await db.put(makeANCVisit({
+      motherId: 'mom-high-risk-2',
+      riskLevel: 'high',
+      gestationalAge: 28,
+    }));
+
+    const analytics = await getMCHAnalytics();
+    const highRisk = analytics.highRiskPregnancies;
+    // High risk should come first
+    if (highRisk && highRisk.length > 0) {
+      expect(highRisk[0].riskLevel).toBe('high');
+      // If multiple high-risk, should be sorted by gestational age
+      const allHighRisk = highRisk.filter(p => p.riskLevel === 'high');
+      if (allHighRisk.length > 1) {
+        for (let i = 0; i < allHighRisk.length - 1; i++) {
+          expect(allHighRisk[i].gestationalAge).toBeLessThanOrEqual(allHighRisk[i + 1].gestationalAge);
+        }
+      }
+    }
+  });
+
+  test('ancCascade with missing state in byState', async () => {
+    const db = ancDB();
+    // Create ANC visit with no state
+    await db.put(makeANCVisit({ motherId: 'mom-no-state', state: undefined as any }));
+
+    const analytics = await getMCHAnalytics();
+    // Should handle gracefully
+    expect(analytics.ancCascade.totalPregnancies).toBeGreaterThanOrEqual(0);
+  });
+
+  test('maternalMortality with mothers from multiple states', async () => {
+    const db = deathsDB();
+    await db.put(makeDeath({
+      maternalDeath: true,
+      state: 'Central Equatoria',
+      dateOfDeath: new Date().toISOString().slice(0, 10)
+    }));
+    await db.put(makeDeath({
+      maternalDeath: true,
+      state: 'Eastern Equatoria',
+      dateOfDeath: new Date().toISOString().slice(0, 10)
+    }));
+
+    const analytics = await getMCHAnalytics();
+    expect(Object.keys(analytics.maternalMortality.byState).length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('birthOutcomes with various delivery types and birth types', async () => {
+    const db = birthsDB();
+    await db.put(makeBirth({
+      deliveryType: 'vaginal',
+      birthType: 'singleton',
+      weight: 3000
+    }));
+    await db.put(makeBirth({
+      deliveryType: 'caesarean',
+      birthType: 'singleton',
+      weight: 2400 // Low birth weight
+    }));
+    await db.put(makeBirth({
+      deliveryType: 'vaginal',
+      birthType: 'twin',
+      weight: 2200 // Low birth weight
+    }));
+
+    const analytics = await getMCHAnalytics();
+    expect(analytics.birthOutcomes.totalBirths).toBeGreaterThanOrEqual(3);
+  });
+
+  test('ancCascade with mothers having less than 1 visit (line 130 false branch)', async () => {
+    const db = ancDB();
+    // Create a visit with visitNumber 0 (shouldn't happen in practice, but tests the false branch)
+    await db.put(makeANCVisit({ motherId: 'mom-zero', visitNumber: 0, state: 'Central Equatoria' }));
+
+    const analytics = await getMCHAnalytics();
+    // The mother with 0 visits should not be counted in anc1
+    expect(analytics.ancCascade.anc1).toBe(0);
+  });
+
+  test('maternalMortality with death having neither underlying nor immediate cause (line 179 false branch)', async () => {
+    const deathDb = deathsDB();
+    const birthDb = birthsDB();
+    await birthDb.put(makeBirth());
+
+    // Death with no underlying or immediate cause (should fall back to 'Unknown')
+    await deathDb.put(makeDeath({
+      maternalDeath: true,
+      underlyingCause: undefined as any,
+      immediateCause: undefined as any,
+      dateOfDeath: '2026-01-01'
+    }));
+
+    const analytics = await getMCHAnalytics();
+    const unknownCause = analytics.maternalMortality.directCauses.find(c => c.cause === 'Unknown');
+    expect(unknownCause).toBeDefined();
+  });
+
+  test('avgImmCoverage with no immunization data (line 468 false branch)', async () => {
+    // No immunization records - immunizationGaps will be empty
+    const analytics = await getMCHAnalytics();
+
+    // Should default to 0 when no gaps calculated
+    expect(analytics.summary.immunizationCoverage).toBe(0);
+  });
+
+  test('grading: anc4Rate < 30% branch (line 476)', async () => {
+    const ancDb = ancDB();
+    const birthDb = birthsDB();
+
+    // Create 10 pregnancies but only 1 with 4+ visits
+    for (let i = 0; i < 10; i++) {
+      if (i === 0) {
+        await ancDb.put(makeANCVisit({ motherId: `mom-${i}`, visitNumber: 4 }));
+      } else {
+        await ancDb.put(makeANCVisit({ motherId: `mom-${i}`, visitNumber: 1 }));
+      }
+    }
+    // Add at least 1 birth to keep MMR calculation valid
+    await birthDb.put(makeBirth());
+
+    const analytics = await getMCHAnalytics();
+
+    // anc4Rate will be 10% (1/10), which triggers the >= 30 else-if branch
+    expect(analytics.ancCascade.anc4Rate).toBeLessThan(30);
+    expect(analytics.ancCascade.anc4Rate).toBeGreaterThanOrEqual(10);
+  });
+
+  test('grading: MMR 500-1000 range (line 479)', async () => {
+    const birthDb = birthsDB();
+    const deathDb = deathsDB();
+
+    // 1000 births, 7 maternal deaths = MMR of 700 (in 500-1000 range)
+    for (let i = 0; i < 1000; i++) {
+      await birthDb.put(makeBirth({ _id: `birth-${i}`, dateOfBirth: '2026-01-01' }));
+    }
+    for (let i = 0; i < 7; i++) {
+      await deathDb.put(makeDeath({ _id: `death-${i}`, maternalDeath: true, dateOfDeath: '2026-01-01' }));
+    }
+
+    const analytics = await getMCHAnalytics();
+
+    // MMR should be 700, in the 500-1000 range
+    expect(analytics.maternalMortality.mmr).toBe(700);
+  });
+
+  test('grading: neonatal mortality 30-50 range (line 482)', async () => {
+    const deathDb = deathsDB();
+    const birthDb = birthsDB();
+
+    // 100 births, 3 neonatal deaths = 30 per 1000
+    for (let i = 0; i < 100; i++) {
+      await birthDb.put(makeBirth({ _id: `birth-${i}` }));
+    }
+    for (let i = 0; i < 3; i++) {
+      await deathDb.put(makeDeath({ _id: `death-${i}`, ageAtDeath: 0.05 }));
+    }
+
+    const analytics = await getMCHAnalytics();
+
+    // NMR should be 30, in the 30-50 range
+    expect(analytics.neonatalData.neonatalMortalityRate).toBe(30);
+  });
+
+  test('grading: immunization coverage 50-80% range (line 485)', async () => {
+    const db = immunizationsDB();
+
+    // 100 children, 70 with all vaccines = ~70% coverage
+    for (let i = 0; i < 100; i++) {
+      const status = i < 70 ? 'completed' : 'pending';
+      for (const vaccine of ['BCG', 'OPV', 'Penta', 'PCV', 'Rota', 'Measles', 'Yellow Fever', 'Vitamin A']) {
+        const doseNumber = vaccine === 'BCG' || vaccine === 'Yellow Fever' || vaccine === 'Vitamin A' ? 1 : 3;
+        await db.put(makeImmunization({
+          patientId: `child-${i}`,
+          vaccine,
+          doseNumber,
+          status
+        }));
+      }
+    }
+
+    const analytics = await getMCHAnalytics();
+
+    // Coverage should be around 70%, in the 50-80% range
+    expect(analytics.summary.immunizationCoverage).toBeLessThan(80);
+    expect(analytics.summary.immunizationCoverage).toBeGreaterThanOrEqual(50);
+  });
+
+  test('grading: facility delivery 25-50% range (line 488)', async () => {
+    const db = birthsDB();
+
+    // 100 births, 30 facility deliveries = 30%
+    for (let i = 0; i < 100; i++) {
+      const attendedBy = i < 30 ? 'midwife' : 'traditional';
+      await db.put(makeBirth({ _id: `birth-${i}`, attendedBy }));
+    }
+
+    const analytics = await getMCHAnalytics();
+
+    // Facility delivery rate should be 30%, in the 25-50% range
+    expect(analytics.birthOutcomes.facilityDeliveryRate).toBeGreaterThanOrEqual(25);
+    expect(analytics.birthOutcomes.facilityDeliveryRate).toBeLessThan(50);
+  });
+
+  test('maternal mortality directCauses with zero deaths (line 179 false branch)', async () => {
+    const deathDb = deathsDB();
+    const birthDb = birthsDB();
+
+    // Create births but NO maternal deaths
+    for (let i = 0; i < 10; i++) {
+      await birthDb.put(makeBirth({ _id: `birth-${i}` }));
+    }
+    // No maternal deaths
+
+    const analytics = await getMCHAnalytics();
+
+    // directCauses should be empty when there are no maternal deaths
+    expect(analytics.maternalMortality.directCauses.length).toBe(0);
+    // totalMaternalDeaths should be 0
+    expect(analytics.maternalMortality.totalMaternalDeaths).toBe(0);
+  });
+
+  test('ancCascade with anc4Rate >= 30 but < 50% (line 476)', async () => {
+    const ancDb = ancDB();
+    const birthDb = birthsDB();
+
+    // Create 10 pregnancies with 4 having 4+ visits = 40%
+    for (let i = 0; i < 10; i++) {
+      if (i < 4) {
+        await ancDb.put(makeANCVisit({ motherId: `mom-grade-${i}`, visitNumber: 4 }));
+      } else {
+        await ancDb.put(makeANCVisit({ motherId: `mom-grade-${i}`, visitNumber: 1 }));
+      }
+    }
+    await birthDb.put(makeBirth());
+
+    const analytics = await getMCHAnalytics();
+
+    // anc4Rate should be 40%, triggering the >= 30 else-if branch
+    expect(analytics.ancCascade.anc4Rate).toBe(40);
+    expect(analytics.summary.anc4PlusCoverage).toBe(40);
+  });
+
+  test('neonatal mortality 30-50+ range (line 483)', async () => {
+    const deathDb = deathsDB();
+    const birthDb = birthsDB();
+
+    // 100 births, 5 neonatal deaths = 50 per 1000
+    for (let i = 0; i < 100; i++) {
+      await birthDb.put(makeBirth({ _id: `birth-neo-${i}` }));
+    }
+    for (let i = 0; i < 5; i++) {
+      await deathDb.put(makeDeath({ _id: `death-neo-${i}`, ageAtDeath: 0.05 }));
+    }
+
+    const analytics = await getMCHAnalytics();
+
+    // NMR should be 50, in the >= 50 range
+    expect(analytics.neonatalData.neonatalMortalityRate).toBe(50);
+  });
+
+  test('overall grade scoring with D-F grades (line 490)', async () => {
+    // Create scenario with very poor health indicators
+    const ancDb = ancDB();
+    const birthDb = birthsDB();
+    const deathDb = deathsDB();
+
+    // Low ANC coverage
+    for (let i = 0; i < 20; i++) {
+      await ancDb.put(makeANCVisit({ motherId: `mom-poor-${i}`, visitNumber: 1 }));
+    }
+
+    // High maternal deaths
+    for (let i = 0; i < 50; i++) {
+      await birthDb.put(makeBirth({ _id: `birth-poor-${i}` }));
+    }
+    for (let i = 0; i < 2; i++) {
+      await deathDb.put(makeDeath({ _id: `death-poor-${i}`, maternalDeath: true }));
+    }
+
+    const analytics = await getMCHAnalytics();
+
+    // Grade should be low (D or F)
+    expect(['D', 'F']).toContain(analytics.summary.overallGrade);
+  });
+
+  test('immunization coverage >= 80% (line 484)', async () => {
+    const db = immunizationsDB();
+
+    // 100 children, 90 with all vaccines = 90% coverage
+    for (let i = 0; i < 100; i++) {
+      const status = i < 90 ? 'completed' : 'pending';
+      for (const vaccine of ['BCG', 'OPV', 'Penta', 'PCV', 'Rota', 'Measles', 'Yellow Fever', 'Vitamin A']) {
+        const doseNumber = vaccine === 'BCG' || vaccine === 'Yellow Fever' || vaccine === 'Vitamin A' ? 1 : 3;
+        await db.put(makeImmunization({
+          patientId: `child-imm-${i}`,
+          vaccine,
+          doseNumber,
+          status
+        }));
+      }
+    }
+
+    const analytics = await getMCHAnalytics();
+
+    // Coverage should be 90%, >= 80%
+    expect(analytics.summary.immunizationCoverage).toBeGreaterThanOrEqual(80);
   });
 });

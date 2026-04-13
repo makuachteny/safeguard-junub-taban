@@ -227,4 +227,126 @@ describe('Transfer Service', () => {
     // In real scenarios, this would require mocking FileReader
     expect(fileToBase64(file as any)).rejects.toThrow();
   });
+
+  test('assembles transfer package with medical records without visitDate', async () => {
+    const { patientsDB, medicalRecordsDB } = require('@/lib/db');
+
+    const patient = validPatient();
+    const medRecord = validMedicalRecord({ visitDate: undefined });
+
+    await putDoc(patientsDB(), patient);
+    await putDoc(medicalRecordsDB(), medRecord);
+
+    const pkg = await assembleTransferPackage('pat-001', 'user-123');
+
+    expect(pkg.medicalRecords).toHaveLength(1);
+    expect(pkg.medicalRecords[0].chiefComplaint).toBe('Fever and cough');
+  });
+
+  test('assembles transfer package with medical records that have no attachments', async () => {
+    const { patientsDB, medicalRecordsDB } = require('@/lib/db');
+
+    const patient = validPatient();
+    const medRecord1 = validMedicalRecord({ attachments: undefined });
+    const medRecord2 = validMedicalRecord({ _id: 'mr-002', attachments: [] });
+
+    await putDoc(patientsDB(), patient);
+    await putDoc(medicalRecordsDB(), medRecord1);
+    await putDoc(medicalRecordsDB(), medRecord2);
+
+    const pkg = await assembleTransferPackage('pat-001', 'user-123');
+
+    expect(pkg.medicalRecords).toHaveLength(2);
+    expect(pkg.attachments).toHaveLength(0);
+  });
+
+  test('assembles transfer package calculates size with attachments', async () => {
+    const { patientsDB, medicalRecordsDB } = require('@/lib/db');
+
+    const patient = validPatient();
+    const medRecord = validMedicalRecord({
+      attachments: [
+        { _id: 'att-1', type: 'attachment' as const, name: 'scan.pdf', mimeType: 'application/pdf', base64Data: 'abc', sizeBytes: 5000, uploadedAt: '2024-01-15T10:00:00Z', createdAt: '2024-01-15T10:00:00Z', updatedAt: '2024-01-15T10:00:00Z' }
+      ]
+    });
+
+    await putDoc(patientsDB(), patient);
+    await putDoc(medicalRecordsDB(), medRecord);
+
+    const pkg = await assembleTransferPackage('pat-001', 'user-123');
+
+    expect(pkg.attachments).toHaveLength(1);
+    expect(pkg.packageSizeBytes).toBeGreaterThan(5000);
+  });
+
+  test('medical records are sorted by visitDate with undefined handling', async () => {
+    const { patientsDB, medicalRecordsDB } = require('@/lib/db');
+
+    const patient = validPatient();
+    const medRecord1 = validMedicalRecord({ _id: 'mr-001', visitDate: '2024-02-15' });
+    const medRecord2 = validMedicalRecord({ _id: 'mr-002', visitDate: undefined });
+    const medRecord3 = validMedicalRecord({ _id: 'mr-003', visitDate: '2024-01-15' });
+
+    await putDoc(patientsDB(), patient);
+    await putDoc(medicalRecordsDB(), medRecord1);
+    await putDoc(medicalRecordsDB(), medRecord2);
+    await putDoc(medicalRecordsDB(), medRecord3);
+
+    const pkg = await assembleTransferPackage('pat-001', 'user-123');
+
+    expect(pkg.medicalRecords).toHaveLength(3);
+    // Most recent should be first (2024-02-15)
+    expect(pkg.medicalRecords[0].id).toBe('mr-001');
+  });
+
+  test('lab results use completedAt when available, fallback to orderedAt', async () => {
+    const { patientsDB, labResultsDB } = require('@/lib/db');
+
+    const patient = validPatient();
+    const labWithCompleted = validLabResult({ _id: 'lab-1', completedAt: '2024-02-15', orderedAt: '2024-02-01' });
+    const labWithoutCompleted = validLabResult({ _id: 'lab-2', completedAt: undefined, orderedAt: '2024-02-10' });
+
+    await putDoc(patientsDB(), patient);
+    await putDoc(labResultsDB(), labWithCompleted);
+    await putDoc(labResultsDB(), labWithoutCompleted);
+
+    const pkg = await assembleTransferPackage('pat-001', 'user-123');
+
+    expect(pkg.labResults.length).toBeGreaterThanOrEqual(2);
+    const foundLab1 = pkg.labResults.find(lr => lr.testName === 'CBC');
+    expect(foundLab1).toBeDefined();
+    // The date should be one of the two valid dates
+    expect(foundLab1?.date).toBeTruthy();
+  });
+
+  test('assembles package with medical records that have no labResults', async () => {
+    const { patientsDB, medicalRecordsDB } = require('@/lib/db');
+
+    const patient = validPatient();
+    const medRecord = validMedicalRecord({ _id: 'mr-001', labResults: undefined });
+
+    await putDoc(patientsDB(), patient);
+    await putDoc(medicalRecordsDB(), medRecord);
+
+    const pkg = await assembleTransferPackage('pat-001', 'user-123');
+
+    expect(pkg.medicalRecords).toHaveLength(1);
+    // Package should still be valid even with no inline lab results
+    expect(pkg.packageSizeBytes).toBeGreaterThan(0);
+  });
+
+  test('assembles package handles medical records with empty labResults array', async () => {
+    const { patientsDB, medicalRecordsDB } = require('@/lib/db');
+
+    const patient = validPatient();
+    const medRecord = validMedicalRecord({ _id: 'mr-001', labResults: [] });
+
+    await putDoc(patientsDB(), patient);
+    await putDoc(medicalRecordsDB(), medRecord);
+
+    const pkg = await assembleTransferPackage('pat-001', 'user-123');
+
+    expect(pkg.medicalRecords).toHaveLength(1);
+    expect(pkg.packageSizeBytes).toBeGreaterThan(0);
+  });
 });

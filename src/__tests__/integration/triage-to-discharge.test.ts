@@ -135,7 +135,7 @@ describe('Full Inpatient Journey: Triage → Discharge', () => {
       hospitalId: 'hosp-001',
       hospitalName: 'Taban Hospital',
     } as any);
-    expect(rx.status).toBe('pending');
+    expect(rx.prescription.status).toBe('pending');
 
     // STEP 7: Setup ward and admit patient
     const ward = await createWard({
@@ -171,7 +171,7 @@ describe('Full Inpatient Journey: Triage → Discharge', () => {
     await updateTriage(triage._id, { status: 'admitted' });
 
     // STEP 8: Nurse dispenses medication
-    const dispensed = await dispensePrescription(rx._id, 'pharmacist-001');
+    const dispensed = await dispensePrescription(rx.prescription._id, 'pharmacist-001');
     expect(dispensed!.status).toBe('dispensed');
 
     // STEP 9: Patient improves — doctor discharges after 5 days

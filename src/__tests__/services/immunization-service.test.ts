@@ -441,4 +441,344 @@ describe('immunization-service', () => {
     const results = await getDefaultersByBoma('juba');
     expect(results.some(d => d.patientId === 'child-case-test')).toBe(true);
   });
+
+  test('getDefaulters handles missing dateGiven in completed records', async () => {
+    const pastDate = '2024-01-01';
+    // Create an overdue record
+    await createImmunization(makeImmData({
+      patientId: 'child-missing-date',
+      vaccine: 'Penta',
+      status: 'overdue',
+      dateGiven: pastDate,
+      nextDueDate: pastDate,
+      dateOfBirth: '2023-06-01',
+    }));
+
+    // Create a completed record with missing dateGiven (this would be unusual but should be handled)
+    await createImmunization(makeImmData({
+      patientId: 'child-missing-date',
+      vaccine: 'BCG',
+      status: 'completed',
+      dateGiven: undefined,
+      dateOfBirth: '2023-06-01',
+    }) as any);
+
+    const defaulters = await getDefaulters();
+    const defaulter = defaulters.find(d => d.patientId === 'child-missing-date');
+    expect(defaulter).toBeDefined();
+    expect(defaulter!.vaccine).toBe('Penta');
+  });
+
+  test('getAllImmunizations with scope filters correctly', async () => {
+    await createImmunization(makeImmData({ patientId: 'child-001' }));
+
+    // Get all with no scope - should get the record
+    const allNoScope = await getAllImmunizations();
+    expect(allNoScope.length).toBeGreaterThanOrEqual(1);
+
+    // Get all with scope - the filterByScope function would be called
+    const allWithScope = await getAllImmunizations({ role: 'nurse' as any });
+    // Result depends on filterByScope implementation
+    expect(Array.isArray(allWithScope)).toBe(true);
+  });
+
+  // ---- Additional branch coverage for line 167 ----
+
+  test('getDefaulters with completed records having undefined dateGiven (line 167 coverage)', async () => {
+    // Create an overdue record
+    const pastDate = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+    await createImmunization(makeImmData({
+      patientId: 'child-with-undefined-date',
+      vaccine: 'OPV',
+      status: 'overdue',
+      dateGiven: pastDate,
+      nextDueDate: pastDate,
+      dateOfBirth: '2023-01-01',
+    }));
+
+    // Create a completed record with undefined dateGiven - tests the || '' fallback on line 167
+    await createImmunization(makeImmData({
+      patientId: 'child-with-undefined-date',
+      vaccine: 'BCG',
+      status: 'completed',
+      dateGiven: undefined as any,
+      dateOfBirth: '2023-01-01',
+    }));
+
+    const defaulters = await getDefaulters();
+    const defaulter = defaulters.find(d => d.patientId === 'child-with-undefined-date');
+    // Should still work even though completed record has undefined dateGiven
+    expect(defaulter).toBeDefined();
+    expect(defaulter!.vaccine).toBe('OPV');
+  });
+
+  test('getDefaulters with all completed records having undefined dateGiven', async () => {
+    const pastDate = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+    await createImmunization(makeImmData({
+      patientId: 'child-009',
+      vaccine: 'Penta',
+      status: 'overdue',
+      dateGiven: pastDate,
+      nextDueDate: pastDate,
+      dateOfBirth: '2023-01-01',
+    }));
+
+    // Multiple completed records all with undefined dateGiven
+    await createImmunization(makeImmData({
+      patientId: 'child-009',
+      vaccine: 'BCG',
+      status: 'completed',
+      dateGiven: undefined as any,
+      dateOfBirth: '2023-01-01',
+    }));
+
+    await createImmunization(makeImmData({
+      patientId: 'child-009',
+      vaccine: 'OPV',
+      status: 'completed',
+      dateGiven: undefined as any,
+      dateOfBirth: '2023-01-01',
+    }));
+
+    const defaulters = await getDefaulters();
+    const defaulter = defaulters.find(d => d.patientId === 'child-009');
+    expect(defaulter).toBeDefined();
+    expect(defaulter!.vaccine).toBe('Penta');
+  });
+
+  test('deleteImmunization deletes a record', async () => {
+    const imm = await createImmunization(makeImmData());
+    const deleted = await deleteImmunization(imm._id);
+    expect(deleted).toBe(true);
+
+    // Verify it's deleted
+    const found = await getByPatient(imm.patientId);
+    expect(found).not.toContainEqual(imm);
+  });
+
+  test('deleteImmunization returns false for non-existent id', async () => {
+    const deleted = await deleteImmunization('non-existent-id');
+    expect(deleted).toBe(false);
+  });
+
+  test('getImmunizationStats with no vaccinations', async () => {
+    const stats = await getImmunizationStats();
+    expect(stats.totalVaccinations).toBe(0);
+    expect(stats.totalChildren).toBe(0);
+    expect(stats.fullyImmunized).toBe(0);
+    expect(stats.coverageRate).toBe(0);
+  });
+
+  test('getImmunizationStats with various statuses', async () => {
+    await createImmunization(makeImmData({ status: 'completed' }));
+    await createImmunization(makeImmData({ patientId: 'child-002', status: 'overdue', vaccine: 'OPV' }));
+    await createImmunization(makeImmData({ patientId: 'child-003', status: 'scheduled', vaccine: 'Penta' }));
+    await createImmunization(makeImmData({ patientId: 'child-004', status: 'missed', vaccine: 'Measles' }));
+
+    const stats = await getImmunizationStats();
+    expect(stats.totalVaccinations).toBeGreaterThanOrEqual(1);
+    expect(stats.totalChildren).toBeGreaterThanOrEqual(1);
+  });
+
+  test('getDefaultersByBoma groups defaulters correctly', async () => {
+    const pastDate = new Date(Date.now() - 15 * 86400000).toISOString().slice(0, 10);
+    await createImmunization(makeImmData({
+      patientId: 'child-001',
+      status: 'overdue',
+      dateGiven: pastDate,
+      nextDueDate: pastDate,
+      dateOfBirth: '2023-01-01',
+    }));
+
+    const byBoma = await getDefaultersByBoma();
+    expect(typeof byBoma).toBe('object');
+  });
+
+  test('getDefaulterStats returns statistics', async () => {
+    const pastDate = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+    await createImmunization(makeImmData({
+      patientId: 'child-001',
+      status: 'overdue',
+      dateGiven: pastDate,
+      nextDueDate: pastDate,
+      dateOfBirth: '2023-01-01',
+    }));
+
+    const stats = await getDefaulterStats();
+    expect(stats).toBeDefined();
+    expect(typeof stats.totalDefaulters).toBe('number');
+    expect(typeof stats.uniqueChildren).toBe('number');
+    expect(typeof stats.critical).toBe('number');
+    expect(typeof stats.high).toBe('number');
+    expect(typeof stats.medium).toBe('number');
+  });
+
+  test('getCoverageByAgeCohort calculates coverage by age', async () => {
+    await createImmunization(makeImmData({
+      status: 'completed',
+      dateOfBirth: '2024-06-01',
+    }));
+
+    const coverage = await getCoverageByAgeCohort();
+    expect(typeof coverage).toBe('object');
+  });
+
+  test('getAllImmunizations sorts by createdAt descending', async () => {
+    const first = await createImmunization(makeImmData({ patientId: 'child-001' }));
+    await new Promise(r => setTimeout(r, 10));
+    const second = await createImmunization(makeImmData({ patientId: 'child-002', patientName: 'Baby Kuol' }));
+
+    const all = await getAllImmunizations();
+    expect(all[0]._id).toBe(second._id);
+  });
+
+  // ---- Line 13: Test branch with scope filtering ----
+  test('getAllImmunizations with scope applies filtering', async () => {
+    await createImmunization(makeImmData({ patientId: 'child-001' }));
+    const result = await getAllImmunizations({ role: 'doctor' } as any);
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  // ---- Line 100: Test byState mapping with various states ----
+  test('getImmunizationStats includes byState grouping with multiple states', async () => {
+    await createImmunization(makeImmData({ state: 'Central Equatoria', status: 'completed' }));
+    await createImmunization(makeImmData({ patientId: 'child-002', state: 'Eastern Equatoria', status: 'completed' }));
+    await createImmunization(makeImmData({ patientId: 'child-003', state: 'Upper Nile', status: 'completed' }));
+
+    const stats = await getImmunizationStats();
+    expect(Object.keys(stats.byState).length).toBeGreaterThanOrEqual(3);
+    expect(stats.byState['Central Equatoria']).toBe(1);
+    expect(stats.byState['Eastern Equatoria']).toBe(1);
+    expect(stats.byState['Upper Nile']).toBe(1);
+  });
+
+  // ---- Line 100: Test byState with missing state (Unknown) ----
+  test('getImmunizationStats handles missing state field', async () => {
+    await createImmunization(makeImmData({ state: undefined } as any));
+    const stats = await getImmunizationStats();
+    expect(stats.byState['Unknown']).toBe(1);
+  });
+
+  // ---- Lines 156-161: Test daysOverdue <= 0 skip condition ----
+  test('getDefaulters skips records where daysOverdue is 0 or negative', async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    // Record with today as due date (daysOverdue = 0, should be skipped)
+    await createImmunization(makeImmData({
+      patientId: 'child-today',
+      vaccine: 'OPV',
+      status: 'scheduled',
+      nextDueDate: today,
+      dateGiven: '2025-01-01',
+      dateOfBirth: '2024-01-01',
+    }));
+
+    const defaulters = await getDefaulters();
+    const found = defaulters.find(d => d.patientId === 'child-today');
+    expect(found).toBeUndefined();
+  });
+
+  // ---- Line 178: Test dueDate fallback to dateGiven when nextDueDate missing ----
+  test('getDefaulters uses dateGiven when nextDueDate is missing', async () => {
+    const pastDate = new Date(Date.now() - 40 * 86400000).toISOString().slice(0, 10);
+    await createImmunization(makeImmData({
+      patientId: 'child-no-next-due',
+      vaccine: 'Penta',
+      status: 'overdue',
+      nextDueDate: undefined as any,
+      dateGiven: pastDate,
+      dateOfBirth: '2023-01-01',
+    }));
+
+    const defaulters = await getDefaulters();
+    const found = defaulters.find(d => d.patientId === 'child-no-next-due');
+    expect(found).toBeDefined();
+    expect(found!.dueDate).toBe(pastDate);
+  });
+
+  // ---- Line 236: Test childMeta condition when dateOfBirth is missing ----
+  test('getCoverageByAgeCohort handles records without dateOfBirth', async () => {
+    // Record with valid dateOfBirth
+    await createImmunization(makeImmData({
+      patientId: 'child-with-dob',
+      vaccine: 'BCG',
+      status: 'completed',
+      dateOfBirth: '2024-06-01',
+    }));
+
+    // Record without dateOfBirth
+    await createImmunization(makeImmData({
+      patientId: 'child-no-dob',
+      vaccine: 'OPV',
+      status: 'completed',
+      dateOfBirth: undefined as any,
+    }));
+
+    const rows = await getCoverageByAgeCohort();
+    expect(Array.isArray(rows)).toBe(true);
+    expect(rows.length).toBeGreaterThan(0);
+  });
+
+  // ---- Line 256: Test cohort not found condition ----
+  test('getCoverageByAgeCohort handles children outside age cohort ranges', async () => {
+    // Very old child (would be > 5 years, should fit in 5y+ cohort)
+    const veryOldDOB = new Date('1980-01-01').toISOString().slice(0, 10);
+    await createImmunization(makeImmData({
+      patientId: 'very-old-child',
+      vaccine: 'BCG',
+      status: 'completed',
+      dateOfBirth: veryOldDOB,
+    }));
+
+    const rows = await getCoverageByAgeCohort();
+    // All children should fit into some cohort
+    const has5yPlus = rows.some(r => r.cohort === '5y+' && r.covered > 0);
+    expect(has5yPlus).toBe(true);
+  });
+
+  // ---- Line 13: Test sort with missing createdAt ----
+  test('getAllImmunizations sorts correctly with missing createdAt', async () => {
+    await createImmunization(makeImmData({
+      patientId: 'child-with-createdat',
+      vaccine: 'BCG',
+    }));
+
+    // Manually insert record without createdAt via DB
+    const db = require('@/lib/db').immunizationsDB();
+    const docWithoutCreatedAt = {
+      _id: 'imm-no-created',
+      type: 'immunization',
+      patientId: 'child-without-createdat',
+      patientName: 'Test Child',
+      vaccine: 'OPV',
+      status: 'completed',
+      dateGiven: '2024-01-01',
+      createdAt: undefined,
+      updatedAt: new Date().toISOString(),
+    };
+    await db.put(docWithoutCreatedAt);
+
+    const results = await getAllImmunizations();
+    expect(results.length).toBeGreaterThan(0);
+    expect(Array.isArray(results)).toBe(true);
+  });
+
+  // ---- Line 161: Test defaulters with missing dateOfBirth ----
+  test('getDefaulters handles missing dateOfBirth', async () => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().slice(0, 10);
+
+    await createImmunization(makeImmData({
+      patientId: 'overdue-no-dob',
+      vaccine: 'BCG',
+      status: 'due',
+      dateGiven: yesterdayStr,
+      nextDueDate: yesterdayStr,
+      dateOfBirth: undefined as any,
+    }));
+
+    const defaulters = await getDefaulters();
+    expect(Array.isArray(defaulters)).toBe(true);
+    // May or may not include records without dateOfBirth, but shouldn't crash
+  });
 });
